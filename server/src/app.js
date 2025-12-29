@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
-const userRouter = require('./routes/routes.js')
+const userRoutes = require('./modules/users/user.routes')
 const authRoutes = require('./modules/auth/auth.routes');
 
 const app = express()
@@ -12,7 +12,7 @@ app.use(express.json()) //for allowing the json type
 app.use(morgan('dev')) //for monitoring the routes and their time elapsed 
 
 
-app.use( '/api',userRouter)
+app.use( '/api/users',userRoutes)
 
 app.use('/api/auth', authRoutes);
 

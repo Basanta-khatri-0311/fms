@@ -5,8 +5,13 @@ const jwt = require('jsonwebtoken');
 // Register a new user
 exports.register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role } = req.body
 
+        const allowedRoles = ['ADMIN', 'APPROVER', 'RECEPTIONIST', 'STUDENT'];
+        
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
         // Check if user already exists
         const existingUser = await User.findOne({ email });
 
@@ -22,7 +27,7 @@ exports.register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role
+            role: "AUDITOR"
         });
 
         await newUser.save();
