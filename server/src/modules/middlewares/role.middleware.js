@@ -1,13 +1,24 @@
-const authorize = (...roles) => {
-    return (req, res, next) => {
-        // If the user's role is not in the list of allowed roles
-        if (!roles.includes(req.user.role)) {
-            return res.status(403).json({
-                message: `Role ${req.user.role} is not authorized to access this resource`
-            });
-        }
-        next();
-    }
-}
+const { USER_ROLES } = require('../../constants/roles');
 
-module.exports = { authorize }
+const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({
+        message: 'Not authenticated. Please login first.',
+      });
+    }
+
+    //Role checking 
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: `Role ${req.user.role} is not authorized to access this resource`,
+      });
+    }
+
+    // if Authorized
+    return next();
+  };
+};
+
+module.exports = { authorize };
