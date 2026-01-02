@@ -1,6 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const userRoutes = require('./modules/users/user.routes')
+const authRoutes = require('./modules/auth/auth.routes');
 
 const app = express()
 
@@ -10,8 +12,9 @@ app.use(express.json()) //for allowing the json type
 app.use(morgan('dev')) //for monitoring the routes and their time elapsed 
 
 
-app.get("/api/health", (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running......' })
-})
+app.use( '/api/users',userRoutes)
+
+app.use('/api/auth', authRoutes);
+
 
 module.exports = app
