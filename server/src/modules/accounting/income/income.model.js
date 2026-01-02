@@ -1,10 +1,6 @@
 const mongoose = require('mongoose')
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting')
 
-/**
- * contact numbers should be String in case if someone enteres country code 
- */
-
 const incomeSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -12,7 +8,7 @@ const incomeSchema = new mongoose.Schema({
         trim: true,
     },
     contactNumber: {
-        type: Number,
+        type: String,
         trim: true,
     },
     email: {
