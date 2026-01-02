@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting')
 
+/**
+ * make the vender different model because vendors are reused,
+ */
 
 const expenseSchema = new mongoose.Schema({
     vendorName: {

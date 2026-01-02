@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting')
 
+/**
+ * contact numbers should be String in case if someone enteres country code 
+ */
 
 const incomeSchema = new mongoose.Schema({
     name: {
