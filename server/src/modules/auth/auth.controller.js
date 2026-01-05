@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
         }
 
         // Normalizing email
-        email = email.trim().toLowerCase();
+        const normalizedEmail = email.trim().toLowerCase();
 
         //Role validation
         if (!CREATABLE_ROLES_BY_SUPERADMIN.includes(role)) {
@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
         }
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ normalizedEmail });
 
         if (existingUser) {
             return res.status(409).json({ message: "User already exists" });
@@ -44,7 +44,7 @@ exports.register = async (req, res) => {
         // Create the user in the database with password hashed with salt 10
         const newUser = new User({
             name,
-            email,
+            email: normalizedEmail,
             password: hashedPassword,
             role,
         });
