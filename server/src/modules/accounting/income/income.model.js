@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting')
+const { USER_ROLES } = require('../../../constants/roles');
 
 const incomeSchema = new mongoose.Schema({
     name: {
@@ -60,6 +61,11 @@ const incomeSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    createdByRole: {
+        type: String,
+        enum: Object.values(USER_ROLES),
+        required: true,
+    },
     approvedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -68,6 +74,10 @@ const incomeSchema = new mongoose.Schema({
     approvedAt: {
         type: Date,
         default: null,
+    },
+    financialYear: {
+        type: String,
+        required: true,
     },
 }, { timestamps: true })
 

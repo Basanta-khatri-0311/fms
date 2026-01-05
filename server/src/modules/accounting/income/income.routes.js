@@ -14,7 +14,12 @@ incomeRoutes.post('/', protect,
 
 incomeRoutes.get('/', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
-    incomeController.getAllIncomes
+    incomeController.getIncomes
+)
+
+incomeRoutes.patch('/:id/approve', protect,
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
+    incomeController.approveIncome
 )
 
 module.exports = incomeRoutes
