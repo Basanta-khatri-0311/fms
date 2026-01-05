@@ -1,9 +1,6 @@
 const mongoose = require('mongoose')
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting')
-
-/**
- * make the vender different model because vendors are reused,
- */
+const { USER_ROLES } = require('../../../constants/roles');
 
 const expenseSchema = new mongoose.Schema({
   vendor: {
@@ -11,7 +8,6 @@ const expenseSchema = new mongoose.Schema({
     ref: 'Vendor',
     required: true,
   },
-
   billNumber: {
     type: String,
     trim: true,
@@ -54,6 +50,11 @@ const expenseSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  createdByRole: {
+    type: String,
+    enum: Object.values(USER_ROLES),
+    required: true
+  },
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -62,6 +63,10 @@ const expenseSchema = new mongoose.Schema({
   approvedAt: {
     type: Date,
     default: null,
+  },
+  financialYear: {
+    type: String,
+    required: true
   },
 }, { timestamps: true })
 

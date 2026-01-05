@@ -17,7 +17,7 @@ app.use(morgan('dev')) //for monitoring the routes and their time elapsed
 app.use( '/api/users',userRoutes)
 app.use('/api/auth', authRoutes);
 app.use('/api/incomes', incomeRoutes);
-app.use('/api/expences', expenseRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 
 module.exports = app
