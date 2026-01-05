@@ -66,6 +66,16 @@ exports.updateIncomeStatus = async (incomeId, status, approver) => {
     const income = await Income.findById(incomeId);
     if (!income) throw new Error('Income entry not found');
 
+    //  Only allow APPROVED or REJECTED
+    if (![ACCOUNTING_STATUS.APPROVED, ACCOUNTING_STATUS.REJECTED].includes(status)) {
+        throw new Error('Invalid status. Must be APPROVED or REJECTED');
+    }
+
+     // Cannot approve/reject again if already done
+    if (income.status !== ACCOUNTING_STATUS.PENDING) {
+        throw new Error(`Cannot update. Income is already ${income.status}`);
+    }
+
     income.status = status;
     income.approvedBy = approver._id;
     income.approvedAt = new Date();

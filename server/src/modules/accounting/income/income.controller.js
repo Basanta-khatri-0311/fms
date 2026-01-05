@@ -45,7 +45,7 @@ exports.approveIncome = async (req, res) => {
 
         // TODO: triggering ledger posting & audit log
 
-        return res.status(200).json({ message: 'Income status updated', data: income });
+        return res.status(200).json({ message: `Income status updated to ${status.toLowerCase()}`, data: income });
     } catch (error) {
         return res.status(400).json({ error: error.message });
     }
