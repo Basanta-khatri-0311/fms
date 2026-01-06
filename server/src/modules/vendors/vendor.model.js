@@ -42,6 +42,5 @@ const vendorSchema = new mongoose.Schema({
   },
 },{ timestamps: true })
 
-vendorSchema.index({ pan: 1 });
 
 module.exports = mongoose.model('Vendor', vendorSchema);
