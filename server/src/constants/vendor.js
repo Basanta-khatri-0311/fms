@@ -1,0 +1,4 @@
+exports.VENDOR_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+};

@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const { VENDOR_STATUS } = require('../../constants/vendor')
 
 const vendorSchema = new mongoose.Schema({
-    name: {
+  name: {
     type: String,
     required: true,
     trim: true,
@@ -11,6 +12,8 @@ const vendorSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    uppercase: true,
+    immutable: true,
     trim: true,
   },
 
@@ -31,8 +34,8 @@ const vendorSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['ACTIVE', 'INACTIVE'],
-    default: 'ACTIVE',
+    enum: Object.values(VENDOR_STATUS),
+    default: VENDOR_STATUS.ACTIVE,
   },
 
   createdBy: {
@@ -40,7 +43,7 @@ const vendorSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-},{ timestamps: true })
+}, { timestamps: true })
 
 
 module.exports = mongoose.model('Vendor', vendorSchema);

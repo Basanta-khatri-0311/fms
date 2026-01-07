@@ -5,6 +5,7 @@ const userRoutes = require('./modules/users/user.routes')
 const authRoutes = require('./modules/auth/auth.routes');
 const incomeRoutes = require('./modules/accounting/income/income.routes');
 const expenseRoutes = require('./modules/accounting/expense/expense.routes');
+const vendorRoute = require('./modules/vendors/vendor.routes');
 
 const app = express()
 
@@ -14,10 +15,11 @@ app.use(express.json()) //for allowing the json type
 app.use(morgan('dev')) //for monitoring the routes and their time elapsed 
 
 
-app.use( '/api/users',userRoutes)
+app.use('/api/users', userRoutes)
 app.use('/api/auth', authRoutes);
 app.use('/api/incomes', incomeRoutes);
 app.use('/api/expenses', expenseRoutes);
+app.use('/api/vendors', vendorRoute);
 
 
 module.exports = app
