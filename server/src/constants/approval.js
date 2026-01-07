@@ -1,0 +1,4 @@
+exports.APPROVAL_ACTIONS = {
+  APPROVE: 'APPROVE',
+  REJECT: 'REJECT',
+};
