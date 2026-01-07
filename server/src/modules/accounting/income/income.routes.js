@@ -17,9 +17,4 @@ incomeRoutes.get('/', protect,
     incomeController.getIncomes
 )
 
-incomeRoutes.patch('/:id/status', protect,
-    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
-    incomeController.approveIncome
-)
-
 module.exports = incomeRoutes

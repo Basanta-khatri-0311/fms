@@ -1,5 +1,5 @@
 const approvalService = require('./approval.service')
-const { APPROVAL_STATUS } = require('../../constants/approval')
+const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../constants/accounting')
 
 
 exports.processApproval = async (req, res) => {
@@ -7,20 +7,23 @@ exports.processApproval = async (req, res) => {
         const { type, action, rejectionReason } = req.body;
         const { id } = req.params;
 
+        // Empty input validation
         if (!type || !action) {
             return res.status(400).json({
                 message: 'Type, Action and Rejection reason are required',
             });
         }
 
-        if (!Object.values(APPROVAL_STATUS).includes(action)) {
+        if (![ENTRY_TYPE.INCOME, ENTRY_TYPE.EXPENSE].includes(type)) {
+            return res.status(400).json({ message: 'Invalid type. Must be INCOME or EXPENSE' });
+        }
+
+        if (![ACCOUNTING_STATUS.APPROVED, ACCOUNTING_STATUS.REJECTED].includes(action)) {
             return res.status(400).json({ message: 'Invalid approval action' });
         }
 
-        if (action === APPROVAL_STATUS.REJECTED && !rejectionReason) {
-            return res.status(400).json({
-                message: 'Rejection reason is required when rejecting',
-            });
+        if (action === ACCOUNTING_STATUS.REJECTED && !rejectionReason) {
+            return res.status(400).json({ message: 'Rejection reason is required when rejecting' });
         }
 
         const result = await approvalService.processApproval({
