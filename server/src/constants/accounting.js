@@ -21,4 +21,5 @@ const ENTRY_TYPE = Object.freeze({
 module.exports = {
   ACCOUNTING_STATUS,
   ENTRY_TYPE,
+  ACCOUNT_TYPES
 };
