@@ -7,6 +7,8 @@ const incomeRoutes = require('./modules/accounting/income/income.routes');
 const expenseRoutes = require('./modules/accounting/expense/expense.routes');
 const vendorRoute = require('./modules/vendors/vendor.routes');
 const approvalRoute = require('./modules/approvals/approval.routes');
+const reportsRouter = require('./modules/accounting/reports/reports.routes');
+const coaRoute = require('./modules/accounting/coa/coa.routes');
 
 const app = express()
 
@@ -22,6 +24,8 @@ app.use('/api/incomes', incomeRoutes);
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/vendors', vendorRoute);
 app.use('/api/approvals', approvalRoute)
+app.use('/api/coa', coaRoute)
+app.use('/api/reports', reportsRouter)
 
 
 module.exports = app

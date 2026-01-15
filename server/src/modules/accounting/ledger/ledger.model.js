@@ -1,63 +1,45 @@
-const mongoose = require('mongoose')
-const { ENTRY_TYPE } = require('../../../constants/accounting')
+const mongoose = require('mongoose');
 
-const ledgerSchema = mongoose.Schema({
-    entryType: {
-        type: String,
-        enum: Object.values(ENTRY_TYPE),
-        required: true,
-    },
+const ledgerLineSchema = new mongoose.Schema({
+  account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ChartOfAccount',
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+});
+
+const ledgerSchema = new mongoose.Schema(
+  {
+    entryType: String,
+
     referenceId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        index: true,
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
     },
-    debitAccount: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ChartOfAccount',
-        required: true,
-    },
-    creditAccount: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ChartOfAccount',
-        required: true,
-    },
-    debitAmount: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
-    creditAmount: {
-        type: Number,
-        required: true,
-        min: 0,
-    },
-    narration: {
-        type: String,
-        trim: true,
-    },
-    financialYear: {
-        type: String,
-        required: true,
-    },
+
+    debitLines: [ledgerLineSchema],
+    creditLines: [ledgerLineSchema],
+
+    narration: String,
+
+    financialYear: String,
+
     createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
+
     approvedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
-}, { timestamps: true })
-
-ledgerSchema.pre('validate', function (next) {
-    if (this.debitAmount !== this.creditAmount) {
-        return next(new Error('Ledger validation failed: Debit and Credit must be equal'))
-    }
-    next()
-})
-
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('Ledger', ledgerSchema);

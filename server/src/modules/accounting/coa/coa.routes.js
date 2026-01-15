@@ -16,11 +16,11 @@ coaRoute.post(
   coaController.createAccount
 );
 
-router.get(
+coaRoute.get(
   '/',
   protect,
   authorize(USER_ROLES.SUPERADMIN),
   coaController.getAccounts
 );
 
-module.exports = router;
+module.exports = coaRoute;

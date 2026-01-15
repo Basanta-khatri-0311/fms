@@ -6,14 +6,14 @@ const { USER_ROLES } = require('../../../constants/roles');
  * Create a new income entry
  */
 exports.createIncome = async (data, user) => {
-  const { name, contactNumber, email, address, amountBeforeVAT, vatAmount = 0, discount = 0 } = data;
+  const { name, contactNumber, email, address, amountBeforeVAT, vatAmount = 0, discount = 0, tdsAmount = 0  } = data;
 
   if (!amountBeforeVAT || amountBeforeVAT <= 0) throw new Error('Amount before VAT must be greater than zero');
   if (vatAmount < 0) throw new Error('VAT amount cannot be negative');
   if (discount < 0) throw new Error('Discount cannot be negative');
   if (discount > amountBeforeVAT) throw new Error('Discount cannot exceed amount before VAT');
 
-  const netAmount = amountBeforeVAT + vatAmount - discount;
+  const netAmount = amountBeforeVAT + vatAmount - discount - tdsAmount;
 
   return await Income.create({
     ...data,
