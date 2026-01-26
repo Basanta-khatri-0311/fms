@@ -1,43 +1,31 @@
 const User = require('./user.model');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const { USER_ROLES, USER_STATUS, CREATABLE_ROLES_BY_SUPERADMIN } = require('../../constants/roles');
+const { USER_ROLES, CREATABLE_ROLES_BY_SUPERADMIN, USER_STATUS } = require('../../constants/roles');
 
-// Create user (superadmin only)
-exports.createUser = async (data) => {
+exports.createUser = async (data, isBootstrap = false) => {
     let { name, email, password, role } = data;
 
-    // Input validation
-    if (!name || !email || !password || !role) {
-        const err = new Error('Name, email, password, and role are required');
-        err.statusCode = 400;
-        throw err;
-    }
+    // Check if a Superadmin already exists for bootstrap logic
+    const superAdminExists = await User.exists({ role: USER_ROLES.SUPERADMIN });
 
-    // Normalize email & name
-    email = email.trim().toLowerCase();
-    name = name.trim();
-
-    // Role whitelist check (prevent privilege escalation)
-    if (!CREATABLE_ROLES_BY_SUPERADMIN.includes(role)) {
-        const err = new Error('Invalid role');
+    if (!superAdminExists) {
+        if (role !== USER_ROLES.SUPERADMIN) {
+            const err = new Error('First user must be SUPERADMIN');
+            err.statusCode = 400;
+            throw err;
+        }
+    } else if (!isBootstrap && !CREATABLE_ROLES_BY_SUPERADMIN.includes(role)) {
+        // Prevent privilege escalation
+        const err = new Error('Invalid role assignment');
         err.statusCode = 403;
         throw err;
     }
 
-    // Password strength
-    const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/;
-    if (!passwordRegex.test(password) || password.length < 8) {
-        const err = new Error('Password must be at least 8 characters and include uppercase, lowercase, number, and special character');
-        err.statusCode = 400;
-        throw err;
-    }
-
-    // Atomic creation using unique index + transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    // const session = await mongoose.startSession();
+    // session.startTransaction();
     try {
-        const existingUser = await User.findOne({ email }).session(session);
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             const err = new Error('User already exists');
             err.statusCode = 409;
@@ -45,46 +33,31 @@ exports.createUser = async (data) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = await User.create([{
-            name,
-            email,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
             password: hashedPassword,
             role
-        }], { session });
+        }], {  });
 
-        await session.commitTransaction();
-        session.endSession();
-
+        // await session.commitTransaction();
         return newUser[0];
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
+        // await session.abortTransaction();
         throw error;
+    } finally {
+        // session.endSession();
     }
 };
 
-// Get users with optional filter & pagination
 exports.getUsers = async (filter = {}, { page = 1, limit = 20 } = {}) => {
     const skip = (page - 1) * limit;
-    const users = await User.find(filter)
-        .select('-password')
-        .skip(skip)
-        .limit(limit);
-
+    const users = await User.find(filter).select('-password').skip(skip).limit(limit);
     const total = await User.countDocuments(filter);
-
     return { users, total, page, limit };
 };
 
-// Update user status (audit & prevent self-deactivation)
 exports.updateUserStatus = async (id, status, performedBy) => {
-    if (!Object.values(USER_STATUS).includes(status)) {
-        const err = new Error('Invalid status');
-        err.statusCode = 400;
-        throw err;
-    }
-
     const user = await User.findById(id);
     if (!user) {
         const err = new Error('User not found');
@@ -92,7 +65,7 @@ exports.updateUserStatus = async (id, status, performedBy) => {
         throw err;
     }
 
-    // Prevent self-deactivation
+    // Prevent self-deactivation by comparing IDs
     if (performedBy && performedBy.toString() === user._id.toString()) {
         const err = new Error('Cannot update your own status');
         err.statusCode = 403;
@@ -100,8 +73,6 @@ exports.updateUserStatus = async (id, status, performedBy) => {
     }
 
     user.status = status;
-    user.lastModifiedBy = performedBy || null; // add audit field
     await user.save();
-
     return user;
 };

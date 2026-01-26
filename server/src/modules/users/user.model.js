@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
             validator: function(v) {
                 return /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/.test(v);
             },
-            message: props => 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character'
+            message: 'Password must include uppercase, lowercase, number, and special character'
         }
     },
     role: {
@@ -35,10 +35,8 @@ const userSchema = new mongoose.Schema({
         default: USER_STATUS.ACTIVE
     },
     lastLogin: { type: Date, default: null },
-    deletedAt: { type: Date, default: null },
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date, default: null }
 }, { timestamps: true });
-
 
 module.exports = mongoose.model("User", userSchema);

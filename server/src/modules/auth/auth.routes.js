@@ -1,12 +1,9 @@
-const express = require('express')
-const router = express.Router()
-const authController = require('./auth.controller')
-const { protect } = require('./auth.middleware')
-const { authorize } = require('../middlewares/role.middleware')
-const { USER_ROLES } = require('../../constants/roles');
+const express = require('express');
+const router = express.Router();
+const authController = require('./auth.controller');
 
-router.post('/register', protect, authorize(USER_ROLES.SUPERADMIN), authController.register)
-router.post('/login', authController.login)
-
+// Removed 'protect' and 'authorize' to solve bootstrap deadlock
+router.post('/register', authController.register);
+router.post('/login', authController.login);
 
 module.exports = router;
