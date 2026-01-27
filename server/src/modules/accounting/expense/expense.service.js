@@ -1,6 +1,6 @@
 const Expense = require('./expense.model');
 const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
-
+const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 /**
  * Create a new expense entry
  */
@@ -14,7 +14,7 @@ exports.createExpense = async (data) => {
     ...data,
     netPayable,
     status: ACCOUNTING_STATUS.PENDING,
-    financialYear: '2081/82',
+    financialYear: getCurrentFinancialYear(),
     approval: {
       type: ENTRY_TYPE.EXPENSE,   // required field
       status: ACCOUNTING_STATUS.PENDING,
@@ -42,4 +42,18 @@ exports.getExpenses = async (user) => {
  */
 exports.getExpenseById = async (id) => {
   return Expense.findById(id);
+};
+
+
+// expense.service.js
+exports.updateExpenseStatus = async (id, status, user) => {
+    const expense = await Expense.findById(id);
+    if (!expense) throw new Error('Expense not found');
+
+    expense.status = status;
+    expense.approval.status = status;
+    expense.approval.approvedBy = user._id;
+    expense.approval.approvedAt = new Date();
+
+    return await expense.save();
 };

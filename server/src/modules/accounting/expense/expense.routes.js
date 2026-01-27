@@ -14,9 +14,14 @@ expenseRoutes.post('/', protect,
 )
 
 
+expenseRoutes.patch('/:id/status', protect, 
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN), 
+    expenseController.updateExpenseStatus
+);
+
 // Get all expenses: Approver or Superadmin
 expenseRoutes.get('/', protect,
-    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST),
     expenseController.getExpenses
 )
 

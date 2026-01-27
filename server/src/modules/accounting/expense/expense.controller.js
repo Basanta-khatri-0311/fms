@@ -1,5 +1,7 @@
 const expenseService = require('./expense.service')
 const Vendor = require('../../vendors/vendor.model')
+const postingService = require('../posting.service');
+const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 
 
 exports.createExpense = async (req, res) => {
@@ -20,7 +22,7 @@ exports.createExpense = async (req, res) => {
             vendor: vendor._id,
             createdBy: req.user._id,
             createdByRole: req.user.role,
-            financialYear: '2081/82' //dynamic later: todo
+            financialYear: getCurrentFinancialYear()
         });
 
         return res.status(201).json(expense);
@@ -44,8 +46,22 @@ exports.updateExpenseStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
+        // 1. Update the Expense record status
         const expense = await expenseService.updateExpenseStatus(id, status, req.user);
-        return res.status(200).json({ message: `Expense ${status.toLowerCase()}`, data: expense });
+
+        //Only if status is APPROVED, post to Ledger
+        if (status === 'APPROVED') {
+            await postingService.postToLedger({
+                entry: expense,
+                entryType: 'EXPENSE', 
+                approvedBy: req.user._id
+            });
+        }
+
+        return res.status(200).json({ 
+            message: `Expense status updated and posted to ledger`, 
+            data: expense 
+        });
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }

@@ -1,5 +1,5 @@
 const incomeService = require('./income.service')
-
+const postingService = require('../posting.service');
 
 exports.createIncome = async (req, res) => {
     try {
@@ -41,12 +41,24 @@ exports.approveIncome = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body; 
+
+        //Update the Income record status
         const income = await incomeService.updateIncomeStatus(id, status, req.user);
 
-        // TODO: triggering ledger posting & audit log
+        //Only if status is APPROVED, post to Ledger
+        if (status === 'APPROVED') {
+            await postingService.postToLedger({
+                entry: income,
+                entryType: 'INCOME',
+                approvedBy: req.user._id
+            });
+        }
 
-        return res.status(200).json({ message: `Income status updated to ${status.toLowerCase()}`, data: income });
+        return res.status(200).json({ 
+            message: `Income status updated to ${status}`, 
+            data: income 
+        });
     } catch (error) {
-        return res.status(400).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };

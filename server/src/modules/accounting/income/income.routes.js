@@ -7,9 +7,14 @@ const incomeController = require('./income.controller');
 const incomeRoutes = express.Router()
 
 
-incomeRoutes.post('/', protect,
-    authorize(USER_ROLES.RECEPTIONIST, USER_ROLES.APPROVER),
+incomeRoutes.post('/', protect, 
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST), 
     incomeController.createIncome
+);
+
+incomeRoutes.patch('/:id/status', protect, 
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN), 
+    incomeController.approveIncome
 );
 
 incomeRoutes.get('/', protect,

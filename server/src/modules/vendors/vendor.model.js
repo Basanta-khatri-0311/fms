@@ -21,6 +21,15 @@ const vendorSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  /**
+   * balance tracks the net position with this vendor.
+   * Positive (+) balance means you have overpaid them i.e they owe you money/service.
+   * Negative (-) balance means you owe the vendor money i.e Accounts Payable.
+   */
+  balance: {
+    type: Number,
+    default: 0,
+  },
 
   email: {
     type: String,

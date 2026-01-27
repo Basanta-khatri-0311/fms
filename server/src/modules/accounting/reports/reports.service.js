@@ -86,29 +86,27 @@ exports.generateIncomeStatement = async (financialYear) => {
  */
 exports.generateBalanceSheet = async (financialYear) => {
   const entries = await getLedgerEntries(financialYear);
+  
+  // Get the Net Profit
+  const incomeStmt = await exports.generateIncomeStatement(financialYear);
+  const netProfit = incomeStmt.netProfit;
 
   const balances = {
     assets: 0,
     liabilities: 0,
-    equity: 0,
+    equity: netProfit, // Initial Equity is the current year's profit
   };
 
   entries.forEach((entry) => {
-    // Process debit lines for assets
     entry.debitLines.forEach((line) => {
-      if (line.account.type === ACCOUNT_TYPES.ASSET) {
-        balances.assets += line.amount;
-      }
+      if (line.account.type === ACCOUNT_TYPES.ASSET) balances.assets += line.amount;
+      // If a liability is debited, it decreases
+      if (line.account.type === ACCOUNT_TYPES.LIABILITY) balances.liabilities -= line.amount;
     });
 
-    // Process credit lines for liabilities and equity
     entry.creditLines.forEach((line) => {
-      if (line.account.type === ACCOUNT_TYPES.LIABILITY) {
-        balances.liabilities += line.amount;
-      }
-      if (line.account.accountType === ACCOUNT_TYPES.EQUITY) {
-        balances.equity += line.amount;
-      }
+      if (line.account.type === ACCOUNT_TYPES.ASSET) balances.assets -= line.amount;
+      if (line.account.type === ACCOUNT_TYPES.LIABILITY) balances.liabilities += line.amount;
     });
   });
 
