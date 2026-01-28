@@ -18,10 +18,11 @@ const incomeSchema = new mongoose.Schema({
 
     amountReceived: { type: Number, default: 0 },
     pendingAmount: { type: Number, default: 0 },
+    advanceAmount: { type: Number, default: 0 }, //For overpayment tracking
 
     paymentMode: {
         type: String,
-        enum: ['CASH', 'BANK'],
+        enum: ['CASH', 'BANK', 'CHEQUE'], 
         required: true,
     },
 

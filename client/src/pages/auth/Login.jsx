@@ -20,7 +20,7 @@ const handleLogin = async (e) => {
 
     // Redirect based on the requirements doc roles [cite: 15, 16, 17]
     const role = data.user.role;
-    if (role === 'RECEPTIONIST') navigate('/receptionist/billing');
+    if (role === 'RECEPTIONIST') navigate('/receptionist/dashboard');
     else if (role === 'APPROVER') navigate('/approver/dashboard');
     else if (role === 'SUPERADMIN') navigate('/admin/dashboard');
     

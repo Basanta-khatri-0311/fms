@@ -30,11 +30,15 @@ exports.createExpense = async (data) => {
  * Get expenses based on user role
  */
 exports.getExpenses = async (user) => {
+  let query = {};
+  
   if (user.role === 'RECEPTIONIST') {
-    return Expense.find({ createdBy: user._id }).sort({ createdAt: -1 });
+    query = { createdBy: user._id };
   }
-  // Approver / Superadmin
-  return Expense.find().sort({ createdAt: -1 });
+  
+  return await Expense.find(query)
+    .populate('vendor', 'name') 
+    .sort({ createdAt: -1 });
 };
 
 /**

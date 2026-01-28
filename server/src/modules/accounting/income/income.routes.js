@@ -18,7 +18,7 @@ incomeRoutes.patch('/:id/status', protect,
 );
 
 incomeRoutes.get('/', protect,
-    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST),
     incomeController.getIncomes
 )
 

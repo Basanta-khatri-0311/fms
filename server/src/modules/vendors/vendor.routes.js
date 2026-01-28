@@ -14,7 +14,7 @@ vendorRoute.post('/',
 
 vendorRoute.get('/', 
     protect,
-    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER),
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),
     vendorController.getVendors
 )
 
