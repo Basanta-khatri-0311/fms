@@ -1,22 +1,22 @@
 export const MENU_CONFIG = {
   RECEPTIONIST: [
-    { name: 'Transaction Entry', path: '/receptionist/dashboard', icon: '💰' },
-    { name: 'My Submissions', path: '/receptionist/submissions', icon: '📄' },
+    { name: 'Transaction Entry', path: '/dashboard', icon: '💰' },
+    { name: 'My Submissions', path: '/submissions', icon: '📄' },
   ],
   APPROVER: [
-    { name: 'Pending Queue', path: '/approver/dashboard', icon: '⏳' },
-    { name: 'Income Records', path: '/approver/income', icon: '💹' },
-    { name: 'Expense Records', path: '/approver/expense', icon: '📉' },
-    { name: 'Advance Records', path: '/approver/advance', icon: '📅' },
+    { name: 'Pending Queue', path: '/dashboard', icon: '⏳' },
+    { name: 'Income Records', path: '/income', icon: '💹' },
+    { name: 'Expense Records', path: '/expense', icon: '📉' },
+    { name: 'Advance Records', path: '/advance', icon: '📅' },
   ],
   SUPERADMIN: [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: '🏠' },
-    { name: 'User Management', path: '/admin/users', icon: '👥' },
-    { name: 'Financial Reports', path: '/admin/reports', icon: '📊' },
-    { name: 'COA Setup', path: '/admin/coa', icon: '⚙️' },
+    { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
+    { name: 'User Management', path: '/users', icon: '👥' },
+    { name: 'Financial Reports', path: '/reports', icon: '📊' },
+    { name: 'COA Setup', path: '/coa', icon: '⚙️' },
   ],
   AUDITOR: [
-    { name: 'Ledger Audit', path: '/auditor/ledger', icon: '🔍' },
-    { name: 'Tax Registers', path: '/auditor/tax-reports', icon: '📜' },
+    { name: 'Ledger Audit', path: '/ledger', icon: '🔍' },
+    { name: 'Tax Registers', path: '/tax-reports', icon: '📜' },
   ]
 };

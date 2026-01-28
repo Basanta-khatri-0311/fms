@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import QuickActionCard from '../../components/dashboard/QuickActionCard';
 import TransactionInfoCard from '../../components/dashboard/TransactionInfoCard';
-import IncomeModal from './modals/IncomeModal';
-import ExpenseModal from './modals/ExpenseModal';
+import IncomeModal from './modals/IncomeEntryModal';
+import ExpenseModal from './modals/ExpenseEntryModal';
 // import AdvanceModal from './modals/AdvanceModal';
 
 const ReceptionistDashboard = () => {

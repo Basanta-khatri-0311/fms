@@ -1,40 +1,41 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import MainLayout from './layouts/MainLayout';
-import IncomeStatus from './pages/receptionist/IncomeStatus';
+import IncomeStatus from './pages/receptionist/TransactionTable';
 import ProtectedRoute from './components/ProtectedRoute';
-/* ... existing imports ... */
-import BillingDashboard from './pages/receptionist/BillingDashboard';
+import DashboardSwitcher from './pages/DashboardSwitcher'
+import Unauthorized from './pages/Unauthorized';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<Unauthorized/>} />
 
         <Route element={<MainLayout />}>
-          {/* Both roles can access the dashboard, but we use one path for simplicity now */}
-          <Route path="/receptionist/dashboard" element={
-            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN']}>
-              <BillingDashboard />
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN', 'AUDITOR']}>
+              <DashboardSwitcher />
             </ProtectedRoute>
           } />
 
-          <Route path="/receptionist/submissions" element={
-            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN']}>
+          <Route path="/submissions" element={
+            <ProtectedRoute allowedRoles={['RECEPTIONIST']}>
               <IncomeStatus />
             </ProtectedRoute>
           } />
-          <Route path="/approver/dashboard" element={
-            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
-              <IncomeStatus />
+
+          {/* <Route path="/users" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN']}>
+              <UserManagement />
             </ProtectedRoute>
-          } />
+          } /> */}
+          
         </Route>
 
-        
-
-        {/* Update your Login.jsx to navigate to /accounts/income for these roles */}
+        {/* Catch-all redirect to login */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );
