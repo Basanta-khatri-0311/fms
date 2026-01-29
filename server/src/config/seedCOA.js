@@ -4,7 +4,6 @@ const { ACCOUNT_TYPES } = require('../constants/accounting');
 
 const seedCOA = async () => {
     try {
-        // Find a Superadmin to be the 'createdBy'
         const admin = await User.findOne({ role: 'SUPERADMIN' });
         if (!admin) {
             console.log('⚠️ No Superadmin found. Skipping COA seeding. Create an admin first.');
@@ -12,16 +11,83 @@ const seedCOA = async () => {
         }
 
         const coreAccounts = [
-            { name: 'Cash in Hand', code: 'CASH', type: ACCOUNT_TYPES.ASSET },
-            { name: 'Bank Account', code: 'BANK', type: ACCOUNT_TYPES.ASSET },
-            { name: 'Consultancy Income', code: 'CONSULTANCY_INCOME', type: ACCOUNT_TYPES.INCOME },
-            { name: 'Office Expense', code: 'OFFICE_EXPENSE', type: ACCOUNT_TYPES.EXPENSE },
-            { name: 'VAT Payable', code: 'VAT_PAYABLE', type: ACCOUNT_TYPES.LIABILITY },
-            { name: 'TDS Payable', code: 'TDS_PAYABLE', type: ACCOUNT_TYPES.LIABILITY },
-            { name: 'Customer Advances', code: 'CUSTOMER_ADVANCES', type: ACCOUNT_TYPES.LIABILITY },
-            { name: 'Vendor Advances', code: 'VENDOR_ADVANCES', type: ACCOUNT_TYPES.ASSET },
-            { name: 'Accounts Receivable', code: 'ACCOUNTS_RECEIVABLE', type: ACCOUNT_TYPES.ASSET },
-            { name: 'Accounts Payable', code: 'ACCOUNTS_PAYABLE', type: ACCOUNT_TYPES.LIABILITY },
+            // === ASSETS ===
+            {
+                code: 'CASH',
+                name: 'Cash in Hand',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+            {
+                code: 'BANK',
+                name: 'Bank Account',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+            {
+                code: 'ACCOUNTS_RECEIVABLE',
+                name: 'Accounts Receivable (Trade Debtors)',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+            {
+                code: 'TDS_RECEIVABLE',
+                name: 'TDS Receivable (Tax Deducted - Refundable)',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+            {
+                code: 'VAT_INPUT',
+                name: 'VAT Input (Claimable)',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+            {
+                code: 'VENDOR_ADVANCES',
+                name: 'Vendor Advances (Prepaid)',
+                type: ACCOUNT_TYPES.ASSET,
+            },
+
+            // === LIABILITIES ===
+            {
+                code: 'ACCOUNTS_PAYABLE',
+                name: 'Accounts Payable (Trade Creditors)',
+                type: ACCOUNT_TYPES.LIABILITY,
+            },
+            {
+                code: 'VAT_PAYABLE',
+                name: 'VAT Payable (Output Tax)',
+                type: ACCOUNT_TYPES.LIABILITY,
+            },
+            {
+                code: 'TDS_PAYABLE',
+                name: 'TDS Payable (Tax to be Deposited)',
+                type: ACCOUNT_TYPES.LIABILITY,
+            },
+            {
+                code: 'CUSTOMER_ADVANCES',
+                name: 'Customer Advances (Unearned Revenue)',
+                type: ACCOUNT_TYPES.LIABILITY,
+            },
+
+            // === INCOME ===
+            {
+                code: 'CONSULTANCY_INCOME',
+                name: 'Consultancy Income',
+                type: ACCOUNT_TYPES.INCOME,
+            },
+            {
+                code: 'DISCOUNT_RECEIVED',
+                name: 'Discount Received (Vendor Discount)',
+                type: ACCOUNT_TYPES.INCOME,
+            },
+
+            // === EXPENSES ===
+            {
+                code: 'OFFICE_EXPENSE',
+                name: 'Office Expenses',
+                type: ACCOUNT_TYPES.EXPENSE,
+            },
+            {
+                code: 'DISCOUNT_GIVEN',
+                name: 'Discount Given (Customer Discount)',
+                type: ACCOUNT_TYPES.EXPENSE,
+            },
         ];
 
         for (const acc of coreAccounts) {
