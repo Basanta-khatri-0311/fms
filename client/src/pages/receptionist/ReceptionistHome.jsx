@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import QuickActionCard from '../../components/dashboard/QuickActionCard';
-import TransactionInfoCard from '../../components/dashboard/TransactionInfoCard';
 import IncomeModal from './modals/IncomeEntryModal';
 import ExpenseModal from './modals/ExpenseEntryModal';
 // import AdvanceModal from './modals/AdvanceModal';
@@ -9,14 +8,14 @@ const ReceptionistDashboard = () => {
   const [activeModal, setActiveModal] = useState(null);
 
   const ACTIONS = [
-    { id: 'INCOME', icon: "💰", title: "Income Entry", desc: "Record received payments", color: "from-blue-600 to-violet-600" },
-    { id: 'EXPENSE', icon: "💸", title: "Expense Entry", desc: "Record bills and payments", color: "from-red-600 to-pink-600" },
-    { id: 'ADVANCE', icon: "📅", title: "Advance Payment", desc: "Record advance income", color: "from-orange-600 to-red-600" },
+    { id: 'INCOME', title: "Income Entry", desc: "Record received payments", color: "from-blue-600 to-violet-600" },
+    { id: 'EXPENSE', title: "Expense Entry", desc: "Record bills and payments", color: "from-red-600 to-pink-600" },
+    { id: 'ADVANCE', title: "Advance Payment", desc: "Record advance income", color: "from-orange-600 to-red-600" },
   ];
 
   return (
     <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* Header Section */}
       <header className="bg-slate-900 rounded-3xl p-10 shadow-2xl border border-slate-700 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-48 -mt-48" />
@@ -40,27 +39,11 @@ const ReceptionistDashboard = () => {
         ))}
       </section>
 
-      {/* Information Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-        <TransactionInfoCard 
-          icon="💰" label="Income Entry" title="I. Income" borderColor="border-blue-100" bgColor="bg-blue-100"
-          description="For completed services with full invoice details including VAT calculations."
-        />
-        <TransactionInfoCard 
-          icon="💸" label="Expense Entry" title="II. Payment" borderColor="border-red-100" bgColor="bg-red-100"
-          description="For bills received and payments to be made with TDS deduction."
-        />
-        {/* <TransactionInfoCard 
-          icon="📅" label="Advance Payment" title="I. Advance" borderColor="border-orange-100" bgColor="bg-orange-100"
-          description="For advance income received before service completion."
-        /> */}
-      </section>
-
       {/* Modal Controller */}
       {activeModal === 'INCOME' && <IncomeModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'EXPENSE' && <ExpenseModal onClose={() => setActiveModal(null)} />}
       {/* {activeModal === 'ADVANCE' && <AdvanceModal onClose={() => setActiveModal(null)} />} */}
-      
+
     </div>
   );
 };

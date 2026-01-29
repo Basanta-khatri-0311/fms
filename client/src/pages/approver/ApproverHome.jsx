@@ -1,74 +1,121 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
-import TransactionStatus from '../receptionist/TransactionTable'; 
+import TransactionStatus from '../receptionist/TransactionTable';
+
 const ApproverDashboard = () => {
-  const [stats, setStats] = useState({ incomeCount: 0, expenseCount: 0, totalValue: 0 });
+  const [stats, setStats] = useState({
+    incomeCount: 0,
+    expenseCount: 0,
+    rejectedCount: 0,
+    totalValue: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const [incResponse, expResponse] = await Promise.all([
+        API.get('/incomes'),
+        API.get('/expenses')
+      ]);
+
+      // Handle both response formats consistently
+      const incomes = Array.isArray(incResponse.data)
+        ? incResponse.data
+        : (incResponse.data.data || []);
+
+      const expenses = Array.isArray(expResponse.data)
+        ? expResponse.data
+        : (expResponse.data.data || expResponse.data || []);
+
+      const pendingIncomes = incomes.filter(i => i.status === 'PENDING');
+      const pendingExpenses = expenses.filter(e => e.status === 'PENDING');
+      const rejectedAll = [...incomes, ...expenses].filter(e => e.status === 'REJECTED');
+
+      setStats({
+        incomeCount: pendingIncomes.length,
+        expenseCount: pendingExpenses.length,
+        rejectedCount: rejectedAll.length,
+        totalValue: pendingIncomes.reduce((acc, curr) => acc + (curr.netAmount || 0), 0) +
+          pendingExpenses.reduce((acc, curr) => acc + (curr.netPayable || 0), 0)
+      });
+    } catch (err) {
+      console.error("Stats fetch error:", err);
+      setStats({ incomeCount: 0, expenseCount: 0, rejectedCount: 0, totalValue: 0 });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [inc, exp] = await Promise.all([
-          API.get('/incomes'),
-          API.get('/expenses')
-        ]);
-        
-        const pendingIncomes = inc.data.data.filter(i => i.status === 'PENDING');
-        const pendingExpenses = exp.data.filter(e => e.status === 'PENDING');
-
-        setStats({
-          incomeCount: pendingIncomes.length,
-          expenseCount: pendingExpenses.length,
-          totalValue: pendingIncomes.reduce((acc, curr) => acc + curr.netAmount, 0) +
-                      pendingExpenses.reduce((acc, curr) => acc + curr.netPayable, 0)
-        });
-      } catch (err) {
-        console.error("Stats fetch error", err);
-      }
-    };
     fetchStats();
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 font-bold">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Metric Ribbons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-3xl border-2 border-blue-50 shadow-sm">
-          <p className="text-xs font-black text-blue-400 uppercase tracking-widest">Pending Incomes</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-3xl border-2 border-blue-50 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-black text-blue-400 uppercase tracking-widest">Pending Incomes</p>
+            
+          </div>
           <h2 className="text-4xl font-black text-slate-900 mt-2">{stats.incomeCount}</h2>
-          <div className="h-1 w-12 bg-blue-500 rounded-full mt-4" />
+          <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mt-4" />
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border-2 border-rose-50 shadow-sm">
-          <p className="text-xs font-black text-rose-400 uppercase tracking-widest">Pending Expenses</p>
+        <div className="bg-white p-6 rounded-3xl border-2 border-rose-50 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-black text-rose-400 uppercase tracking-widest">Pending Expenses</p>
+          </div>
           <h2 className="text-4xl font-black text-slate-900 mt-2">{stats.expenseCount}</h2>
-          <div className="h-1 w-12 bg-rose-500 rounded-full mt-4" />
+          <div className="h-1 w-12 bg-gradient-to-r from-rose-500 to-rose-600 rounded-full mt-4" />
         </div>
 
-        <div className="bg-slate-900 p-6 rounded-3xl shadow-xl">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Value for Review</p>
-          <h2 className="text-4xl font-black text-white mt-2">Rs. {stats.totalValue.toLocaleString()}</h2>
-          <p className="text-emerald-400 text-[10px] font-bold mt-2 uppercase">Awaiting Ledger Entry</p>
+        <div className="bg-white p-6 rounded-3xl border-2 border-red-50 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-black text-red-400 uppercase tracking-widest">Rejected Total</p>
+            
+          </div>
+          <h2 className="text-4xl font-black text-slate-900 mt-2">{stats.rejectedCount}</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-red-500 to-red-600 rounded-full mt-4" />
+        </div>
+
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-shadow">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Value</p>
+          </div>
+          <h2 className="text-3xl font-black text-white mt-2">
+            Rs. {stats.totalValue.toLocaleString()}
+          </h2>
+          <p className="text-emerald-400 text-[10px] font-bold mt-2 uppercase tracking-wider">
+            Awaiting Ledger Entry
+          </p>
         </div>
       </div>
 
-      {/*The Main Decision Table */}
+
+      {/* The Main Decision Table */}
       <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-2xl">
-        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-           <div>
-              <h3 className="text-xl font-black text-slate-900">Verification Queue</h3>
-              <p className="text-sm text-slate-500 font-medium">Review, Verify, and Post to Ledger</p>
-           </div>
-           <div className="flex gap-2">
-              <button onClick={() => window.location.reload()} className="p-2 hover:bg-slate-200 rounded-lg transition-colors">
-                <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-           </div>
+        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-blue-50/30">
         </div>
-        
-        {/* Reusing the table but strictly in PENDING mode */}
-        <TransactionStatus />
+
+        {/* Transaction Status Table */}
+        <TransactionStatus onRefresh={fetchStats} />
       </div>
     </div>
   );
