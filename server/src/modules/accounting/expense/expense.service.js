@@ -1,29 +1,55 @@
 const Expense = require('./expense.model');
 const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
+
 /**
- * Create a new expense entry
+ * Create a new expense entry with payment tracking
  */
 exports.createExpense = async (data) => {
-  const { amountBeforeVAT, vatAmount = 0, discount = 0, tdsAmount = 0 } = data;
+  const { 
+    amountBeforeVAT, 
+    vatAmount = 0, 
+    discount = 0, 
+    tdsAmount = 0,
+    amountPaid = 0 // NEW: Track actual payment
+  } = data;
 
+  // Calculate net payable (total bill amount)
   const netPayable = amountBeforeVAT + vatAmount - discount - tdsAmount;
   if (netPayable < 0) throw new Error('Net payable cannot be negative');
+
+  // Calculate pending or advance (same logic as income)
+  let pendingAmount = 0;
+  let advanceAmount = 0;
+
+  if (amountPaid > netPayable) {
+    // Overpayment - we paid vendor more than the bill
+    pendingAmount = 0;
+    advanceAmount = amountPaid - netPayable;
+  } else {
+    // Underpayment - we still owe vendor
+    pendingAmount = netPayable - amountPaid;
+    advanceAmount = 0;
+  }
 
   const expense = await Expense.create({
     ...data,
     netPayable,
+    amountPaid,      // NEW
+    pendingAmount,   // NEW
+    advanceAmount,   // NEW
     status: ACCOUNTING_STATUS.PENDING,
     financialYear: getCurrentFinancialYear(),
     approval: {
-      type: ENTRY_TYPE.EXPENSE,   // required field
+      type: ENTRY_TYPE.EXPENSE,
       status: ACCOUNTING_STATUS.PENDING,
       reason: null,
       approvedBy: null,
       approvedAt: null
     }
   });
-  return expense
+  
+  return expense;
 };
 
 /**
@@ -37,7 +63,7 @@ exports.getExpenses = async (user) => {
   }
   
   return await Expense.find(query)
-    .populate('vendor', 'name') 
+    .populate('vendor', 'name email contactNumber') // Populate more vendor details
     .sort({ createdAt: -1 });
 };
 
@@ -45,13 +71,14 @@ exports.getExpenses = async (user) => {
  * Get expense by ID
  */
 exports.getExpenseById = async (id) => {
-  return Expense.findById(id);
+  return Expense.findById(id).populate('vendor');
 };
 
-
-// expense.service.js
+/**
+ * Update expense status (approve/reject)
+ */
 exports.updateExpenseStatus = async (id, status, user) => {
-    const expense = await Expense.findById(id);
+    const expense = await Expense.findById(id).populate('vendor');
     if (!expense) throw new Error('Expense not found');
 
     expense.status = status;
