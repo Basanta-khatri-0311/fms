@@ -3,14 +3,14 @@ import API from '../../../api/axiosConfig';
 
 const ExpenseModal = ({ onClose, refreshData }) => {
   const [formData, setFormData] = useState({
-    vendorName: '', // For lookup
+    vendorName: '',
     billNumber: '',
     billDate: new Date().toISOString().split('T')[0],
     amountBeforeVAT: '',
     vatRate: '13',
-    discount: '0',
-    tdsAmount: '0',
-    amountPaid: '', // Track actual payment
+    discountRate: '',     // ✅ Empty instead of '0'
+    tdsRate: '',          // ✅ Empty instead of '0'
+    amountPaid: '',
     paymentMode: 'CASH',
   });
 
@@ -42,14 +42,22 @@ const ExpenseModal = ({ onClose, refreshData }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Precise calculations with rounding
+  // ✅ Handle focus to select all text
+  const handleFocus = (e) => {
+    e.target.select();
+  };
+
+  // ✅ PRECISE CALCULATIONS WITH PERCENTAGES
   const round = (num) => Math.round(num * 100) / 100;
 
   const amountBeforeVAT = parseFloat(formData.amountBeforeVAT) || 0;
   const vatRate = parseFloat(formData.vatRate) || 0;
+  const discountRate = parseFloat(formData.discountRate) || 0;
+  const tdsRate = parseFloat(formData.tdsRate) || 0;
+
   const vatAmount = round((amountBeforeVAT * vatRate) / 100);
-  const discount = parseFloat(formData.discount) || 0;
-  const tdsAmount = parseFloat(formData.tdsAmount) || 0;
+  const discount = round((amountBeforeVAT * discountRate) / 100);
+  const tdsAmount = round((amountBeforeVAT * tdsRate) / 100);
   const netPayable = round(amountBeforeVAT + vatAmount - discount - tdsAmount);
   
   const amountPaid = parseFloat(formData.amountPaid) || 0;
@@ -102,7 +110,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-fadeIn">
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] my-8">
         
         {/* Header */}
@@ -231,7 +239,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                 {/* Base Amount */}
                 <div className="bg-white p-4 rounded-xl border-2 border-rose-200 shadow-sm">
                   <label className="block text-xs font-bold text-rose-600 mb-2 uppercase">
-                    Amount Before VAT *
+                    Purchase Value (Before VAT) *
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-500 font-bold">Rs.</span>
@@ -243,6 +251,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                       className="flex-1 text-right text-xl font-black text-rose-600 
                         bg-transparent outline-none" 
                       onChange={handleInputChange} 
+                      onFocus={handleFocus}
                       value={formData.amountBeforeVAT}
                       placeholder="0.00"
                     />
@@ -261,6 +270,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                       name="vatRate" 
                       className="w-full font-black text-slate-800 outline-none" 
                       onChange={handleInputChange} 
+                      onFocus={handleFocus}
                       value={formData.vatRate}
                     />
                   </div>
@@ -275,48 +285,75 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                   </div>
                 </div>
 
-                {/* Discount & TDS */}
+                {/* Discount (Percentage) */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-white rounded-xl border border-slate-200">
                     <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">
-                      Discount
+                      Discount %
                     </label>
                     <input 
                       type="number" 
                       step="0.01"
-                      name="discount" 
+                      name="discountRate" 
                       className="w-full font-black text-green-600 outline-none" 
                       onChange={handleInputChange} 
-                      value={formData.discount}
-                      placeholder="0.00"
+                      onFocus={handleFocus}
+                      value={formData.discountRate}
+                      placeholder="0"
                     />
                   </div>
+                  <div className="p-3 bg-green-50 rounded-xl border border-green-200 
+                    flex flex-col justify-center items-end">
+                    <span className="text-[10px] font-black text-green-500 uppercase">
+                      Discount Amt
+                    </span>
+                    <span className="font-black text-green-700">
+                      {discount > 0 ? `-Rs. ${discount.toFixed(2)}` : 'Rs. 0.00'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* TDS (Percentage) */}
+                <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-white rounded-xl border border-slate-200">
                     <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">
-                      TDS
+                      TDS %
                     </label>
                     <input 
                       type="number" 
                       step="0.01"
-                      name="tdsAmount" 
+                      name="tdsRate" 
                       className="w-full font-black text-orange-600 outline-none" 
                       onChange={handleInputChange} 
-                      value={formData.tdsAmount}
-                      placeholder="0.00"
+                      onFocus={handleFocus}
+                      value={formData.tdsRate}
+                      placeholder="0"
                     />
+                  </div>
+                  <div className="p-3 bg-orange-50 rounded-xl border border-orange-200 
+                    flex flex-col justify-center items-end">
+                    <span className="text-[10px] font-black text-orange-500 uppercase">
+                      TDS Amount
+                    </span>
+                    <span className="font-black text-orange-700">
+                      {tdsAmount > 0 ? `-Rs. ${tdsAmount.toFixed(2)}` : 'Rs. 0.00'}
+                    </span>
                   </div>
                 </div>
 
                 {/* Net Payable */}
                 <div className="p-4 bg-slate-900 rounded-xl shadow-lg">
                   <div className="flex justify-between items-center text-white">
-                    <span className="text-xs font-bold uppercase tracking-wider opacity-80">
+                    <span className="text-xs font-bold uppercase tracking-wider opacity-90">
                       Total Bill Value
                     </span>
                     <span className="text-xl font-black font-mono">
                       Rs. {netPayable.toLocaleString()}
                     </span>
                   </div>
+                  <p className="text-slate-400 text-[10px] mt-1 font-semibold">
+                    = Value + VAT - Discount - TDS
+                  </p>
                 </div>
 
                 {/* Amount Paid */}
@@ -334,6 +371,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                       className="flex-1 text-right text-xl font-black text-white 
                         bg-transparent outline-none placeholder-emerald-200" 
                       onChange={handleInputChange} 
+                      onFocus={handleFocus}
                       value={formData.amountPaid}
                       placeholder="0.00"
                     />
@@ -343,7 +381,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                 {/* Status Display */}
                 {pendingAmount > 0 && (
                   <div className="p-3 bg-orange-100 rounded-xl border-2 border-orange-200 
-                    flex justify-between items-center">
+                    flex justify-between items-center animate-fadeIn">
                     <span className="text-xs font-black text-orange-600 uppercase">
                       ⏳ Pending Payment
                     </span>
@@ -355,7 +393,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
 
                 {advanceAmount > 0 && (
                   <div className="p-3 bg-purple-100 rounded-xl border-2 border-purple-200 
-                    flex justify-between items-center">
+                    flex justify-between items-center animate-fadeIn">
                     <span className="text-xs font-black text-purple-600 uppercase">
                       ✨ Advance to Vendor
                     </span>
