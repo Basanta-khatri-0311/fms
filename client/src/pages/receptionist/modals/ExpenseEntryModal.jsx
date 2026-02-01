@@ -114,11 +114,10 @@ const ExpenseModal = ({ onClose, refreshData }) => {
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] my-8">
         
         {/* Header */}
-        <div className="px-8 py-6 bg-gradient-to-r from-rose-500 to-pink-600 shrink-0">
+        <div className="px-8 py-6 bg-linear-to-r from-rose-500 to-pink-600 shrink-0">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-                <span className="text-3xl">💸</span>
                 Expense Entry
               </h2>
               <p className="text-rose-100 text-sm mt-1">Record vendor bills and payments</p>
@@ -140,7 +139,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
             {/* Left Column: Vendor & Basic Info */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-1 h-6 bg-gradient-to-b from-rose-500 to-pink-500 rounded-full" />
+                <div className="w-1 h-6 bg-linear-to-b from-rose-500 to-pink-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-600 uppercase tracking-wider">
                   Vendor & Bill Info
                 </h3>
@@ -228,13 +227,13 @@ const ExpenseModal = ({ onClose, refreshData }) => {
             {/* Right Column: Financial Calculation */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-blue-500 rounded-full" />
+                <div className="w-1 h-6 bg-linear-to-b from-emerald-500 to-blue-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-600 uppercase tracking-wider">
                   Financial Details
                 </h3>
               </div>
 
-              <div className="bg-gradient-to-br from-slate-50 to-rose-50/30 p-6 rounded-2xl border-2 border-slate-200 space-y-4">
+              <div className="bg-linear-to-br from-slate-50 to-rose-50/30 p-6 rounded-2xl border-2 border-slate-200 space-y-4">
                 
                 {/* Base Amount */}
                 <div className="bg-white p-4 rounded-xl border-2 border-rose-200 shadow-sm">
@@ -357,7 +356,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                 </div>
 
                 {/* Amount Paid */}
-                <div className="p-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl shadow-lg">
+                <div className="p-4 bg-linear-to-r from-emerald-500 to-green-500 rounded-xl shadow-lg">
                   <label className="block text-xs font-bold text-emerald-100 uppercase mb-2">
                     Amount Actually Paid *
                   </label>
@@ -421,7 +420,7 @@ const ExpenseModal = ({ onClose, refreshData }) => {
             type="submit" 
             form="expense-form" 
             disabled={isSubmitting || vendors.length === 0} 
-            className="px-10 py-4 bg-gradient-to-r from-rose-600 to-pink-600 
+            className="px-10 py-4 bg-linear-to-r from-rose-600 to-pink-600 
               text-white font-black rounded-2xl shadow-lg 
               hover:shadow-xl hover:-translate-y-0.5
               transition-all disabled:opacity-50 disabled:cursor-not-allowed

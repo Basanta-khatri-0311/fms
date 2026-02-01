@@ -98,11 +98,10 @@ const IncomeModal = ({ onClose, refreshData }) => {
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[90vh] my-8">
         
         {/* Header */}
-        <div className="px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-600 shrink-0">
+        <div className="px-8 py-6 bg-linear-to-r from-blue-600 to-indigo-600 shrink-0">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-                <span className="text-3xl">💰</span>
                 Income Entry
               </h2>
               <p className="text-blue-100 text-sm mt-1">Record client receipts and track advances</p>
@@ -124,7 +123,7 @@ const IncomeModal = ({ onClose, refreshData }) => {
             {/* Left Column: Client Details */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full" />
+                <div className="w-1 h-6 bg-linear-to-b from-blue-500 to-indigo-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-600 uppercase tracking-wider">
                   Client Information
                 </h3>
@@ -216,13 +215,13 @@ const IncomeModal = ({ onClose, refreshData }) => {
             {/* Right Column: Financial Calculation */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-blue-500 rounded-full" />
+                <div className="w-1 h-6 bg-linear-to-b from-emerald-500 to-blue-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-600 uppercase tracking-wider">
                   Financial Details (NPR)
                 </h3>
               </div>
 
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 p-6 rounded-2xl border-2 border-slate-200 space-y-4">
+              <div className="bg-linear-to-br from-slate-50 to-blue-50/30 p-6 rounded-2xl border-2 border-slate-200 space-y-4">
                 
                 {/* Base Amount */}
                 <div className="bg-white p-4 rounded-xl border-2 border-blue-200 shadow-sm">
@@ -330,7 +329,7 @@ const IncomeModal = ({ onClose, refreshData }) => {
                 </div>
 
                 {/* Net Amount Display */}
-                <div className="p-4 bg-gradient-to-r from-indigo-600 to-blue-600 
+                <div className="p-4 bg-linear-to-r from-indigo-600 to-blue-600 
                   rounded-xl shadow-lg">
                   <div className="flex justify-between items-center text-white">
                     <span className="text-xs font-bold uppercase tracking-wider opacity-90">
@@ -346,7 +345,7 @@ const IncomeModal = ({ onClose, refreshData }) => {
                 </div>
 
                 {/* Amount Received Input */}
-                <div className="p-4 bg-gradient-to-r from-emerald-500 to-green-500 
+                <div className="p-4 bg-linear-to-r from-emerald-500 to-green-500 
                   rounded-xl shadow-lg">
                   <label className="block text-xs font-bold text-emerald-100 uppercase mb-2">
                     Amount Actually Received *
@@ -411,7 +410,7 @@ const IncomeModal = ({ onClose, refreshData }) => {
             type="submit" 
             form="income-form"
             disabled={isSubmitting} 
-            className="px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 
+            className="px-10 py-4 bg-linear-to-r from-blue-600 to-indigo-600 
               text-white font-black rounded-2xl shadow-lg 
               hover:shadow-xl hover:-translate-y-0.5
               transition-all disabled:opacity-50 disabled:cursor-not-allowed
