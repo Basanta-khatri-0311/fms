@@ -63,7 +63,9 @@ exports.getExpenses = async (user) => {
   }
   
   return await Expense.find(query)
-    .populate('vendor', 'name email contactNumber') // Populate more vendor details
+    .populate('vendor', 'name email contactNumber')
+    .populate('createdBy', 'name')          
+    .populate('approval.approvedBy', 'name') 
     .sort({ createdAt: -1 });
 };
 

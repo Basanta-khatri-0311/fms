@@ -68,71 +68,52 @@ exports.postToLedger = async ({ entry, entryType, approvedBy }) => {
      
      Balance: 10,800 = 10,800 ✓
      ============================================================================ */
-  if (entryType === ENTRY_TYPE.INCOME) {
+if (entryType === ENTRY_TYPE.INCOME) {
     const incomeAcc = await getAccount(COA_CODES.CONSULTANCY_INCOME);
     const vatPayableAcc = await getAccount(COA_CODES.VAT_PAYABLE);
     const cashOrBank = entry.paymentMode === 'BANK' 
       ? await getAccount(COA_CODES.BANK) 
       : await getAccount(COA_CODES.CASH);
 
-    // DEBIT SIDE: What we got or are owed
-    // 1. Cash/Bank - Actual money received
+    // --- DEBIT SIDE (Assets & Expenses) ---
+    
+    // Actual money received
     if (entry.amountReceived > 0) {
-      debitLines.push({
-        account: cashOrBank._id,
-        amount: round(entry.amountReceived)
-      });
+      debitLines.push({ account: cashOrBank._id, amount: round(entry.amountReceived) });
     }
 
-    // 2. Accounts Receivable - Customer still owes us
+    // Customer still owes us
     if (entry.pendingAmount > 0) {
       const arAcc = await getAccount(COA_CODES.ACCOUNTS_RECEIVABLE);
-      debitLines.push({
-        account: arAcc._id,
-        amount: round(entry.pendingAmount)
-      });
+      debitLines.push({ account: arAcc._id, amount: round(entry.pendingAmount) });
     }
 
-    // 3. TDS Receivable - Tax customer deducted (we'll get refund)
+    //Tax customer deducted (Asset)
     if (entry.tdsAmount > 0) {
       const tdsReceivableAcc = await getAccount(COA_CODES.TDS_RECEIVABLE);
-      debitLines.push({
-        account: tdsReceivableAcc._id,
-        amount: round(entry.tdsAmount)
-      });
+      debitLines.push({ account: tdsReceivableAcc._id, amount: round(entry.tdsAmount) });
     }
 
-    // CREDIT SIDE: Revenue and liabilities
-    // 1. Income - Full service value
-    creditLines.push({
-      account: incomeAcc._id,
-      amount: round(entry.amountBeforeVAT)
-    });
-
-    // 2. VAT Payable - Tax we owe government
-    if (entry.vatAmount > 0) {
-      creditLines.push({
-        account: vatPayableAcc._id,
-        amount: round(entry.vatAmount)
-      });
-    }
-
-    // 3. Discount Given - Expense or contra-revenue
+    //Discount Given is a DEBIT (Expense/Contra-Revenue)
     if (entry.discount > 0) {
       const discountAcc = await getAccount(COA_CODES.DISCOUNT_GIVEN);
-      creditLines.push({
-        account: discountAcc._id,
-        amount: round(entry.discount)
-      });
+      debitLines.push({ account: discountAcc._id, amount: round(entry.discount) });
     }
 
-    // 4. Customer Advance - Overpayment (liability)
+    // --- CREDIT SIDE (Revenue & Liabilities) ---
+    
+    //Full revenue amount
+    creditLines.push({ account: incomeAcc._id, amount: round(entry.amountBeforeVAT) });
+
+    // Tax we owe the government
+    if (entry.vatAmount > 0) {
+      creditLines.push({ account: vatPayableAcc._id, amount: round(entry.vatAmount) });
+    }
+
+    // Overpayment by customer (Liability)
     if (entry.advanceAmount > 0) {
       const advanceAcc = await getAccount(COA_CODES.CUSTOMER_ADVANCES);
-      creditLines.push({
-        account: advanceAcc._id,
-        amount: round(entry.advanceAmount)
-      });
+      creditLines.push({ account: advanceAcc._id, amount: round(entry.advanceAmount) });
     }
   }
 
@@ -272,7 +253,7 @@ exports.postToLedger = async ({ entry, entryType, approvedBy }) => {
     debitLines,
     creditLines,
     narration: `${entryType} - ${entry.name || entry.vendor?.name || 'Transaction'} - ${entry.approval.status}`,
-    createdBy: entry.createdBy,
+    createdBy: entry.createdBy._id || entry.createdBy, 
     approvedBy: approvedBy._id || approvedBy,
     financialYear: entry.financialYear,
   });

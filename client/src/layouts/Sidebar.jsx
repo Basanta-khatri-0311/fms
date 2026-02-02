@@ -9,21 +9,12 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
   const currentMenus = MENU_CONFIG[userRole] || [];
 
   useEffect(() => {
-    // Grab the actual name from the stored user object
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
-      setUserName(parsed.name || userRole); // Fallback to role if name is missing
+      setUserName(parsed.name || userRole);
     }
   }, [userRole]);
-
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
-    }
-  };
 
   return (
     <>
@@ -48,20 +39,19 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
             <h1 className="text-2xl font-black tracking-tight text-white">
               CRM<span className="text-blue-400">.</span>
             </h1>
-
           </div>
         </div>
 
-        {/* Navigation - flex-1 allows it to grow and push the badge down */}
+        {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
-          {currentMenus.map((item, index) => {
+          {currentMenus.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => window.innerWidth < 1024 && onClose && onClose()}
-                className={`group relative flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl
+                className={`group relative flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl animate-slideIn
                   transition-all duration-300 ${isActive
                     ? 'bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-900/50'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}
@@ -73,36 +63,6 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
           })}
         </nav>
       </aside>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.3);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.3);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.5);
-        }
-      `}</style>
     </>
   );
 };

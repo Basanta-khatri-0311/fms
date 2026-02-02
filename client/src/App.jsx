@@ -25,6 +25,16 @@ function App() {
               <IncomeStatus />
             </ProtectedRoute>
           } />
+          <Route path="/income" element={
+            <ProtectedRoute allowedRoles={['APPROVER']}>
+              <IncomeStatus />
+            </ProtectedRoute>
+          } />
+          <Route path="/expense" element={
+            <ProtectedRoute allowedRoles={['APPROVER']}>
+              <IncomeStatus />
+            </ProtectedRoute>
+          } />
 
           {/* <Route path="/users" element={
             <ProtectedRoute allowedRoles={['SUPERADMIN']}>

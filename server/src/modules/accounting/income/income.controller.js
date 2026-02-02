@@ -53,11 +53,7 @@ exports.approveIncome = async (req, res) => {
                 approvedBy: req.user._id
             });
         }
-
-        return res.status(200).json({ 
-            message: `Income status updated to ${status}`, 
-            data: income 
-        });
+        return res.status(200).json(income);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }

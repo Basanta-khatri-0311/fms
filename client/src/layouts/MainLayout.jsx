@@ -29,7 +29,7 @@ const MainLayout = () => {
           border-b border-slate-200/50 shadow-sm z-30">
           
           {/* Glass effect overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-violet-50/30 -z-10" />
+          <div className="absolute inset-0 bg-linear-to-r from-blue-50/30 to-violet-50/30 -z-10" />
 
           {/* Mobile menu toggle */}
           <button 
@@ -62,13 +62,12 @@ const MainLayout = () => {
               <div className="text-right hidden sm:block">
                 <p className="text-x font-medium  text-slate-900">{user.name}</p>
               </div>
-
             </div>
 
             {/* Logout Button */}
             <button 
               onClick={handleLogout}
-              className="group relative px-4 sm:px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 
+              className="group relative px-4 sm:px-5 py-2.5 bg-linear-to-r from-red-500 to-red-600 
                 text-white text-sm font-bold rounded-xl
                 hover:from-red-600 hover:to-red-700 
                 active:scale-95 transition-all duration-300 
@@ -99,40 +98,6 @@ const MainLayout = () => {
           </div>
         </main>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(241, 245, 249, 0.5);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(148, 163, 184, 0.4);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(100, 116, 139, 0.6);
-        }
-      `}</style>
     </div>
   );
 };

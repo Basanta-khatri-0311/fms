@@ -54,11 +54,13 @@ exports.createIncome = async (data, user) => {
  * Get incomes based on user role
  */
 exports.getIncomes = async (user) => {
-  if (user.role === USER_ROLES.RECEPTIONIST) {
-    return Income.find({ createdBy: user._id }).sort({ createdAt: -1 });
-  }
-  // Approver / Superadmin
-  return Income.find().sort({ createdAt: -1 });
+  let query = {};
+  if (user.role === 'RECEPTIONIST') query = { createdBy: user._id };
+
+  return await Income.find(query)
+    .populate('createdBy', 'name')           
+    .populate('approval.approvedBy', 'name') 
+    .sort({ createdAt: -1 });
 };
 
 /**
