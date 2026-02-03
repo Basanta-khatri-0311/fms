@@ -52,7 +52,7 @@ const ApproverDashboard = () => {
 };
 
 const StatCard = ({ label, value, color }) => (
-  <div className={`bg-white p-6 rounded-3xl border-2 border-${color}-50 shadow-sm`}>
+  <div className={`bg-white p-6 rounded-3xl  shadow-sm`}>
     <p className={`text-[10px] font-black text-${color}-400 uppercase tracking-widest`}>{label}</p>
     <h2 className="text-4xl font-black text-slate-900 mt-2">{value}</h2>
   </div>
