@@ -8,8 +8,13 @@ exports.createIncome = async (req, res) => {
                 message: 'Name and amountBeforeVAT are required',
             });
         }
+
+        const incomeData = {
+            ...req.body,
+            attachmentUrl: req.file ? req.file.path : null, 
+        };
         const income = await incomeService.createIncome(
-            req.body,
+            incomeData,
             req.user
         );
 

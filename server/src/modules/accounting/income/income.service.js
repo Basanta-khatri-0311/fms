@@ -1,89 +1,71 @@
 const Income = require('./income.model');
-const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
-const { USER_ROLES } = require('../../../constants/roles');
+const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
-/**
- * Create a new income entry
- */
+const { generateInvoiceNumber } = require('../../../utils/generateInvoice'); // Using your utility
+
 exports.createIncome = async (data, user) => {
-  const {
-    amountBeforeVAT,
-    vatAmount = 0,
-    discount = 0,
-    tdsAmount = 0,
-    amountReceived = 0
-  } = data;
+  // 1. Explicitly parse numbers to prevent "12000" + 135 = "12000135"
+  const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
+  const amountReceived = parseFloat(data.amountReceived) || 0;
+  const discountAmount = parseFloat(data.discount) || 0; 
+  const vatRate = parseFloat(data.vatRate) || 13;
+  const tdsRate = parseFloat(data.tdsRate) || 0;
 
-  if (!amountBeforeVAT || amountBeforeVAT <= 0) throw new Error('Amount before VAT must be greater than zero');
-  if (vatAmount < 0) throw new Error('VAT amount cannot be negative');
-  if (discount < 0) throw new Error('Discount cannot be negative');
-  if (discount > amountBeforeVAT) throw new Error('Discount cannot exceed amount before VAT');
+  const round = (num) => Math.round(num * 100) / 100;
 
-  const netAmount = amountBeforeVAT + vatAmount - discount - tdsAmount;
+  const taxableAmount = amountBeforeVAT - discountAmount;
+  const calculatedVat = round(taxableAmount * (vatRate / 100));
+  const totalInvoiceValue = round(taxableAmount + calculatedVat);
+  const calculatedTds = round(taxableAmount * (tdsRate / 100));
 
-  // To Handle Overpayment/Advance Logic
+  // The client owes the Net Amount (Total minus TDS withheld)
+  const netReceivable = round(totalInvoiceValue - calculatedTds);
+
   let pendingAmount = 0;
   let excessAmount = 0;
 
-  if (amountReceived > netAmount) {
-    pendingAmount = 0;
-    excessAmount = amountReceived - netAmount; // This is the "Advance"
+  if (amountReceived > netReceivable) {
+    excessAmount = round(amountReceived - netReceivable);
   } else {
-    pendingAmount = netAmount - amountReceived;
-    excessAmount = 0;
+    pendingAmount = round(netReceivable - amountReceived);
   }
 
   return await Income.create({
     ...data,
-    netAmount,
+    amountBeforeVAT,
+    vatAmount: calculatedVat,
+    discount: discountAmount,
+    tdsAmount: calculatedTds,
+    netAmount: totalInvoiceValue,
     amountReceived,
     pendingAmount,
-    // We store the excess in a temporary field so the Ledger Posting service knows it's an advance
     advanceAmount: excessAmount,
     createdBy: user._id,
     createdByRole: user.role,
-    approval: {
-      status: ACCOUNTING_STATUS.PENDING,
-      type: ENTRY_TYPE.INCOME,
-    },
     financialYear: getCurrentFinancialYear(),
   });
 };
 
-/**
- * Get incomes based on user role
- */
-exports.getIncomes = async (user) => {
-  let query = {};
-  if (user.role === 'RECEPTIONIST') query = { createdBy: user._id };
-
-  return await Income.find(query)
-    .populate('createdBy', 'name')           
-    .populate('approval.approvedBy', 'name') 
-    .sort({ createdAt: -1 });
-};
-
-/**
- * Get income by ID
- */
-exports.getIncomeById = async (id) => {
-  return Income.findById(id);
-};
-
-
 exports.updateIncomeStatus = async (id, status, user) => {
   const income = await Income.findById(id);
-  if (!income) {
-    throw new Error('Income record not found');
-  }
+  if (!income) throw new Error('Income record not found');
 
-  // Update the main status
   income.status = status;
-
-  // Update the approval sub-document
   income.approval.status = status;
   income.approval.approvedBy = user._id;
   income.approval.approvedAt = new Date();
 
+  // Trigger your utility only when status becomes APPROVED
+  if (status === 'APPROVED' && !income.invoiceNumber) {
+    income.invoiceNumber = await generateInvoiceNumber(income.branch, income.financialYear);
+    income.isApproved = true;
+  }
+
   return await income.save();
+};
+
+exports.getIncomes = async (user) => {
+  let query = {};
+  if (user.role === 'RECEPTIONIST') query = { createdBy: user._id };
+  return await Income.find(query).populate('createdBy', 'name').sort({ createdAt: -1 });
 };

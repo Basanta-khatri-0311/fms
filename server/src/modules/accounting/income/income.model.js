@@ -9,6 +9,10 @@ const incomeSchema = new mongoose.Schema({
     contactNumber: String,
     email: String,
     address: String,
+    buyerPan: { type: String }, // for Sales Register if Company
+    serviceType: { type: String, required: true },
+    quantity: { type: Number, default: 1 },
+    unit: { type: String, default: 'Unit' },
 
     amountBeforeVAT: { type: Number, required: true },
     vatAmount: { type: Number, default: 0 },
@@ -19,18 +23,27 @@ const incomeSchema = new mongoose.Schema({
     amountReceived: { type: Number, default: 0 },
     pendingAmount: { type: Number, default: 0 },
     advanceAmount: { type: Number, default: 0 }, //For overpayment tracking
+    // INVOICE COMPLIANCE
+    invoiceNumber: { type: String, unique: true, sparse: true },
+    branch: { type: String, required: true, default: 'KTM' }, // Branch-wise unique sequence
 
     paymentMode: {
         type: String,
-        enum: ['CASH', 'BANK', 'CHEQUE'], 
+        enum: ['CASH', 'BANK', 'CHEQUE'],
         required: true,
     },
+    // New Audit Fields
+    transactionId: { type: String }, 
+    chequeNumber: { type: String },  
+    bankName: { type: String },      
+    attachmentUrl: { type: String }, 
 
     status: {
         type: String,
         enum: Object.values(ACCOUNTING_STATUS),
         default: ACCOUNTING_STATUS.PENDING,
     },
+    isApproved: { type: Boolean, default: false },
 
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdByRole: { type: String, enum: Object.values(USER_ROLES), required: true },

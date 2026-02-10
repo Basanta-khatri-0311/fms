@@ -8,7 +8,9 @@ export const MENU_CONFIG = {
     { name: 'Income Records', path: '/income', icon: '💹' },   
     { name: 'Expense Records', path: '/expense', icon: '📉' },  
     { name: 'Advance Records', path: '/advance', icon: '✨' }, 
-    { name: 'Due Records', path: '/due', icon: '📅' },          
+    { name: 'Due Records', path: '/due', icon: '📅' },
+    { name: 'Transaction Entry', path: '/dashboard', icon: '💰' },
+    { name: 'My Submissions', path: '/submissions', icon: '📄' },
   ],
   SUPERADMIN: [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },

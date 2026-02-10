@@ -10,7 +10,6 @@ const ReceptionistDashboard = () => {
   const ACTIONS = [
     { id: 'INCOME', title: "Income Entry", desc: "Record received payments", color: "from-blue-600 to-violet-600" },
     { id: 'EXPENSE', title: "Expense Entry", desc: "Record bills and payments", color: "from-red-600 to-pink-600" },
-    { id: 'ADVANCE', title: "Advance Payment", desc: "Record advance income", color: "from-orange-600 to-red-600" },
   ];
 
   return (
@@ -26,7 +25,7 @@ const ReceptionistDashboard = () => {
       </header>
 
       {/* Primary Actions Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {ACTIONS.map(action => (
           <QuickActionCard
             key={action.id}

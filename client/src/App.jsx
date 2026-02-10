@@ -21,7 +21,7 @@ function App() {
           } />
 
           <Route path="/submissions" element={
-            <ProtectedRoute allowedRoles={['RECEPTIONIST']}>
+            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER']}>
               <IncomeStatus />
             </ProtectedRoute>
           } />
