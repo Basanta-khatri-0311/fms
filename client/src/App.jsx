@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import MainLayout from './layouts/MainLayout';
-import IncomeStatus from './pages/receptionist/TransactionTable';
+import IncomeStatus from './pages/TransactionTable';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardSwitcher from './pages/DashboardSwitcher'
 import Unauthorized from './pages/Unauthorized';

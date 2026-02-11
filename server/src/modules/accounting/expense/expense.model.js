@@ -13,15 +13,19 @@ const expenseSchema = new mongoose.Schema({
     discount: { type: Number, default: 0 },
     tdsAmount: { type: Number, default: 0 },
     netPayable: { type: Number, required: true },
-    amountPaid: { type: Number, default: 0 },    
-    pendingAmount: { type: Number, default: 0 }, 
-    advanceAmount: { type: Number, default: 0 }, 
+    amountPaid: { type: Number, default: 0 },
+    pendingAmount: { type: Number, default: 0 },
+    advanceAmount: { type: Number, default: 0 },
 
     paymentMode: {
         type: String,
-        enum: ['CASH', 'BANK'],
+        enum: ['CASH', 'BANK', 'CHEQUE'],
         required: true,
     },
+    transactionId: { type: String }, 
+    chequeNumber: { type: String },  
+    bankName: { type: String },      
+    attachmentUrl: { type: String }, 
 
     status: {
         type: String,

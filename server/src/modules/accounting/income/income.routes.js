@@ -17,7 +17,8 @@ incomeRoutes.post('/', protect,
 
 incomeRoutes.patch('/:id/status', protect, 
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN), 
-    incomeController.approveIncome
+    upload.single('attachment'),
+    incomeController.updateIncomeStatus
 );
 
 incomeRoutes.get('/', protect,

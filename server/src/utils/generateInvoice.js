@@ -1,4 +1,6 @@
-const generateInvoiceNumber = async (branch, financialYear) => {
+const Income = require('../modules/accounting/income/income.model')
+
+exports.generateInvoiceNumber = async (branch, financialYear) => {
     // Find the last approved invoice for this branch and year
     const lastInvoice = await Income.findOne({ branch, financialYear, invoiceNumber: { $exists: true } })
         .sort({ invoiceNumber: -1 });

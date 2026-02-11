@@ -124,7 +124,7 @@ const handleSubmit = async (e) => {
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[92vh] my-4 animate-slideUp">
 
         {/* Header */}
-        <div className="px-6 sm:px-8 py-5 sm:py-6 bg-linear-to-r from-blue-600 to-indigo-600 rounded-t-3xl shrink-0">
+        <div className="px-6 sm:px-8 py-5 sm:py-6 bg-indigo-600 rounded-t-3xl shrink-0">
           <div className="flex justify-between items-start sm:items-center gap-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">New Income Entry</h2>
@@ -146,14 +146,14 @@ const handleSubmit = async (e) => {
             {/* Section 1: Client Information */}
             <div className="space-y-5">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-linear-to-b from-blue-500 to-blue-600 rounded-full" />
+                <div className="w-1 h-5 bg-blue-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Client Information</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                 {/* Client Name */}
                 <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Client Name *</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-2">Client Name </label>
                   <input
                     type="text"
                     name="name"
@@ -205,17 +205,17 @@ const handleSubmit = async (e) => {
               </div>
             </div>
 
-            {/* Section 2: Service Details */}
+            {/* Service Details */}
             <div className="space-y-5">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-linear-to-b from-purple-500 to-purple-600 rounded-full" />
+                <div className="w-1 h-5 bg-blue-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Service Details</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
                 {/* Service Type */}
                 <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Service Type *</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-2">Service Type </label>
                   <div className="relative">
                     <select
                       name="serviceType"
@@ -291,7 +291,7 @@ const handleSubmit = async (e) => {
 
                 {/* Payment Mode */}
                 <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Payment Mode *</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-2">Payment Mode </label>
                   <div className="relative">
                     <select
                       name="paymentMode"
@@ -403,7 +403,7 @@ const handleSubmit = async (e) => {
             {/* Section 3: Financial Calculation */}
             <div className="space-y-5">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-linear-to-b from-emerald-500 to-emerald-600 rounded-full" />
+                <div className="w-1 h-5 bg-blue-500 rounded-full" />
                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Financial Details (NPR)</h3>
               </div>
 
@@ -503,7 +503,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 {/* Net Amount - Highlighted */}
-                <div className="p-5 bg-linear-to-r from-indigo-600 to-blue-600 rounded-xl shadow-lg">
+                <div className="p-5 bg-indigo-600 rounded-xl shadow-lg">
                   <div className="flex justify-between items-center text-white">
                     <span className="text-xs font-bold uppercase tracking-wider">Net Receivable</span>
                     <span className="text-xl sm:text-3xl font-black font-mono">Rs. {netAmount.toFixed(2)}</span>
@@ -511,7 +511,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 {/* Amount Received */}
-                <div className="p-5 bg-linear-to-r from-emerald-500 to-green-500 rounded-xl shadow-lg">
+                <div className="p-5 bg-emerald-500 rounded-xl shadow-lg">
                   <label className="block text-xs font-bold text-emerald-50 uppercase mb-3">Amount Received *</label>
                   <div className="flex items-baseline gap-2">
                     <span className="text-white font-bold text-lg">Rs.</span>
@@ -568,7 +568,7 @@ const handleSubmit = async (e) => {
             type="submit"
             form="income-form"
             disabled={isSubmitting}
-            className="px-8 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
+            className="px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import React from 'react';
-import TransactionStatus from './TransactionStatus';
+import TransactionStatus from '../receptionist/TransactionTable';
 
 const IncomeRecords = () => <TransactionStatus mode="INCOME" />;
 export default IncomeRecords;

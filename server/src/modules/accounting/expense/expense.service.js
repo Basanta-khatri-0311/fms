@@ -1,55 +1,51 @@
 const Expense = require('./expense.model');
-const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
+const { USER_ROLES } = require('../../../constants/roles');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 
 /**
  * Create a new expense entry with payment tracking
  */
-exports.createExpense = async (data) => {
-  const { 
-    amountBeforeVAT, 
-    vatAmount = 0, 
-    discount = 0, 
-    tdsAmount = 0,
-    amountPaid = 0 // NEW: Track actual payment
-  } = data;
+exports.createExpense = async (data, user) => {
+  // conversion to Numbers
+  const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
+  const amountPaid = parseFloat(data.amountPaid) || 0;
+  const discountAmount = parseFloat(data.discount) || 0;
+  const vatRate = parseFloat(data.vatRate) || 13;
+  const tdsRate = parseFloat(data.tdsRate) || 0;
 
-  // Calculate net payable (total bill amount)
-  const netPayable = amountBeforeVAT + vatAmount - discount - tdsAmount;
-  if (netPayable < 0) throw new Error('Net payable cannot be negative');
+  const round = (num) => Math.round(num * 100) / 100;
 
-  // Calculate pending or advance (same logic as income)
+  // Calculation Logic
+  const taxableAmount = amountBeforeVAT - discountAmount;
+  const calculatedVat = round(taxableAmount * (vatRate / 100));
+  const totalBillAmount = round(taxableAmount + calculatedVat); // Total amount on vendor's bill
+  const calculatedTds = round(taxableAmount * (tdsRate / 100)); // TDS we withhold
+
+  // Net Payable is what we actually owe the vendor (Bill - TDS)
+  const netPayable = round(totalBillAmount - calculatedTds);
+
   let pendingAmount = 0;
   let advanceAmount = 0;
 
   if (amountPaid > netPayable) {
-    // Overpayment - we paid vendor more than the bill
-    pendingAmount = 0;
-    advanceAmount = amountPaid - netPayable;
+    advanceAmount = round(amountPaid - netPayable);
   } else {
-    // Underpayment - we still owe vendor
-    pendingAmount = netPayable - amountPaid;
-    advanceAmount = 0;
+    pendingAmount = round(netPayable - amountPaid);
   }
 
-  const expense = await Expense.create({
+  return await Expense.create({
     ...data,
-    netPayable,
-    amountPaid,      // NEW
-    pendingAmount,   // NEW
-    advanceAmount,   // NEW
-    status: ACCOUNTING_STATUS.PENDING,
+    amountBeforeVAT,
+    vatAmount: calculatedVat,
+    tdsAmount: calculatedTds,
+    netPayable: totalBillAmount, // The full bill value
+    amountPaid,
+    pendingAmount,
+    advanceAmount,
+    createdBy: user._id,
+    createdByRole: user.role,
     financialYear: getCurrentFinancialYear(),
-    approval: {
-      type: ENTRY_TYPE.EXPENSE,
-      status: ACCOUNTING_STATUS.PENDING,
-      reason: null,
-      approvedBy: null,
-      approvedAt: null
-    }
   });
-  
-  return expense;
 };
 
 /**
@@ -58,7 +54,7 @@ exports.createExpense = async (data) => {
 exports.getExpenses = async (user) => {
   let query = {};
   
-  if (user.role === 'RECEPTIONIST') {
+  if (user.role === USER_ROLES.RECEPTIONIST) {
     query = { createdBy: user._id };
   }
   

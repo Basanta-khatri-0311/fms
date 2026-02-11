@@ -3,11 +3,11 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 const MainLayout = () => {
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  
-  const user = JSON.parse(localStorage.getItem('user')) || { 
-    name: 'User', 
+
+  const user = JSON.parse(localStorage.getItem('user')) || {
+    name: 'User',
     role: 'RECEPTIONIST',
     email: 'user@example.com'
   };
@@ -27,20 +27,20 @@ const MainLayout = () => {
         {/* Top Navigation Bar */}
         <header className="relative flex items-center justify-between h-20 px-4 sm:px-8 bg-white/80 backdrop-blur-xl 
           border-b border-slate-200/50 shadow-sm z-30">
-          
+
           {/* Glass effect overlay */}
           <div className="absolute inset-0 bg-linear-to-r from-blue-50/30 to-violet-50/30 -z-10" />
 
           {/* Mobile menu toggle */}
-          <button 
+          <button
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-all duration-300 
               active:scale-95 text-slate-700 group z-50"
           >
-            <svg 
-              className="w-6 h-6 transition-transform duration-300" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="w-6 h-6 transition-transform duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
               {isOpen ? (
@@ -56,34 +56,32 @@ const MainLayout = () => {
           </div>
 
           {/* Right section: User info + Logout */}
-          <div className="flex items-center gap-4 sm:gap-10 ml-auto">
-            {/* User Info */}
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6 ml-auto">
+            {/* User Profile Info */}
+            <div className="flex items-center gap-3 pr-6 border-r border-slate-100">
               <div className="text-right hidden sm:block">
-                <p className="text-x font-medium  text-slate-900">{user.name}</p>
+                <p className="text-sm font-bold text-slate-900 leading-none">{user.name}</p>
+                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-tight mt-1">
+                  {user.role}
+                </p>
               </div>
+             
             </div>
 
-            {/* Logout Button */}
-            <button 
+            {/* Logout Button*/}
+            <button
               onClick={handleLogout}
-              className="group relative px-4 sm:px-5 py-2.5 bg-linear-to-r from-red-500 to-red-600 
-                text-white text-sm font-bold rounded-xl
-                hover:from-red-600 hover:to-red-700 
-                active:scale-95 transition-all duration-300 
-                shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30
-                overflow-hidden"
+              className="flex items-center gap-2 px-3 py-2 text-gray-200  bg-red-500 rounded-lg transition-all duration-200 group"
             >
-              <span className="relative z-10 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span className="hidden sm:inline">Sign Out</span>
-              </span>
-              
-              <div className="absolute inset-0 bg-linear-to-r from-red-600 to-red-700 
-                translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              <svg
+                className="w-5 h-5 transition-transform group-hover:translate-x-0.5"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span className="text-xs font-bold hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </header>

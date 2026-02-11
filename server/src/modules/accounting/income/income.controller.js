@@ -1,5 +1,6 @@
 const incomeService = require('./income.service')
 const postingService = require('../posting.service');
+const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
 
 exports.createIncome = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ exports.createIncome = async (req, res) => {
 
         const incomeData = {
             ...req.body,
-            attachmentUrl: req.file ? req.file.path : null, 
+            attachmentUrl: req.file ? req.file.path : null,
         };
         const income = await incomeService.createIncome(
             incomeData,
@@ -42,24 +43,30 @@ exports.getIncomes = async (req, res) => {
 };
 
 
-exports.approveIncome = async (req, res) => {
+exports.updateIncomeStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; 
+        const { status } = req.body;
 
         //Update the Income record status
         const income = await incomeService.updateIncomeStatus(id, status, req.user);
 
-        //Only if status is APPROVED, post to Ledger
-        if (status === 'APPROVED') {
+        const isApproved = status === 'APPROVED' || status === ACCOUNTING_STATUS.APPROVED;
+
+        if (isApproved) {
+            
             await postingService.postToLedger({
                 entry: income,
-                entryType: 'INCOME',
+                entryType: ENTRY_TYPE.INCOME,
                 approvedBy: req.user._id
             });
         }
-        return res.status(200).json(income);
+        return res.status(200).json({
+            message: `Income status updated to ${status}`,
+            data: income
+        });
     } catch (error) {
+        console.error("Income Approval Error:", error);
         return res.status(500).json({ error: error.message });
     }
 };

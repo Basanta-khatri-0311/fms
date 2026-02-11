@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import API from '../../api/axiosConfig';
+import API from '../api/axiosConfig';
 
 const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   // State Management
@@ -7,13 +7,13 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
-  
+
   // Filter States
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
-  
+
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -36,21 +36,29 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
       const responses = await Promise.all(requests);
       let combined = [];
 
+      const getData = (res) => (Array.isArray(res?.data?.data) ? res.data.data : res?.data || []);
+
       if (needIncome) {
-        const incData = Array.isArray(responses[0]?.data?.data)
-          ? responses[0].data.data
-          : (responses[0]?.data || []);
-        combined = [...combined, ...incData.map(item => ({ ...item, type: 'INCOME' }))];
+        const incData = getData(responses[0]);
+        combined = [...combined, ...incData.map(item => ({
+          ...item,
+          type: 'INCOME',
+          displayName: item.name
+        }))];
       }
 
       if (needExpense) {
-        const expIndex = needIncome ? 1 : 0;
-        const expData = Array.isArray(responses[expIndex]?.data)
-          ? responses[expIndex].data
-          : (responses[expIndex]?.data?.data || []);
-        combined = [...combined, ...expData.map(item => ({ ...item, type: 'EXPENSE' }))];
-      }
+        // If income was fetched, expense is at index 1, otherwise 0
+        const expRes = needIncome ? responses[1] : responses[0];
+        const expData = getData(expRes);
 
+        combined = [...combined, ...expData.map(item => ({
+          ...item,
+          type: 'EXPENSE',
+          // Extract name from the populated vendor object
+          displayName: item.vendor?.name || 'Unknown Vendor'
+        }))];
+      }
       setEntries(combined);
     } catch (err) {
       console.error("Error fetching entries:", err);
@@ -68,37 +76,41 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   // Optimized Filtering with useMemo
   const filteredData = useMemo(() => {
     return entries.filter(item => {
-      // Status Filter
+      // 1. Dropdown Status Filter
       if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
 
-      // Type Filter
+      // 2. Type Filter
       if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
 
-      // Search Filter
+      // 3. Search Filter
       if (searchTerm) {
         const search = searchTerm.toLowerCase();
-        const name = (item.type === 'INCOME' ? item.name : item.vendorName)?.toLowerCase() || '';
+        const name = item.displayName?.toLowerCase() || '';
         if (!name.includes(search)) return false;
       }
 
-      // Date Range Filter
+      // 4. Date Range Filter
       if (dateRange.start || dateRange.end) {
         const itemDate = new Date(item.createdAt);
         if (dateRange.start && itemDate < new Date(dateRange.start)) return false;
-        if (dateRange.end && itemDate > new Date(dateRange.end)) return false;
+        if (dateRange.end) {
+          const end = new Date(dateRange.end);
+          end.setHours(23, 59, 59, 999); // Ensure full day is included
+          if (itemDate > end) return false;
+        }
       }
 
+      // 5. Mode Filter (Treat these as "false" triggers, not final "true" returns)
       const net = item.type === 'INCOME' ? (item.netAmount || 0) : (item.netPayable || 0);
       const paid = item.type === 'INCOME' ? (item.amountReceived || 0) : (item.amountPaid || 0);
 
-      // Mode Filter
-      if (mode === 'PENDING') return item.status === 'PENDING';
-      if (mode === 'INCOME') return item.type === 'INCOME';
-      if (mode === 'EXPENSE') return item.type === 'EXPENSE';
-      if (mode === 'ADVANCE') return (paid - net) > 0.01;
-      if (mode === 'DUE') return (net - paid) > 0.01;
+      if (mode === 'PENDING' && item.status !== 'PENDING') return false;
+      if (mode === 'INCOME' && item.type !== 'INCOME') return false;
+      if (mode === 'EXPENSE' && item.type !== 'EXPENSE') return false;
+      if (mode === 'ADVANCE' && (paid - net) <= 0.01) return false;
+      if (mode === 'DUE' && (net - paid) <= 0.01) return false;
 
-      return true;
+      return true; // Only items that passed ALL checks reach here
     });
   }, [entries, statusFilter, typeFilter, searchTerm, dateRange, mode]);
 
@@ -175,7 +187,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   return (
     <div className="space-y-6 p-2 sm:p-4 max-w-full overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center gap-4">
         <h1 className="text-xl sm:text-2xl font-black text-slate-800 uppercase tracking-tight">
           {mode.replace('_', ' ')} RECORDS
           <span className="ml-2 sm:ml-3 text-xs bg-slate-100 px-2 sm:px-3 py-1 rounded-full text-slate-500 font-bold">
@@ -187,7 +199,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
       {/* Search and Filters */}
       <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 space-y-4">
         <h2 className="text-sm font-black text-slate-600 uppercase">Filters</h2>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div>
@@ -259,11 +271,10 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap ${
-                statusFilter === status
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-600'
-              }`}
+              className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap ${statusFilter === status
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-slate-400 hover:text-slate-600'
+                }`}
             >
               {status}
             </button>
@@ -276,15 +287,14 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
             <button
               key={type}
               onClick={() => setTypeFilter(type)}
-              className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap ${
-                typeFilter === type
-                  ? type === 'INCOME' 
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : type === 'EXPENSE'
+              className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap ${typeFilter === type
+                ? type === 'INCOME'
+                  ? 'bg-emerald-500 text-white shadow-sm'
+                  : type === 'EXPENSE'
                     ? 'bg-rose-500 text-white shadow-sm'
                     : 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-600'
-              }`}
+                : 'text-slate-400 hover:text-slate-600'
+                }`}
             >
               {type}
             </button>
@@ -322,7 +332,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                         <div className="flex items-center gap-3">
                           <div className={`w-1.5 h-8 rounded-full ${isInc ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                           <div>
-                            <p className="font-bold text-slate-800 text-sm">{isInc ? item.name : item.vendorName}</p>
+                            <p className="font-bold text-slate-800 text-sm">{item.displayName}</p>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                               {new Date(item.createdAt).toLocaleDateString()}
                             </p>
@@ -343,11 +353,10 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                         {Math.abs(balance) > 0.01 && (
                           <div className="mt-1">
                             <span
-                              className={`text-[9px] font-black px-2 py-0.5 rounded border ${
-                                balance < 0
-                                  ? 'bg-red-50 border-red-100 text-red-600'
-                                  : 'bg-purple-50 border-purple-100 text-purple-600'
-                              }`}
+                              className={`text-[9px] font-black px-2 py-0.5 rounded border ${balance < 0
+                                ? 'bg-red-50 border-red-100 text-red-600'
+                                : 'bg-purple-50 border-purple-100 text-purple-600'
+                                }`}
                             >
                               {balance < 0 ? `DUE: ${Math.abs(balance).toLocaleString()}` : `ADV: ${balance.toLocaleString()}`}
                             </span>
@@ -356,13 +365,12 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span
-                          className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${
-                            item.status === 'PENDING'
-                              ? 'bg-amber-50 border-amber-200 text-amber-600'
-                              : item.status === 'APPROVED'
+                          className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border ${item.status === 'PENDING'
+                            ? 'bg-amber-50 border-amber-200 text-amber-600'
+                            : item.status === 'APPROVED'
                               ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
                               : 'bg-red-50 border-red-200 text-red-600'
-                          }`}
+                            }`}
                         >
                           {item.status}
                         </span>
@@ -435,13 +443,12 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                     </div>
                   </div>
                   <span
-                    className={`px-2 py-1 rounded-full text-[9px] font-black uppercase border ${
-                      item.status === 'PENDING'
-                        ? 'bg-amber-50 border-amber-200 text-amber-600'
-                        : item.status === 'APPROVED'
+                    className={`px-2 py-1 rounded-full text-[9px] font-black uppercase border ${item.status === 'PENDING'
+                      ? 'bg-amber-50 border-amber-200 text-amber-600'
+                      : item.status === 'APPROVED'
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
                         : 'bg-red-50 border-red-200 text-red-600'
-                    }`}
+                      }`}
                   >
                     {item.status}
                   </span>
@@ -466,11 +473,10 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                   {Math.abs(balance) > 0.01 && (
                     <div className="pt-1">
                       <span
-                        className={`inline-block px-2 py-1 rounded-lg text-[9px] font-black border ${
-                          balance < 0
-                            ? 'bg-red-50 border-red-200 text-red-600'
-                            : 'bg-purple-50 border-purple-200 text-purple-600'
-                        }`}
+                        className={`inline-block px-2 py-1 rounded-lg text-[9px] font-black border ${balance < 0
+                          ? 'bg-red-50 border-red-200 text-red-600'
+                          : 'bg-purple-50 border-purple-200 text-purple-600'
+                          }`}
                       >
                         {balance < 0 ? `DUE: Rs. ${Math.abs(balance).toLocaleString()}` : `ADV: Rs. ${balance.toLocaleString()}`}
                       </span>
@@ -535,7 +541,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
               >
                 ← Prev
               </button>
-              
+
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum;
                 if (totalPages <= 5) {
@@ -547,22 +553,21 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
-                      currentPage === pageNum
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${currentPage === pageNum
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
                   >
                     {pageNum}
                   </button>
                 );
               })}
-              
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}

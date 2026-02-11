@@ -1,13 +1,13 @@
 const Income = require('./income.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
-const { generateInvoiceNumber } = require('../../../utils/generateInvoice'); // Using your utility
+const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
 
 exports.createIncome = async (data, user) => {
-  // 1. Explicitly parse numbers to prevent "12000" + 135 = "12000135"
+  // Explicitly parse to prevent "12000" + 135 = "12000135"
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountReceived = parseFloat(data.amountReceived) || 0;
-  const discountAmount = parseFloat(data.discount) || 0; 
+  const discountAmount = parseFloat(data.discount) || 0;
   const vatRate = parseFloat(data.vatRate) || 13;
   const tdsRate = parseFloat(data.tdsRate) || 0;
 
@@ -56,7 +56,7 @@ exports.updateIncomeStatus = async (id, status, user) => {
   income.approval.approvedAt = new Date();
 
   // Trigger your utility only when status becomes APPROVED
-  if (status === 'APPROVED' && !income.invoiceNumber) {
+  if (status === ACCOUNTING_STATUS.APPROVED && !income.invoiceNumber) {
     income.invoiceNumber = await generateInvoiceNumber(income.branch, income.financialYear);
     income.isApproved = true;
   }

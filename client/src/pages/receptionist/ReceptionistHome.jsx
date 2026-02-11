@@ -8,16 +8,16 @@ const ReceptionistDashboard = () => {
   const [activeModal, setActiveModal] = useState(null);
 
   const ACTIONS = [
-    { id: 'INCOME', title: "Income Entry", desc: "Record received payments", color: "from-blue-600 to-violet-600" },
-    { id: 'EXPENSE', title: "Expense Entry", desc: "Record bills and payments", color: "from-red-600 to-pink-600" },
+    { id: 'INCOME', title: "Income Entry", desc: "Record received payments", color: "indigo-600" },
+    { id: 'EXPENSE', title: "Expense Entry", desc: "Record bills and payments", color: "rose-600" },
   ];
 
   return (
     <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
       {/* Header Section */}
-      <header className="bg-slate-900 rounded-3xl p-10 shadow-2xl border border-slate-700 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -mr-48 -mt-48" />
+      <header className="bg-slate-800 rounded-3xl p-10 shadow-2xl border border-slate-600 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96  rounded-full blur-3xl -mr-48 -mt-48" />
         <div className="relative">
           <h1 className="text-5xl font-black text-white mb-2">Transaction Entry</h1>
           <p className="text-blue-200 text-lg font-medium">Record and track your daily financial operations</p>

@@ -28,16 +28,16 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 bg-slate-700 
           transition-transform duration-500 ease-out transform shadow-2xl border-r border-slate-800/50 flex flex-col
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo Section */}
         <div className="relative h-24 flex items-center justify-center border-b border-slate-800/50">
-          <div className="absolute inset-0 bg-[radial-linear(circle_at_50%_120%,rgba(59,130,246,0.1),transparent)]" />
+          <div className="absolute inset-0 bgg-slate-800/50" />
           <div className="relative text-center">
             <h1 className="text-2xl font-black tracking-tight text-white">
-              CRM<span className="text-blue-400">.</span>
+              CRM
             </h1>
           </div>
         </div>
@@ -53,7 +53,7 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
                 onClick={() => window.innerWidth < 1024 && onClose && onClose()}
                 className={`group relative flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl animate-slideIn
                   transition-all duration-300 ${isActive
-                    ? 'bg-linear-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-900/50'
+                    ? 'bg-blue-700 text-white shadow-lg shadow-blue-900/50'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}
               >
                 <span className="text-xl mr-4">{item.icon}</span>
