@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
-import TransactionStatus from '../TransactionTable';
+import TransactionStatus from '../../components/transactions/TransactionStatus';
 
 const ApproverDashboard = () => {
   const [stats, setStats] = useState({ incomeCount: 0, expenseCount: 0, rejectedCount: 0, totalValue: 0 });
