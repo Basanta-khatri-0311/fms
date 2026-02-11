@@ -2,10 +2,7 @@ const Expense = require('./expense.model');
 const { USER_ROLES } = require('../../../constants/roles');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 
-/**
- * Create a new expense entry with payment tracking
- */
-exports.createExpense = async (data, user) => {
+const buildExpensePayload = (data, user, existing = null) => {
   // conversion to Numbers
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountPaid = parseFloat(data.amountPaid) || 0;
@@ -33,7 +30,10 @@ exports.createExpense = async (data, user) => {
     pendingAmount = round(netPayable - amountPaid);
   }
 
-  return await Expense.create({
+  const base = existing ? existing.toObject() : {};
+
+  return {
+    ...base,
     ...data,
     amountBeforeVAT,
     vatAmount: calculatedVat,
@@ -42,10 +42,18 @@ exports.createExpense = async (data, user) => {
     amountPaid,
     pendingAmount,
     advanceAmount,
-    createdBy: user._id,
-    createdByRole: user.role,
-    financialYear: getCurrentFinancialYear(),
-  });
+    createdBy: base.createdBy || user._id,
+    createdByRole: base.createdByRole || user.role,
+    financialYear: base.financialYear || getCurrentFinancialYear(),
+  };
+};
+
+/**
+ * Create a new expense entry with payment tracking
+ */
+exports.createExpense = async (data, user) => {
+  const payload = buildExpensePayload(data, user);
+  return await Expense.create(payload);
 };
 
 /**
@@ -85,4 +93,18 @@ exports.updateExpenseStatus = async (id, status, user) => {
     expense.approval.approvedAt = new Date();
 
     return await expense.save();
+};
+
+// Update expense when still pending (Approver / Superadmin)
+exports.updateExpense = async (id, data, user) => {
+  const expense = await Expense.findById(id);
+  if (!expense) throw new Error('Expense not found');
+
+  if (expense.status !== 'PENDING') {
+    throw new Error('Only PENDING expenses can be edited');
+  }
+
+  const payload = buildExpensePayload(data, user, expense);
+  Object.assign(expense, payload);
+  return await expense.save();
 };

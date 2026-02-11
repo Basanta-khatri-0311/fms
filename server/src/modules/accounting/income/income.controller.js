@@ -70,3 +70,23 @@ exports.updateIncomeStatus = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+// Edit income details before approval
+exports.updateIncome = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const incomeData = {
+            ...req.body,
+            attachmentUrl: req.file ? req.file.path : undefined,
+        };
+
+        const updated = await incomeService.updateIncome(id, incomeData, req.user);
+
+        return res.status(200).json({
+            message: 'Income entry updated successfully',
+            data: updated,
+        });
+    } catch (error) {
+        return res.status(400).json({ error: error.message });
+    }
+};

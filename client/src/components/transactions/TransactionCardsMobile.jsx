@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransactionCardsMobile = ({ rows, user, onAction, actionLoading }) => (
+const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading }) => (
   <div className="lg:hidden space-y-4">
     {rows.length > 0 ? (
       rows.map((item) => {
@@ -83,6 +83,14 @@ const TransactionCardsMobile = ({ rows, user, onAction, actionLoading }) => (
             {item.status === 'PENDING' &&
               (user?.role === 'APPROVER' || user?.role === 'SUPERADMIN') && (
                 <div className="flex gap-2">
+                  {onEdit && (
+                    <button
+                      onClick={() => onEdit(item)}
+                      className="flex-1 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-black hover:bg-slate-300 active:scale-95 transition-all"
+                    >
+                      EDIT
+                    </button>
+                  )}
                   <button
                     onClick={() => onAction(item._id, 'APPROVED', item.type)}
                     disabled={actionLoading === item._id}

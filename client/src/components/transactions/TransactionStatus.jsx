@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useTransactions from '../../hooks/useTransactions';
 import TransactionHeader from './TransactionHeader';
 import TransactionFilters from './TransactionFilters';
@@ -6,6 +6,8 @@ import TransactionTabs from './TransactionTabs';
 import TransactionTableDesktop from './TransactionTableDesktop';
 import TransactionCardsMobile from './TransactionCardsMobile';
 import TransactionPagination from './TransactionPagination';
+import IncomeModal from '../../pages/receptionist/modals/IncomeEntryModal';
+import ExpenseModal from '../../pages/receptionist/modals/ExpenseEntryModal';
 
 const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   const {
@@ -29,9 +31,11 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
     setCurrentPage,
     handleAction,
     clearFilters,
+    refetch,
   } = useTransactions({ mode, onRefresh });
 
   const user = JSON.parse(localStorage.getItem('user'));
+  const [editEntry, setEditEntry] = useState(null);
 
   if (loading) {
     return (
@@ -87,6 +91,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         rows={paginatedData}
         user={user}
         onAction={handleAction}
+        onEdit={setEditEntry}
         actionLoading={actionLoading}
       />
 
@@ -94,6 +99,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         rows={paginatedData}
         user={user}
         onAction={handleAction}
+        onEdit={setEditEntry}
         actionLoading={actionLoading}
       />
 
@@ -104,6 +110,25 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
+
+      {/* Edit Modals for Approver/Superadmin */}
+      {editEntry && editEntry.type === 'INCOME' && (
+        <IncomeModal
+          onClose={() => setEditEntry(null)}
+          refreshData={refetch}
+          initialData={editEntry}
+          mode="edit"
+        />
+      )}
+
+      {editEntry && editEntry.type === 'EXPENSE' && (
+        <ExpenseModal
+          onClose={() => setEditEntry(null)}
+          refreshData={refetch}
+          initialData={editEntry}
+          mode="edit"
+        />
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../api/axiosConfig';
 
-const IncomeModal = ({ onClose, refreshData }) => {
+const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const [formData, setFormData] = useState({
     name: '',
     contactNumber: '',
@@ -32,6 +32,41 @@ const IncomeModal = ({ onClose, refreshData }) => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
+
+  // Populate form when editing existing income
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => {
+        const base = { ...prev };
+        const amt = initialData.amountBeforeVAT || 0;
+
+        const safeRate = (amount) =>
+          amt > 0 && amount != null ? ((amount * 100) / amt).toFixed(2) : prev.vatRate;
+
+        return {
+          ...base,
+          name: initialData.name || '',
+          contactNumber: initialData.contactNumber || '',
+          email: initialData.email || '',
+          address: initialData.address || '',
+          buyerPan: initialData.buyerPan || '',
+          serviceType: initialData.serviceType || 'Consultancy',
+          quantity: String(initialData.quantity || '1'),
+          unit: initialData.unit || 'Unit',
+          amountBeforeVAT: initialData.amountBeforeVAT ?? '',
+          vatRate: safeRate(initialData.vatAmount),
+          discountRate: safeRate(initialData.discount),
+          tdsRate: safeRate(initialData.tdsAmount),
+          amountReceived: initialData.amountReceived ?? '',
+          paymentMode: initialData.paymentMode || 'CASH',
+          transactionId: initialData.transactionId || '',
+          chequeNumber: initialData.chequeNumber || '',
+          bankName: initialData.bankName || '',
+          paymentScreenshot: null,
+        };
+      });
+    }
+  }, [initialData]);
 
   const showNotification = (type, message) => {
     const colors = { success: 'bg-emerald-500', warning: 'bg-orange-500', error: 'bg-red-500' };
@@ -106,10 +141,13 @@ const handleSubmit = async (e) => {
     data.append('branch', 'KTM');
     data.append('status', 'PENDING');
 
-    //POST to backend (Axios handles headers automatically for FormData)
-    await API.post('/incomes', data);
-
-    showNotification('success', 'Income recorded successfully!');
+    if (mode === 'edit' && initialData?._id) {
+      await API.patch(`/incomes/${initialData._id}`, data);
+      showNotification('success', 'Income updated successfully!');
+    } else {
+      await API.post('/incomes', data);
+      showNotification('success', 'Income recorded successfully!');
+    }
     if (refreshData) refreshData();
     onClose();
   } catch (err) {
@@ -127,8 +165,14 @@ const handleSubmit = async (e) => {
         <div className="px-6 sm:px-8 py-5 sm:py-6 bg-indigo-600 rounded-t-3xl shrink-0">
           <div className="flex justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">New Income Entry</h2>
-              <p className="text-blue-100 text-xs sm:text-sm mt-1">Record client payments and manage receivables</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                {mode === 'edit' ? 'Edit Income Entry' : 'New Income Entry'}
+              </h2>
+              <p className="text-blue-100 text-xs sm:text-sm mt-1">
+                {mode === 'edit'
+                  ? 'Update client payment details before approval'
+                  : 'Record client payments and manage receivables'}
+              </p>
             </div>
             <button
               onClick={onClose}
@@ -578,6 +622,8 @@ const handleSubmit = async (e) => {
                 </svg>
                 Recording...
               </span>
+            ) : mode === 'edit' ? (
+              'Update Income'
             ) : (
               'Submit Income'
             )}

@@ -3,7 +3,7 @@ const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
 
-exports.createIncome = async (data, user) => {
+const buildIncomePayload = (data, user, existing = null) => {
   // Explicitly parse to prevent "12000" + 135 = "12000135"
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountReceived = parseFloat(data.amountReceived) || 0;
@@ -30,7 +30,10 @@ exports.createIncome = async (data, user) => {
     pendingAmount = round(netReceivable - amountReceived);
   }
 
-  return await Income.create({
+  const base = existing ? existing.toObject() : {};
+
+  return {
+    ...base,
     ...data,
     amountBeforeVAT,
     vatAmount: calculatedVat,
@@ -40,10 +43,15 @@ exports.createIncome = async (data, user) => {
     amountReceived,
     pendingAmount,
     advanceAmount: excessAmount,
-    createdBy: user._id,
-    createdByRole: user.role,
-    financialYear: getCurrentFinancialYear(),
-  });
+    createdBy: base.createdBy || user._id,
+    createdByRole: base.createdByRole || user.role,
+    financialYear: base.financialYear || getCurrentFinancialYear(),
+  };
+};
+
+exports.createIncome = async (data, user) => {
+  const payload = buildIncomePayload(data, user);
+  return await Income.create(payload);
 };
 
 exports.updateIncomeStatus = async (id, status, user) => {
@@ -61,6 +69,25 @@ exports.updateIncomeStatus = async (id, status, user) => {
     income.isApproved = true;
   }
 
+  return await income.save();
+};
+
+// Update income when still pending (Approver / Superadmin)
+exports.updateIncome = async (id, data, user) => {
+  const income = await Income.findById(id);
+  if (!income) throw new Error('Income record not found');
+
+  if (income.status !== ACCOUNTING_STATUS.PENDING) {
+    throw new Error('Only PENDING incomes can be edited');
+  }
+
+  const payload = buildIncomePayload(
+    data,
+    user,
+    income
+  );
+
+  Object.assign(income, payload);
   return await income.save();
 };
 

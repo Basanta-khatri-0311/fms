@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransactionTableDesktop = ({ rows, user, onAction, actionLoading }) => (
+const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }) => (
   <div className="hidden lg:block bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
@@ -83,6 +83,14 @@ const TransactionTableDesktop = ({ rows, user, onAction, actionLoading }) => (
                     {item.status === 'PENDING' ? (
                       user?.role === 'APPROVER' || user?.role === 'SUPERADMIN' ? (
                         <div className="flex gap-2 justify-center">
+                          {onEdit && (
+                            <button
+                              onClick={() => onEdit(item)}
+                              className="px-3 py-1.5 bg-slate-200 text-slate-800 rounded-lg text-[9px] font-black hover:bg-slate-300 transition-all active:scale-95"
+                            >
+                              EDIT
+                            </button>
+                          )}
                           <button
                             onClick={() => onAction(item._id, 'APPROVED', item.type)}
                             disabled={actionLoading === item._id}

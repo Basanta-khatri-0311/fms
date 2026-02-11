@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../api/axiosConfig';
 
-const ExpenseModal = ({ onClose, refreshData }) => {
+const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const [formData, setFormData] = useState({
     vendorName: '',
     billNumber: '',
@@ -41,6 +41,37 @@ const ExpenseModal = ({ onClose, refreshData }) => {
     fetchVendors();
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
+
+  // Populate form on edit
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => {
+        const base = { ...prev };
+        const amt = initialData.amountBeforeVAT || 0;
+        const safeRate = (amount) =>
+          amt > 0 && amount != null ? ((amount * 100) / amt).toFixed(2) : '';
+
+        return {
+          ...base,
+          vendorName: initialData.vendor?.name || initialData.vendorName || '',
+          billNumber: initialData.billNumber || '',
+          billDate: initialData.billDate
+            ? new Date(initialData.billDate).toISOString().split('T')[0]
+            : base.billDate,
+          amountBeforeVAT: initialData.amountBeforeVAT ?? '',
+          vatRate: safeRate(initialData.vatAmount),
+          discountRate: safeRate(initialData.discount),
+          tdsRate: safeRate(initialData.tdsAmount),
+          amountPaid: initialData.amountPaid ?? '',
+          paymentMode: initialData.paymentMode || 'CASH',
+          transactionId: initialData.transactionId || '',
+          chequeNumber: initialData.chequeNumber || '',
+          bankName: initialData.bankName || '',
+          billAttachment: null,
+        };
+      });
+    }
+  }, [initialData]);
 
   const showNotification = (type, message) => {
     const colors = { success: 'bg-emerald-500', warning: 'bg-orange-500', error: 'bg-red-500' };
@@ -111,15 +142,20 @@ const ExpenseModal = ({ onClose, refreshData }) => {
       data.append('advanceAmount', advanceAmount);
       data.append('status', 'PENDING');
 
-      await API.post('/expenses', data);
+      if (mode === 'edit' && initialData?._id) {
+        await API.patch(`/expenses/${initialData._id}`, data);
+        showNotification('success', 'Expense updated successfully!');
+      } else {
+        await API.post('/expenses', data);
 
-      const successMsg = advanceAmount > 0
-        ? `Expense recorded with Rs. ${advanceAmount.toFixed(2)} advance!`
-        : pendingAmount > 0
-          ? `Expense recorded with Rs. ${pendingAmount.toFixed(2)} pending!`
-          : 'Expense recorded successfully!';
+        const successMsg = advanceAmount > 0
+          ? `Expense recorded with Rs. ${advanceAmount.toFixed(2)} advance!`
+          : pendingAmount > 0
+            ? `Expense recorded with Rs. ${pendingAmount.toFixed(2)} pending!`
+            : 'Expense recorded successfully!';
 
-      showNotification('success', successMsg);
+        showNotification('success', successMsg);
+      }
       if (refreshData) refreshData();
       onClose();
     } catch (err) {
@@ -137,8 +173,14 @@ const ExpenseModal = ({ onClose, refreshData }) => {
         <div className="px-6 sm:px-8 py-5 sm:py-6 bg-rose-500 rounded-t-3xl shrink-0">
           <div className="flex justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">New Expense Entry</h2>
-              <p className="text-rose-100 text-xs sm:text-sm mt-1">Record vendor payments and track payables</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                {mode === 'edit' ? 'Edit Expense Entry' : 'New Expense Entry'}
+              </h2>
+              <p className="text-rose-100 text-xs sm:text-sm mt-1">
+                {mode === 'edit'
+                  ? 'Update vendor bill details before approval'
+                  : 'Record vendor payments and track payables'}
+              </p>
             </div>
             <button 
               onClick={onClose} 
@@ -476,6 +518,8 @@ const ExpenseModal = ({ onClose, refreshData }) => {
                 </svg>
                 Recording...
               </span>
+            ) : mode === 'edit' ? (
+              'Update Expense'
             ) : (
               'Submit Expense'
             )}

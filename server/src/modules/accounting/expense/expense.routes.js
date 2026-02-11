@@ -5,7 +5,6 @@ const { USER_ROLES } = require('../../../constants/roles');
 const expenseController = require('./expense.controller');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-
 const expenseRoutes = express.Router();
 
 
@@ -27,5 +26,12 @@ expenseRoutes.get('/', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST),
     expenseController.getExpenses
 )
+
+// Edit expense (only when pending) - Approver / Superadmin
+expenseRoutes.patch('/:id', protect,
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
+    upload.single('attachment'),
+    expenseController.updateExpense
+);
 
 module.exports = expenseRoutes;

@@ -5,9 +5,7 @@ const { USER_ROLES } = require('../../../constants/roles');
 const incomeController = require('./income.controller');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
-
 const incomeRoutes = express.Router()
-
 
 incomeRoutes.post('/', protect, 
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST), 
@@ -19,6 +17,13 @@ incomeRoutes.patch('/:id/status', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN), 
     upload.single('attachment'),
     incomeController.updateIncomeStatus
+);
+
+// Edit income (only when pending) - Approver / Superadmin
+incomeRoutes.patch('/:id', protect,
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN),
+    upload.single('attachment'),
+    incomeController.updateIncome
 );
 
 incomeRoutes.get('/', protect,

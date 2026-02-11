@@ -4,7 +4,6 @@ const postingService = require('../posting.service');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting');
 
-
 exports.createExpense = async (req, res) => {
     try {
         const { vendorName, amountBeforeVAT } = req.body;
@@ -26,7 +25,6 @@ exports.createExpense = async (req, res) => {
     }
 }
 
-
 exports.getExpenses = async (req, res) => {
     try {
         const expenses = await expenseService.getExpenses(req.user);
@@ -34,6 +32,25 @@ exports.getExpenses = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
+};
+
+exports.updateExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const expenseData = {
+      ...req.body,
+      attachmentUrl: req.file ? req.file.path : undefined,
+    };
+
+    const updated = await expenseService.updateExpense(id, expenseData, req.user);
+
+    return res.status(200).json({
+      message: 'Expense entry updated successfully',
+      data: updated,
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
 };
 
 exports.updateExpenseStatus = async (req, res) => {
