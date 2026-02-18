@@ -61,20 +61,28 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
 
       setEntries(combined);
 
-      
+      // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3246c9c3-ed79-4b66-89b9-ba301c8353ce', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           location: 'client/src/hooks/useTransactions.js:40',
           message: 'TransactionStatus entries loaded',
-          data: { mode, totalEntries: combined.length },
+          data: {
+            mode,
+            totalEntries: combined.length,
+            sampleAttachments: combined.slice(0, 3).map((e) => ({
+              id: e._id,
+              type: e.type,
+              attachmentUrl: e.attachmentUrl || null,
+            })),
+          },
           runId: 'pre-fix',
           hypothesisId: 'H2',
           timestamp: Date.now(),
         }),
       }).catch(() => {});
-      
+      // #endregion
     } catch (err) {
       console.error('Error fetching entries:', err);
       setError(err.response?.data?.message || 'Failed to load transactions. Please try again.');
@@ -86,7 +94,32 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
 
   useEffect(() => {
     fetchEntries();
-   
+  }, [mode]);
+
+  // Listen for global transaction-change events so external creates/edits
+  // (e.g. from Approver dashboard modals) can trigger a refetch.
+  useEffect(() => {
+    const handler = () => {
+      fetchEntries();
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3246c9c3-ed79-4b66-89b9-ba301c8353ce', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'client/src/hooks/useTransactions.js:88',
+          message: 'transactions:changed event received, refetching',
+          data: { mode },
+          runId: 'pre-fix-refresh',
+          hypothesisId: 'H3',
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    };
+
+    window.addEventListener('transactions:changed', handler);
+    return () => window.removeEventListener('transactions:changed', handler);
   }, [mode]);
 
   const filteredData = useMemo(() => {

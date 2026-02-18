@@ -1,4 +1,19 @@
 import React from 'react';
+import API from '../../api/axiosConfig';
+
+const getApiOrigin = () => {
+  const base = API.defaults.baseURL || '';
+  return base.replace(/\/api\/?$/, '');
+};
+
+const buildAttachmentUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+
+  const origin = getApiOrigin();
+  const normalizedPath = path.replace(/^\/+/, '');
+  return `${origin}/${normalizedPath}`;
+};
 
 const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading }) => (
   <div className="lg:hidden space-y-4">
@@ -8,6 +23,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
         const net = isInc ? item.netAmount || 0 : item.netPayable || 0;
         const paid = isInc ? item.amountReceived || 0 : item.amountPaid || 0;
         const balance = paid - net;
+        const attachmentUrl = buildAttachmentUrl(item.attachmentUrl);
 
         return (
           <div
@@ -25,6 +41,15 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
                   <p className="text-[10px] font-bold text-slate-400 uppercase">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </p>
+                  {attachmentUrl && (
+                    <button
+                      type="button"
+                      onClick={() => window.open(attachmentUrl, '_blank', 'noopener')}
+                      className="mt-1 text-[10px] font-bold text-indigo-600 hover:underline"
+                    >
+                      View Attachment
+                    </button>
+                  )}
                 </div>
               </div>
               <span
@@ -85,6 +110,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
                 <div className="flex gap-2">
                   {onEdit && (
                     <button
+                      type="button"
                       onClick={() => onEdit(item)}
                       className="flex-1 py-2.5 bg-slate-200 text-slate-800 rounded-xl text-xs font-black hover:bg-slate-300 active:scale-95 transition-all"
                     >
@@ -92,6 +118,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => onAction(item._id, 'APPROVED', item.type)}
                     disabled={actionLoading === item._id}
                     className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black hover:bg-emerald-700 active:scale-95 disabled:opacity-50 transition-all"
@@ -99,6 +126,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
                     APPROVE
                   </button>
                   <button
+                    type="button"
                     onClick={() => onAction(item._id, 'REJECTED', item.type)}
                     disabled={actionLoading === item._id}
                     className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-black hover:bg-rose-700 active:scale-95 disabled:opacity-50 transition-all"
@@ -134,4 +162,3 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading })
 );
 
 export default TransactionCardsMobile;
-

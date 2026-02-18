@@ -156,6 +156,10 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
         showNotification('success', successMsg);
       }
+
+      // Notify the shared transaction hook that entries changed
+      window.dispatchEvent(new CustomEvent('transactions:changed'));
+
       if (refreshData) refreshData();
       onClose();
     } catch (err) {

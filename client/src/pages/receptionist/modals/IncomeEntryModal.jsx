@@ -148,6 +148,10 @@ const handleSubmit = async (e) => {
       await API.post('/incomes', data);
       showNotification('success', 'Income recorded successfully!');
     }
+
+    // Notify the shared transaction hook that entries changed
+    window.dispatchEvent(new CustomEvent('transactions:changed'));
+
     if (refreshData) refreshData();
     onClose();
   } catch (err) {

@@ -1,4 +1,20 @@
 import React from 'react';
+import API from '../../api/axiosConfig';
+
+const getApiOrigin = () => {
+  const base = API.defaults.baseURL || '';
+  // e.g. http://localhost:5500/api -> http://localhost:5500
+  return base.replace(/\/api\/?$/, '');
+};
+
+const buildAttachmentUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+
+  const origin = getApiOrigin();
+  const normalizedPath = path.replace(/^\/+/, '');
+  return `${origin}/${normalizedPath}`;
+};
 
 const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }) => (
   <div className="hidden lg:block bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
@@ -25,6 +41,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
               const net = isInc ? item.netAmount || 0 : item.netPayable || 0;
               const paid = isInc ? item.amountReceived || 0 : item.amountPaid || 0;
               const balance = paid - net;
+              const attachmentUrl = buildAttachmentUrl(item.attachmentUrl);
 
               return (
                 <tr key={item._id} className="hover:bg-blue-50/20 transition-colors">
@@ -36,6 +53,15 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </p>
+                        {attachmentUrl && (
+                          <button
+                            type="button"
+                            onClick={() => window.open(attachmentUrl, '_blank', 'noopener')}
+                            className="mt-1 text-[10px] font-bold text-indigo-600 hover:underline"
+                          >
+                            View Attachment
+                          </button>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -43,8 +69,12 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
                     Rs. {item.amountBeforeVAT?.toLocaleString() || '0'}
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <div className="text-[10px] font-bold text-blue-500">V: +{item.vatAmount || 0}</div>
-                    <div className="text-[10px] font-bold text-rose-500">D: -{item.discount || 0}</div>
+                    <div className="text-[10px] font-bold text-blue-500">
+                      V: +{item.vatAmount || 0}
+                    </div>
+                    <div className="text-[10px] font-bold text-rose-500">
+                      D: -{item.discount || 0}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right bg-slate-50/30">
                     <p className={`text-sm font-black font-mono ${isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
@@ -85,6 +115,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
                         <div className="flex gap-2 justify-center">
                           {onEdit && (
                             <button
+                              type="button"
                               onClick={() => onEdit(item)}
                               className="px-3 py-1.5 bg-slate-200 text-slate-800 rounded-lg text-[9px] font-black hover:bg-slate-300 transition-all active:scale-95"
                             >
@@ -92,6 +123,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
                             </button>
                           )}
                           <button
+                            type="button"
                             onClick={() => onAction(item._id, 'APPROVED', item.type)}
                             disabled={actionLoading === item._id}
                             className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-[9px] font-black hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
@@ -99,6 +131,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
                             APPROVE
                           </button>
                           <button
+                            type="button"
                             onClick={() => onAction(item._id, 'REJECTED', item.type)}
                             disabled={actionLoading === item._id}
                             className="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black hover:bg-rose-700 transition-all active:scale-95 disabled:opacity-50"
@@ -122,10 +155,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
             })
           ) : (
             <tr>
-              <td
-                colSpan="6"
-                className="px-6 py-20 text-center text-slate-400 italic font-medium"
-              >
+              <td colSpan="6" className="px-6 py-20 text-center text-slate-400 italic font-medium">
                 No records found for this category.
               </td>
             </tr>
@@ -137,4 +167,3 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading }
 );
 
 export default TransactionTableDesktop;
-
