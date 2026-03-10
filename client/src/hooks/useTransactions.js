@@ -61,28 +61,6 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
 
       setEntries(combined);
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3246c9c3-ed79-4b66-89b9-ba301c8353ce', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'client/src/hooks/useTransactions.js:40',
-          message: 'TransactionStatus entries loaded',
-          data: {
-            mode,
-            totalEntries: combined.length,
-            sampleAttachments: combined.slice(0, 3).map((e) => ({
-              id: e._id,
-              type: e.type,
-              attachmentUrl: e.attachmentUrl || null,
-            })),
-          },
-          runId: 'pre-fix',
-          hypothesisId: 'H2',
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
     } catch (err) {
       console.error('Error fetching entries:', err);
       setError(err.response?.data?.message || 'Failed to load transactions. Please try again.');
@@ -101,21 +79,6 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
   useEffect(() => {
     const handler = () => {
       fetchEntries();
-
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3246c9c3-ed79-4b66-89b9-ba301c8353ce', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'client/src/hooks/useTransactions.js:88',
-          message: 'transactions:changed event received, refetching',
-          data: { mode },
-          runId: 'pre-fix-refresh',
-          hypothesisId: 'H3',
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
     };
 
     window.addEventListener('transactions:changed', handler);
@@ -175,9 +138,8 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
       await API.patch(endpoint, { status: action });
 
       const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 ${
-        action === 'APPROVED' ? 'bg-emerald-500' : 'bg-orange-500'
-      } text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-bold`;
+      notification.className = `fixed top-4 right-4 ${action === 'APPROVED' ? 'bg-emerald-500' : 'bg-orange-500'
+        } text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-bold`;
       notification.textContent = `Entry ${action.toLowerCase()} successfully!`;
       document.body.appendChild(notification);
       setTimeout(() => notification.remove(), 3000);
@@ -212,7 +174,7 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
     filteredData,
     paginatedData,
     totalPages,
-  
+
     setStatusFilter,
     setTypeFilter,
     setSearchTerm,

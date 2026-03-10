@@ -1,143 +1,118 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import MainLayout from './layouts/MainLayout';
+import TransactionStatus from './components/transactions/TransactionStatus';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardSwitcher from './pages/DashboardSwitcher';
 import Unauthorized from './pages/Unauthorized';
 
-// Shared transaction views
-import TransactionStatusPage from './components/transactions/TransactionStatus';
+// Admin pages
+import AdminDashboard from './pages/admin/AdminHome';
+import UserManagement from './pages/admin/UserManagement';
+import COAManagement from './pages/admin/CoaManagement';
 
-// Approver views
-import IncomeRecords from './pages/approver/IncomeRecords';
-import ExpenseRecords from './pages/approver/ExpenseRecords';
-import AdvanceRecords from './pages/approver/AdvanceRecords';
-import DueRecords from './pages/approver/DueRecords';
-
-// Admin / Superadmin views
-import AdminHome from './pages/admin/AdminHome';
-
-// placeholder pages for navigation targets for checking
-const UsersPage = () => <div className="p-6">User management screen (to be implemented).</div>;
-const ReportsPage = () => <AdminHome />;
-const CoaSetupPage = () => <div className="p-6">COA setup screen (to be implemented).</div>;
-
-// Auditor views
-const LedgerAuditPage = () => <div className="p-6">Ledger audit view (to be implemented).</div>;
-const TaxReportsPage = () => <div className="p-6">Tax registers & Annex 13 (to be implemented).</div>;
+// Wrapper components for different modes
+const IncomeRecords = () => <TransactionStatus mode="INCOME" />;
+const ExpenseRecords = () => <TransactionStatus mode="EXPENSE" />;
+const AdvanceRecords = () => <TransactionStatus mode="ADVANCE" />;
+const DueRecords = () => <TransactionStatus mode="DUE" />;
+const MySubmissions = () => <TransactionStatus mode="ALL" />;
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/unauthorized" element={<Unauthorized/>} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
+        {/* Protected Routes */}
         <Route element={<MainLayout />}>
-          {/* Role-based dashboard */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN', 'AUDITOR']}>
-                <DashboardSwitcher />
-              </ProtectedRoute>
-            }
-          />
+          
+          {/* Dashboard - All roles */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN', 'AUDITOR']}>
+              <DashboardSwitcher />
+            </ProtectedRoute>
+          } />
 
-          {/* Receptionist / Approver own submissions */}
-          <Route
-            path="/submissions"
-            element={
-              <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER']}>
-                <TransactionStatusPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* RECEPTIONIST Routes */}
+          <Route path="/submissions" element={
+            <ProtectedRoute allowedRoles={['RECEPTIONIST']}>
+              <MySubmissions />
+            </ProtectedRoute>
+          } />
 
-          {/* Approver: record views */}
-          <Route
-            path="/income"
-            element={
-              <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
-                <IncomeRecords />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/expense"
-            element={
-              <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
-                <ExpenseRecords />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/advance"
-            element={
-              <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
-                <AdvanceRecords />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/due"
-            element={
-              <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
-                <DueRecords />
-              </ProtectedRoute>
-            }
-          />
+          {/* APPROVER Routes */}
+          <Route path="/income" element={
+            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
+              <IncomeRecords />
+            </ProtectedRoute>
+          } />
 
-          {/* Superadmin-only management screens */}
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute allowedRoles={['SUPERADMIN']}>
-                <UsersPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute allowedRoles={['SUPERADMIN', 'AUDITOR']}>
-                <ReportsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/coa"
-            element={
-              <ProtectedRoute allowedRoles={['SUPERADMIN']}>
-                <CoaSetupPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/expense" element={
+            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
+              <ExpenseRecords />
+            </ProtectedRoute>
+          } />
 
-          {/* Auditor-focused routes */}
-          <Route
-            path="/ledger"
-            element={
-              <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
-                <LedgerAuditPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/tax-reports"
-            element={
-              <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
-                <TaxReportsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/advance" element={
+            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
+              <AdvanceRecords />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/due" element={
+            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
+              <DueRecords />
+            </ProtectedRoute>
+          } />
+
+          {/* SUPERADMIN Routes */}
+          <Route path="/reports" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN', 'AUDITOR']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/users" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN']}>
+              <UserManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/coa" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN']}>
+              <COAManagement />
+            </ProtectedRoute>
+          } />
+
+          {/* AUDITOR Routes */}
+          <Route path="/ledger" element={
+            <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
+              <div className="p-8 text-center">
+                <h2 className="text-2xl font-bold text-slate-800">Ledger Audit</h2>
+                <p className="text-slate-500 mt-2">Coming Soon</p>
+              </div>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/tax-reports" element={
+            <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
+              <div className="p-8 text-center">
+                <h2 className="text-2xl font-bold text-slate-800">Tax Registers</h2>
+                <p className="text-slate-500 mt-2">Coming Soon</p>
+              </div>
+            </ProtectedRoute>
+          } />
+          
         </Route>
 
-        {/* Catch-all redirect to login */}
+        {/* Catch-all redirect */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   );
 }
 
-export default App
+export default App;

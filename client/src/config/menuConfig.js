@@ -13,7 +13,6 @@ export const MENU_CONFIG = {
   SUPERADMIN: [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
     { name: 'User Management', path: '/users', icon: '👥' },
-    { name: 'Financial Reports', path: '/reports', icon: '📊' },
     { name: 'COA Setup', path: '/coa', icon: '⚙️' },
   ],
   AUDITOR: [

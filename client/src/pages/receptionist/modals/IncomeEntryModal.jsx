@@ -111,55 +111,55 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
   const advanceAmount = amountReceived > netAmount ? round(amountReceived - netAmount) : 0;
   const pendingAmount = netAmount > amountReceived ? round(netAmount - amountReceived) : 0;
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  try {
-    //FormData object
-    const data = new FormData();
+    try {
+      //FormData object
+      const data = new FormData();
 
-    // Append all text fields from formData state
-    Object.keys(formData).forEach(key => {
-      if (key !== 'paymentScreenshot') {
-        data.append(key, formData[key]);
+      // Append all text fields from formData state
+      Object.keys(formData).forEach(key => {
+        if (key !== 'paymentScreenshot') {
+          data.append(key, formData[key]);
+        }
+      });
+
+      // Append the file if it exists
+      if (formData.paymentScreenshot) {
+        data.append('attachment', formData.paymentScreenshot);
       }
-    });
 
-    // Append the file if it exists
-    if (formData.paymentScreenshot) {
-      data.append('attachment', formData.paymentScreenshot);
+      // Append calculated fields
+      data.append('vatAmount', vatAmount);
+      data.append('discount', discount);
+      data.append('tdsAmount', tdsAmount);
+      data.append('netAmount', netAmount);
+      data.append('pendingAmount', pendingAmount);
+      data.append('advanceAmount', advanceAmount);
+      data.append('branch', 'KTM');
+      data.append('status', 'PENDING');
+
+      if (mode === 'edit' && initialData?._id) {
+        await API.patch(`/incomes/${initialData._id}`, data);
+        showNotification('success', 'Income updated successfully!');
+      } else {
+        await API.post('/incomes', data);
+        showNotification('success', 'Income recorded successfully!');
+      }
+
+      // Notify the shared transaction hook that entries changed
+      window.dispatchEvent(new CustomEvent('transactions:changed'));
+
+      if (refreshData) refreshData();
+      onClose();
+    } catch (err) {
+      showNotification('error', err.response?.data?.message || "Error saving income");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Append calculated fields
-    data.append('vatAmount', vatAmount);
-    data.append('discount', discount);
-    data.append('tdsAmount', tdsAmount);
-    data.append('netAmount', netAmount);
-    data.append('pendingAmount', pendingAmount);
-    data.append('advanceAmount', advanceAmount);
-    data.append('branch', 'KTM');
-    data.append('status', 'PENDING');
-
-    if (mode === 'edit' && initialData?._id) {
-      await API.patch(`/incomes/${initialData._id}`, data);
-      showNotification('success', 'Income updated successfully!');
-    } else {
-      await API.post('/incomes', data);
-      showNotification('success', 'Income recorded successfully!');
-    }
-
-    // Notify the shared transaction hook that entries changed
-    window.dispatchEvent(new CustomEvent('transactions:changed'));
-
-    if (refreshData) refreshData();
-    onClose();
-  } catch (err) {
-    showNotification('error', err.response?.data?.message || "Error saving income");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm overflow-y-auto animate-fadeIn">
@@ -365,48 +365,19 @@ const handleSubmit = async (e) => {
 
                       {/* BANK MODE */}
                       {formData.paymentMode === 'BANK' && (
-                        <>
-                          <div>
-                            <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                              Transaction ID / Ref No.
-                            </label>
-                            <input
-                              type="text"
-                              name="transactionId"
-                              placeholder="e.g. TXN-349823"
-                              value={formData.transactionId}
-                              onChange={handleInputChange}
-                              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                              Payment Screenshot
-                            </label>
-
-                            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500 transition hover:border-blue-400 hover:bg-blue-50">
-                              📤 Upload Image
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    paymentScreenshot: e.target.files[0],
-                                  }))
-                                }
-                              />
-                            </label>
-
-                            {formData.paymentScreenshot && (
-                              <p className="mt-1 text-[11px] text-green-600">
-                                ✔ {formData.paymentScreenshot.name}
-                              </p>
-                            )}
-                          </div>
-                        </>
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                            Transaction ID / Ref No.
+                          </label>
+                          <input
+                            type="text"
+                            name="transactionId"
+                            placeholder="e.g. TXN-349823"
+                            value={formData.transactionId}
+                            onChange={handleInputChange}
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                          />
+                        </div>
                       )}
 
                       {/* CHEQUE MODE */}
@@ -442,8 +413,37 @@ const handleSubmit = async (e) => {
                         </>
                       )}
                     </div>
+
+                    {/* Screenshot Upload (Common for BANK & CHEQUE) */}
+                    <div className="mt-4">
+                      <label className="mb-1.5 block text-xs font-semibold text-slate-600">
+                        Payment Screenshot
+                      </label>
+
+                      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500 transition hover:border-blue-400 hover:bg-blue-50">
+                        📤 Upload Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              paymentScreenshot: e.target.files[0],
+                            }))
+                          }
+                        />
+                      </label>
+
+                      {formData.paymentScreenshot && (
+                        <p className="mt-1 text-[11px] text-green-600">
+                          ✔ {formData.paymentScreenshot.name}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
+
 
               </div>
             </div>

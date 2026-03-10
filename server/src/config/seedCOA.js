@@ -94,11 +94,11 @@ const seedCOA = async () => {
             const exists = await ChartOfAccount.findOne({ code: acc.code });
             if (!exists) {
                 await ChartOfAccount.create({ ...acc, createdBy: admin._id });
-                console.log(`🌱 Seeded COA Account: ${acc.code}`);
+                console.log(`Seeded COA Account: ${acc.code}`);
             }
         }
     } catch (error) {
-        console.error('❌ COA Seeding failed:', error.message);
+        console.error('COA Seeding failed:', error.message);
     }
 };
 
