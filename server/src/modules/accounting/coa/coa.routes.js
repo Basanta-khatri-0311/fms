@@ -23,4 +23,17 @@ coaRoute.get(
   coaController.getAccounts
 );
 
+coaRoute.patch(
+  '/:id',
+  protect,
+  authorize(USER_ROLES.SUPERADMIN),
+  coaController.updateAccount
+);
+
+coaRoute.delete(
+  '/:id',
+  protect,
+  authorize(USER_ROLES.SUPERADMIN),
+  coaController.deleteAccount
+);
 module.exports = coaRoute;

@@ -1,104 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
+import CoaModal from './modals/AddCoaModal';
+import Toast from '../../components/Toast'; 
 
 const COAManagement = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [filterType, setFilterType] = useState('ALL');
+  const [activeAccount, setActiveAccount] = useState(null); 
+  const [showModal, setShowModal] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  useEffect(() => { fetchAccounts(); }, []);
 
   const fetchAccounts = async () => {
     try {
       setLoading(true);
       const { data } = await API.get('/coa');
       setAccounts(data.data || data || []);
+    } catch (err) { console.error(err); } finally { setLoading(false); }
+  };
+
+  const triggerToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure?")) return;
+    try {
+      await API.delete(`/coa/${id}`);
+      fetchAccounts();
+      triggerToast("Account deleted successfully", "success");
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load chart of accounts');
-    } finally {
-      setLoading(false);
+      triggerToast(err.response?.data?.message || "Delete failed", "error");
     }
   };
 
   const accountTypes = ['ALL', 'ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'];
   
+  // FILTER LOGIC
   const filteredAccounts = filterType === 'ALL' 
     ? accounts 
     : accounts.filter(a => a.type === filterType);
 
-  const getTypeIcon = (type) => {
-    const icons = {
-      'ASSET': '💰',
-      'LIABILITY': '💳',
-      'EQUITY': '📊',
-      'INCOME': '💵',
-      'EXPENSE': '💸',
-    };
-    return icons[type] || '📄';
-  };
-
-  const getTypeColor = (type) => {
-    const colors = {
-      'ASSET': 'blue',
-      'LIABILITY': 'red',
-      'EQUITY': 'purple',
-      'INCOME': 'emerald',
-      'EXPENSE': 'rose',
-    };
-    return colors[type] || 'slate';
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <span className="text-4xl">⚠️</span>
-          <p className="text-red-600 font-bold mt-2">{error}</p>
-          <button
-            onClick={fetchAccounts}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900">Chart of Accounts</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage your accounting structure</p>
-        </div>
-        <button className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all">
-          ➕ Add Account
+    <div className="max-w-7xl mx-auto p-8 bg-slate-50 min-h-screen">
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-2xl font-semibold text-slate-900 italic underline decoration-indigo-200 underline-offset-8">Chart of Accounts</h2>
+        <button 
+            onClick={() => { setActiveAccount(null); setShowModal(true); }} 
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg flex items-center gap-2"
+        >
+          <span>Add Account</span>
         </button>
       </div>
 
-      {/* Type Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      {/* Filter Tabs */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
         {accountTypes.map(type => (
           <button
             key={type}
             onClick={() => setFilterType(type)}
-            className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
-              filterType === type
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              filterType === type 
+                ? 'bg-indigo-600 text-white shadow-md' 
+                : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             {type}
@@ -106,111 +72,47 @@ const COAManagement = () => {
         ))}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {accountTypes.slice(1).map(type => {
-          const count = accounts.filter(a => a.type === type).length;
-          const color = getTypeColor(type);
-          return (
-            <div key={type} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{getTypeIcon(type)}</span>
-                <p className={`text-xs font-black uppercase text-${color}-400`}>
-                  {type}
-                </p>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900">{count}</h3>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Accounts Table */}
-      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase text-slate-600">
-                  Code
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase text-slate-600">
-                  Account Name
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase text-slate-600">
-                  Type
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase text-slate-600">
-                  Description
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase text-slate-600">
-                  Actions
-                </th>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50/50 border-b border-slate-100">
+            <tr>
+              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Account Name</th>
+              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Code</th>
+              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Type</th>
+              <th className="px-6 py-4 text-right text-[10px] font-black uppercase text-slate-400 tracking-widest">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {filteredAccounts.map((account) => (
+              <tr key={account._id} className="hover:bg-slate-50/50 transition-colors">
+                <td className="px-6 py-4 text-sm font-semibold text-slate-900">{account.name}</td>
+                <td className="px-6 py-4 text-sm text-slate-500 font-mono">{account.code}</td>
+                <td className="px-6 py-4">
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase border ${
+                    account.type === 'INCOME' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-blue-50 text-blue-700 border-blue-100'
+                  }`}>
+                    {account.type}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-right space-x-3">
+                  <button onClick={() => { setActiveAccount(account); setShowModal(true); }} className="text-slate-400 hover:text-indigo-600 text-sm font-medium">Edit</button>
+                  <button onClick={() => handleDelete(account._id)} className="text-slate-400 hover:text-red-600 text-sm font-medium">Delete</button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredAccounts.map((account) => {
-                const color = getTypeColor(account.type);
-                return (
-                  <tr key={account._id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4">
-                      <span className="font-mono text-sm font-bold text-slate-600">
-                        {account.code || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{getTypeIcon(account.type)}</span>
-                        <span className="font-bold text-slate-800">{account.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-black uppercase bg-${color}-100 text-${color}-600`}>
-                        {account.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {account.description || '-'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-200">
-                          Edit
-                        </button>
-                        <button className="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200">
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {filteredAccounts.length === 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
-          <span className="text-6xl">📊</span>
-          <p className="text-slate-500 font-bold mt-4">
-            {filterType === 'ALL' 
-              ? 'No accounts found. Click "Add Account" to create your first account.' 
-              : `No ${filterType} accounts found.`
-            }
-          </p>
-        </div>
+      {showModal && (
+        <CoaModal
+          editData={activeAccount}
+          onClose={() => setShowModal(false)}
+          refreshData={fetchAccounts}
+        />
       )}
 
-      {/* Help Section */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-        <h3 className="text-sm font-black text-blue-900 mb-2">💡 About Chart of Accounts</h3>
-        <p className="text-sm text-blue-800">
-          The Chart of Accounts is the foundation of your accounting system. Each account represents 
-          a category where transactions are recorded. Accounts are organized by type: Assets (what you own), 
-          Liabilities (what you owe), Equity (owner's stake), Income (revenue), and Expenses (costs).
-        </p>
-      </div>
+      {toast.show && <Toast message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />}
     </div>
   );
 };

@@ -76,3 +76,27 @@ exports.updateUserStatus = async (id, status, performedBy) => {
     await user.save();
     return user;
 };
+
+//update user data
+exports.updateUser = async (id, data) => {
+    const { name, email, password, role } = data;
+    
+    const user = await User.findById(id);
+    if (!user) {
+        const err = new Error('User not found');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    if (name) user.name = name.trim();
+    if (email) user.email = email.trim().toLowerCase();
+    if (role) user.role = role;
+    
+    // Only hash and update password if a new one is provided
+    if (password && password.trim().length > 0) {
+        user.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.save();
+    return user;
+};

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
 import ReportModal from '../../components/ReportModal';
+import IncomeModal from '../receptionist/modals/IncomeEntryModal';
+import ExpenseModal from '../receptionist/modals/ExpenseEntryModal';
 
 const AdminDashboard = () => {
   const [summary, setSummary] = useState({
@@ -8,6 +10,7 @@ const AdminDashboard = () => {
     totalExpense: 0,
     netProfit: 0
   });
+  const [activeModal, setActiveModal] = useState(null);
   const [financialYear, setFinancialYear] = useState('2025/26');
   const [activeReport, setActiveReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,14 +19,12 @@ const AdminDashboard = () => {
     fetchStats();
   }, [financialYear]);
 
-const fetchStats = async () => {
+  const fetchStats = async () => {
     try {
       setLoading(true);
       const response = await API.get(`/reports/income-statement?financialYear=${financialYear}`);
-      
-      // Based on your reports.controller, the result is in response.data.data
       const result = response.data?.data || {};
-      
+
       setSummary({
         totalIncome: result.totalIncome || 0,
         totalExpense: result.totalExpense || 0,
@@ -38,142 +39,243 @@ const fetchStats = async () => {
   };
 
   const reports = [
-    { id: 'trial-balance', name: 'Trial Balance', implemented: true },
-    { id: 'income-statement', name: 'Income Statement', implemented: true },
-    { id: 'balance-sheet', name: 'Balance Sheet', implemented: true },
-    { id: 'sales-register', name: 'Sales Register', implemented: false },
+    { id: 'trial-balance', name: 'Trial Balance', icon: '⚖️', color: 'violet', implemented: true },
+    { id: 'income-statement', name: 'Income Statement', icon: '📊', color: 'emerald', implemented: true },
+    { id: 'balance-sheet', name: 'Balance Sheet', icon: '📈', color: 'blue', implemented: true },
+    { id: 'sales-register', name: 'Sales Register', icon: '🛒', color: 'amber', implemented: false },
   ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-16 h-16 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Header with Financial Year Selector */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-slate-900">Financial Overview</h2>
-          <p className="text-sm text-slate-500 mt-1">Real-time stats from approved ledger entries</p>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 pb-6 border-b-2 border-slate-200">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+              Financial Dashboard
+            </h1>
+            <p className="text-slate-600 mt-2">
+              Real-time insights from approved ledger transactions
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-white px-5 py-3 rounded-xl shadow-sm border border-slate-200">
+            <label className="text-sm font-semibold text-slate-700">Financial Year</label>
+            <select
+              value={financialYear}
+              onChange={(e) => setFinancialYear(e.target.value)}
+              className="bg-slate-50 border border-slate-300 px-4 py-2 rounded-lg text-sm font-semibold 
+                text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 
+                focus:border-transparent"
+            >
+              <option value="2025/26">2025/26</option>
+              <option value="2026/27">2026/27</option>
+              <option value="2027/28">2027/28</option>
+              <option value="2028/29">2028/29</option>
+            </select>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <label className="text-xs font-bold text-slate-600 uppercase">Financial Year:</label>
-          <select
-            value={financialYear}
-            onChange={(e) => setFinancialYear(e.target.value)}
-            className="px-4 py-2 bg-white border-2 border-slate-200 rounded-xl text-sm font-bold 
-              focus:border-blue-500 outline-none cursor-pointer"
+
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          {/* Total Income */}
+          <div className="group bg-white rounded-2xl p-8 shadow-sm border-2 border-slate-200 
+            hover:shadow-lg hover:bg-emerald-300 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Total Income
+              </div>
+            </div>
+
+            <div className="text-4xl font-bold text-slate-900 mb-2">
+              Rs. {summary.totalIncome.toLocaleString()}
+            </div>
+
+            <div className="text-sm text-slate-600">
+              From approved entries
+            </div>
+
+            <div className="mt-6 h-1 bg-emerald-500 rounded-full" />
+          </div>
+
+          {/* Total Expenses */}
+          <div className="group bg-white rounded-2xl p-8 shadow-sm border-2 border-slate-200 
+            hover:shadow-lg  hover:bg-rose-300 transition-all duration-300">
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Total Expenses
+              </div>
+
+            </div>
+
+            <div className="text-4xl font-bold text-slate-900 mb-2">
+              Rs. {summary.totalExpense.toLocaleString()}
+            </div>
+
+            <div className="text-sm text-slate-600">
+              From approved entries
+            </div>
+
+            <div className="mt-6 h-1 bg-rose-500 rounded-full" />
+          </div>
+
+          {/* Net Profit */}
+          <div className={`group bg-white rounded-2xl p-8 shadow-sm border-2 transition-all duration-300
+            ${summary.netProfit >= 0
+              ? 'border-slate-200 hover:shadow-lg hover:bg-blue-300'
+              : 'border-slate-200 hover:shadow-lg hover:bg-red-300'
+            }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Net Profit
+              </div>
+            </div>
+
+            <div className={`text-4xl font-bold mb-2 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-red-600'
+              }`}>
+              Rs. {Math.abs(summary.netProfit).toLocaleString()}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${summary.netProfit >= 0
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-red-100 text-red-700'
+                }`}>
+                {summary.netProfit >= 0 ? 'Profit' : 'Loss'}
+              </span>
+              <span className="text-sm text-slate-600">FY {financialYear}</span>
+            </div>
+
+            <div className={`mt-6 h-1 rounded-full ${summary.netProfit >= 0 ? 'bg-blue-500' : 'bg-red-500'
+              }`} />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => setActiveModal('INCOME')}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold shadow-sm
+              hover:bg-indigo-700 hover:shadow-md transition-all duration-200 
+              active:scale-95 flex items-center gap-2"
           >
-            <option value="2025/26">2025/26</option>
-            <option value="2026/27">2026/27</option>
-            <option value="2027/28">2027/28</option>
-            <option value="2028/29">2028/29</option>
-          </select>
-        </div>
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-emerald-500 
-          hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Total Income</p>
-            <span className="text-2xl">💰</span>
-          </div>
-          <p className="text-4xl font-black text-emerald-600 mt-2">
-            Rs. {summary.totalIncome.toLocaleString()}
-          </p>
-          <p className="text-xs text-slate-500 mt-2">From approved entries</p>
+            <span>New Income</span>
+          </button>
+
+          <button
+            onClick={() => setActiveModal('EXPENSE')}
+            className="px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold shadow-sm
+              hover:bg-rose-700 hover:shadow-md transition-all duration-200 
+              active:scale-95 flex items-center gap-2"
+          >
+            <span>New Expense</span>
+          </button>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-rose-500 
-          hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Total Expenses</p>
-            <span className="text-2xl">💸</span>
-          </div>
-          <p className="text-4xl font-black text-rose-600 mt-2">
-            Rs. {summary.totalExpense.toLocaleString()}
-          </p>
-          <p className="text-xs text-slate-500 mt-2">From approved entries</p>
-        </div>
+        {/* Reports Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Financial Reports</h2>
 
-        <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500 
-          hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-wider">Net Profit</p>
-            <span className="text-2xl">{summary.netProfit >= 0 ? '📈' : '📉'}</span>
-          </div>
-          <p className={`text-4xl font-black mt-2 ${
-            summary.netProfit >= 0 ? 'text-blue-600' : 'text-red-600'
-          }`}>
-            Rs. {summary.netProfit.toLocaleString()}
-          </p>
-          <p className="text-xs text-slate-500 mt-2">
-            {summary.netProfit >= 0 ? 'Profitable' : 'Loss'} • FY {financialYear}
-          </p>
-        </div>
-      </div>
-
-      {/* Quick Reports Section */}
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-black">Quick Reports</h3>
-            <span className="text-2xl">📑</span>
-          </div>
-          
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {reports.map((report) => (
               <button
                 key={report.id}
                 onClick={() => report.implemented && setActiveReport(report.id)}
                 disabled={!report.implemented}
-                className={`w-full text-left p-4 rounded-xl transition-all text-sm flex justify-between items-center
-                  ${report.implemented 
-                    ? 'bg-slate-800 hover:bg-slate-700 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer' 
-                    : 'bg-slate-800/50 cursor-not-allowed opacity-50'
+                className={`group bg-white rounded-2xl p-6 text-left shadow-sm border-2 border-slate-200
+                  transition-all duration-300
+                  ${report.implemented
+                    ? `hover:shadow-lg hover:border-${report.color}-300 hover:-translate-y-1 cursor-pointer`
+                    : 'opacity-50 cursor-not-allowed'
                   }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{report.icon}</span>
-                  <div>
-                    <span className="font-bold">{report.name}</span>
-                    {!report.implemented && (
-                      <span className="ml-2 text-[10px] px-2 py-0.5 bg-amber-500 text-amber-900 rounded-full font-black">
-                        Coming Soon
-                      </span>
-                    )}
-                  </div>
+                {/* Icon */}
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl mb-4
+                  ${report.color === 'violet' && 'bg-violet-100 group-hover:bg-violet-200'}
+                  ${report.color === 'emerald' && 'bg-emerald-100 group-hover:bg-emerald-200'}
+                  ${report.color === 'blue' && 'bg-blue-100 group-hover:bg-blue-200'}
+                  ${report.color === 'amber' && 'bg-amber-100 group-hover:bg-amber-200'}
+                  ${report.implemented ? 'transition-colors duration-300' : ''}`}>
+                  {report.icon}
                 </div>
+
+                {/* Title */}
+                <h3 className="text-lg font-bold text-slate-900 mb-3">
+                  {report.name}
+                </h3>
+
+                {/* Status */}
+                {report.implemented ? (
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                    <span>View Report</span>
+                    <span className="transform group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  </div>
+                ) : (
+                  <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 
+                    text-xs font-bold rounded-full">
+                    Coming Soon
+                  </span>
+                )}
+
+                {/* Bottom accent */}
                 {report.implemented && (
-                  <span className="text-blue-400 font-bold">View →</span>
+                  <div className={`mt-4 h-1 rounded-full
+                    ${report.color === 'violet' && 'bg-violet-500'}
+                    ${report.color === 'emerald' && 'bg-emerald-500'}
+                    ${report.color === 'blue' && 'bg-blue-500'}
+                    ${report.color === 'amber' && 'bg-amber-500'}`} />
                 )}
               </button>
             ))}
           </div>
+        </div>
 
-          <div className="mt-6 p-4 bg-slate-800 rounded-xl">
-            <p className="text-xs text-slate-400 font-bold">
-              💡 Tip: Click any report to view detailed financial statements
-            </p>
+        {/* Help Section */}
+        <div className="bg-slate-800 rounded-2xl p-8 text-white shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="text-4xl">💡</div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold mb-2">Quick Tips</h3>
+              <p className="text-slate-300 text-sm leading-relaxed">
+                Click on any report card to view detailed financial statements. Use the financial year
+                selector to analyze different periods. Export reports to CSV for further analysis in Excel.
+              </p>
+            </div>
           </div>
         </div>
-        
       </div>
 
-      {/* Report Modal */}
+      {/* Modals */}
       {activeReport && (
         <ReportModal
           reportType={activeReport}
           financialYear={financialYear}
           onClose={() => setActiveReport(null)}
+        />
+      )}
+
+      {activeModal === 'INCOME' && (
+        <IncomeModal
+          onClose={() => setActiveModal(null)}
+          refreshData={fetchStats}
+        />
+      )}
+
+      {activeModal === 'EXPENSE' && (
+        <ExpenseModal
+          onClose={() => setActiveModal(null)}
+          refreshData={fetchStats}
         />
       )}
     </div>
