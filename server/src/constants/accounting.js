@@ -16,6 +16,7 @@ const ACCOUNTING_STATUS = Object.freeze({
 const ENTRY_TYPE = Object.freeze({
   INCOME: 'INCOME',
   EXPENSE: 'EXPENSE',
+  PAYROLL: 'PAYROLL',
 });
 
 module.exports = {

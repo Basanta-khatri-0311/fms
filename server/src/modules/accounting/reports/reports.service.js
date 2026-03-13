@@ -427,3 +427,91 @@ function isCurrentLiability(accountName) {
     (name.includes('advance') && name.includes('customer'))
   );
 }
+
+const Income = require('../income/income.model');
+const Expense = require('../expense/expense.model');
+
+/**
+ * Generate Sales Register (Tax Report)
+ */
+exports.generateSalesRegister = async (financialYear) => {
+  const incomes = await Income.find({ 
+    financialYear,
+    'approval.status': 'APPROVED'
+  }).sort({ 'approval.approvedAt': 1 }); // Sort chronologically
+
+  const salesData = incomes.map(income => ({
+    date: income.approval.approvedAt,
+    invoiceNumber: income.invoiceNumber || '-',
+    buyerName: income.name,
+    buyerPan: income.buyerPan || '-',
+    serviceType: income.serviceType,
+    amountBeforeVAT: income.amountBeforeVAT,
+    vatAmount: income.amountVAT || income.vatAmount,
+    discount: income.discount,
+    tdsAmount: income.tdsAmount,
+    netAmount: income.netAmount,
+  }));
+
+  const totals = {
+    amountBeforeVAT: salesData.reduce((sum, item) => sum + item.amountBeforeVAT, 0),
+    vatAmount: salesData.reduce((sum, item) => sum + item.vatAmount, 0),
+    discount: salesData.reduce((sum, item) => sum + item.discount, 0),
+    tdsAmount: salesData.reduce((sum, item) => sum + item.tdsAmount, 0),
+    netAmount: salesData.reduce((sum, item) => sum + item.netAmount, 0),
+  };
+
+  return { sales: salesData, totals };
+};
+
+/**
+ * Generate Purchase Register (Tax Report)
+ */
+exports.generatePurchaseRegister = async (financialYear) => {
+  const expenses = await Expense.find({ 
+    financialYear,
+    'approval.status': 'APPROVED'
+  }).populate('vendor').sort({ 'approval.approvedAt': 1 });
+
+  const purchasesData = expenses.map(expense => ({
+    date: expense.approval.approvedAt,
+    billNumber: expense.billNumber || '-',
+    vendorName: expense.vendor?.name || 'Unknown',
+    vendorPan: expense.vendor?.pan || '-',
+    amountBeforeVAT: expense.amountBeforeVAT,
+    vatAmount: expense.vatAmount,
+    discount: expense.discount,
+    tdsAmount: expense.tdsAmount,
+    netPayable: expense.netPayable,
+  }));
+
+  const totals = {
+    amountBeforeVAT: purchasesData.reduce((sum, item) => sum + item.amountBeforeVAT, 0),
+    vatAmount: purchasesData.reduce((sum, item) => sum + item.vatAmount, 0),
+    discount: purchasesData.reduce((sum, item) => sum + item.discount, 0),
+    tdsAmount: purchasesData.reduce((sum, item) => sum + item.tdsAmount, 0),
+    netPayable: purchasesData.reduce((sum, item) => sum + item.netPayable, 0),
+  };
+
+  return { purchases: purchasesData, totals };
+};
+
+/**
+ * Generate Annex 13 (Tax Return Format)
+ */
+exports.generateAnnex13 = async (financialYear) => {
+  const salesResult = await exports.generateSalesRegister(financialYear);
+  const purchaseResult = await exports.generatePurchaseRegister(financialYear);
+
+  return {
+    period: financialYear,
+    sales: salesResult.totals,
+    purchases: purchaseResult.totals,
+    summary: {
+      totalVatPayable: salesResult.totals.vatAmount, // Tax collected from customers
+      totalVatClaimable: purchaseResult.totals.vatAmount, // Tax paid to vendors
+      netVatDue: salesResult.totals.vatAmount - purchaseResult.totals.vatAmount, // If positive, owe tax office; if negative, carry forward.
+    }
+  };
+};
+

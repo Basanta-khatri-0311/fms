@@ -1,20 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { MENU_CONFIG } from '../config/menuConfig';
 
 const Sidebar = ({ isOpen, onClose, userRole }) => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [userName, setUserName] = useState('User');
   const currentMenus = MENU_CONFIG[userRole] || [];
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      setUserName(parsed.name || userRole);
-    }
-  }, [userRole]);
 
   return (
     <>
@@ -44,7 +34,17 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
-          {currentMenus.map((item) => {
+          {currentMenus
+            .filter((item) => {
+              if (item.permission) {
+                const storedUser = localStorage.getItem('user');
+                const parsed = storedUser ? JSON.parse(storedUser) : null;
+                if (parsed?.role === 'SUPERADMIN' || parsed?.role === 'AUDITOR') return true;
+                return parsed?.permissions?.[item.permission] === true;
+              }
+              return true;
+            })
+            .map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link

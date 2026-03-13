@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, X, UserPlus, ShieldCheck } from 'lucide-react';
 import API from '../../../api/axiosConfig';
+import { showNotification } from '../../../utils/toast';
 
 const AddUserModal = ({ onClose, refreshData, editData = null }) => {
   const isEdit = !!editData;
@@ -8,7 +9,12 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
     name: '', 
     email: '', 
     password: '', 
-    role: 'RECEPTIONIST' 
+    role: 'RECEPTIONIST',
+    permissions: {
+      canAccessPayroll: false,
+      canViewReports: false,
+      canExportReports: false,
+    }
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +25,12 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
         name: editData.name || '',
         email: editData.email || '',
         role: editData.role || 'RECEPTIONIST',
-        password: '' 
+        password: '',
+        permissions: {
+          canAccessPayroll: editData.permissions?.canAccessPayroll || false,
+          canViewReports: editData.permissions?.canViewReports || false,
+          canExportReports: editData.permissions?.canExportReports || false,
+        }
       });
     }
   }, [editData, isEdit]);
@@ -36,7 +47,7 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
       refreshData();
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      showNotification('error', err.response?.data?.message || "Operation failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,6 +144,43 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
               </div>
             </div>
           </div>
+
+          {/* Permissions Section */}
+          {(formData.role === 'RECEPTIONIST' || formData.role === 'APPROVER') && (
+            <div className="space-y-3 pt-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Custom Permissions</label>
+              <div className="grid grid-cols-1 gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.permissions.canAccessPayroll}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      permissions: { ...prev.permissions, canAccessPayroll: e.target.checked }
+                    }))}
+                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-semibold text-slate-700">Access Payroll Forms</span>
+                </label>
+                {(formData.role === 'APPROVER') && (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.permissions.canViewReports}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          permissions: { ...prev.permissions, canViewReports: e.target.checked }
+                        }))}
+                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm font-semibold text-slate-700">View and Export Financial Reports</span>
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">

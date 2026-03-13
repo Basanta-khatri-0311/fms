@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, BookOpen, Settings2, Hash } from 'lucide-react';
 import API from '../../../api/axiosConfig';
+import { showNotification } from '../../../utils/toast';
 
 const CoaModal = ({ onClose, refreshData, editData = null }) => {
   const isEdit = !!editData;
@@ -36,7 +37,7 @@ const CoaModal = ({ onClose, refreshData, editData = null }) => {
       refreshData();
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      showNotification('error', err.response?.data?.message || "Operation failed");
     } finally {
       setIsSubmitting(false);
     }

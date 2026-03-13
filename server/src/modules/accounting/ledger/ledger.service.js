@@ -22,11 +22,11 @@ exports.createLedgerEntry = async ({
   narration,
   createdBy,
   approvedBy,
-  financialYear,
+  financialYear
 }) => {
   validateBalance(debitLines, creditLines);
 
-  return Ledger.create({
+  return Ledger.create([{
     entryType,
     referenceId,
     debitLines,
@@ -35,5 +35,5 @@ exports.createLedgerEntry = async ({
     createdBy,
     approvedBy,
     financialYear,
-  });
+  }]);
 };

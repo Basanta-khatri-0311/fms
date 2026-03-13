@@ -2,37 +2,39 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
 import CoaModal from './modals/AddCoaModal';
 import Toast from '../../components/Toast'; 
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 const COAManagement = () => {
   const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('ALL');
   const [activeAccount, setActiveAccount] = useState(null); 
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => { fetchAccounts(); }, []);
 
   const fetchAccounts = async () => {
     try {
-      setLoading(true);
       const { data } = await API.get('/coa');
       setAccounts(data.data || data || []);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) { console.error(err); }
   };
 
   const triggerToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
+  const handleDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await API.delete(`/coa/${id}`);
+      await API.delete(`/coa/${confirmDeleteId}`);
       fetchAccounts();
       triggerToast("Account deleted successfully", "success");
     } catch (err) {
       triggerToast(err.response?.data?.message || "Delete failed", "error");
+    } finally {
+      setConfirmDeleteId(null);
     }
   };
 
@@ -96,7 +98,7 @@ const COAManagement = () => {
                 </td>
                 <td className="px-6 py-4 text-right space-x-3">
                   <button onClick={() => { setActiveAccount(account); setShowModal(true); }} className="text-slate-400 hover:text-indigo-600 text-sm font-medium">Edit</button>
-                  <button onClick={() => handleDelete(account._id)} className="text-slate-400 hover:text-red-600 text-sm font-medium">Delete</button>
+                  <button onClick={() => setConfirmDeleteId(account._id)} className="text-slate-400 hover:text-red-600 text-sm font-medium">Delete</button>
                 </td>
               </tr>
             ))}
@@ -111,6 +113,16 @@ const COAManagement = () => {
           refreshData={fetchAccounts}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={!!confirmDeleteId}
+        title="Delete Account"
+        message="Are you sure you want to delete this chart of account? This action cannot be undone."
+        confirmText="Delete"
+        confirmColor="rose"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
 
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={() => setToast({ ...toast, show: false })} />}
     </div>

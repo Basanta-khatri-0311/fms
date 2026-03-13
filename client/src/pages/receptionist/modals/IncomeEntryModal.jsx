@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../api/axiosConfig';
+import { showNotification } from '../../../utils/toast';
+import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
+import useFinancialCalculations from '../../../hooks/useFinancialCalculations';
+import FinancialCalculationsUI from '../../../components/shared/FinancialCalculationsUI';
 
 const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const [formData, setFormData] = useState({
@@ -68,15 +72,6 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     }
   }, [initialData]);
 
-  const showNotification = (type, message) => {
-    const colors = { success: 'bg-emerald-500', warning: 'bg-orange-500', error: 'bg-red-500' };
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-bold animate-slideIn`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-  };
-
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
 
@@ -94,22 +89,8 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     e.target.select();
   };
 
-  const round = (num) => Math.round(num * 100) / 100;
-
-  const amountBeforeVAT = parseFloat(formData.amountBeforeVAT) || 0;
-  const vatRate = parseFloat(formData.vatRate) || 0;
-  const discountRate = parseFloat(formData.discountRate) || 0;
-  const tdsRate = parseFloat(formData.tdsRate) || 0;
-
-  const vatAmount = round((amountBeforeVAT * vatRate) / 100);
-  const discount = round((amountBeforeVAT * discountRate) / 100);
-  const tdsAmount = round((amountBeforeVAT * tdsRate) / 100);
-
-  const netAmount = round(amountBeforeVAT + vatAmount - discount - tdsAmount);
-
-  const amountReceived = parseFloat(formData.amountReceived) || 0;
-  const advanceAmount = amountReceived > netAmount ? round(amountReceived - netAmount) : 0;
-  const pendingAmount = netAmount > amountReceived ? round(netAmount - amountReceived) : 0;
+  const calculations = useFinancialCalculations(formData, 'income');
+  const { vatAmount, discount, tdsAmount, netAmount, advanceAmount, pendingAmount } = calculations;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -337,112 +318,14 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                   </div>
                 </div>
 
-                {/* Payment Mode */}
-                <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Payment Mode </label>
-                  <div className="relative">
-                    <select
-                      name="paymentMode"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 appearance-none cursor-pointer transition-all"
-                      onChange={handleInputChange}
-                      value={formData.paymentMode}
-                    >
-                      <option value="CASH">Cash</option>
-                      <option value="BANK">Bank Transfer / FonePay</option>
-                      <option value="CHEQUE">Cheque</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                {/* Conditional Fields based on Payment Mode */}
-                {['BANK', 'CHEQUE'].includes(formData.paymentMode) && (
-                  <div className="mt-4 animate-fadeIn rounded-2xl border border-slate-200 bg-white/70 p-4 sm:p-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                      {/* BANK MODE */}
-                      {formData.paymentMode === 'BANK' && (
-                        <div>
-                          <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                            Transaction ID / Ref No.
-                          </label>
-                          <input
-                            type="text"
-                            name="transactionId"
-                            placeholder="e.g. TXN-349823"
-                            value={formData.transactionId}
-                            onChange={handleInputChange}
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                          />
-                        </div>
-                      )}
-
-                      {/* CHEQUE MODE */}
-                      {formData.paymentMode === 'CHEQUE' && (
-                        <>
-                          <div>
-                            <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                              Cheque Number
-                            </label>
-                            <input
-                              type="text"
-                              name="chequeNumber"
-                              placeholder="e.g. 123456"
-                              value={formData.chequeNumber}
-                              onChange={handleInputChange}
-                              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                              Issuing Bank
-                            </label>
-                            <input
-                              type="text"
-                              name="bankName"
-                              placeholder="e.g. Nabil Bank"
-                              value={formData.bankName}
-                              onChange={handleInputChange}
-                              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Screenshot Upload (Common for BANK & CHEQUE) */}
-                    <div className="mt-4">
-                      <label className="mb-1.5 block text-xs font-semibold text-slate-600">
-                        Payment Screenshot
-                      </label>
-
-                      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-xs text-slate-500 transition hover:border-blue-400 hover:bg-blue-50">
-                        📤 Upload Image
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              paymentScreenshot: e.target.files[0],
-                            }))
-                          }
-                        />
-                      </label>
-
-                      {formData.paymentScreenshot && (
-                        <p className="mt-1 text-[11px] text-green-600">
-                          ✔ {formData.paymentScreenshot.name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                <PaymentMethodSelector 
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  setFormData={setFormData}
+                  themeColor="indigo"
+                  fileLabel="Payment Screenshot"
+                  fileKey="paymentScreenshot"
+                />
 
 
               </div>
@@ -455,149 +338,18 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                 <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Financial Details (NPR)</h3>
               </div>
 
-              <div className="bg-linear-to-br from-slate-50 to-blue-50/50 p-5 sm:p-6 rounded-2xl border border-slate-200 space-y-4">
-
-                {/* Base Amount */}
-                <div className="bg-white p-4 sm:p-5 rounded-xl border-2 border-blue-200 shadow-sm">
-                  <label className="block text-xs font-bold text-blue-600 mb-3">Service Amount (Before VAT) *</label>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-slate-500 font-bold text-lg">Rs.</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      name="amountBeforeVAT"
-                      required
-                      className="flex-1 text-right text-xl sm:text-3xl font-black text-blue-600 bg-transparent outline-none"
-                      onChange={handleInputChange}
-                      onFocus={handleFocus}
-                      value={formData.amountBeforeVAT}
-                      placeholder="0.00"
-                      onWheel={handleWheel}
-                    />
-                  </div>
-                </div>
-
-                {/* VAT */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div className="p-3 sm:p-4 bg-white rounded-xl border border-slate-200">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase mb-2">VAT Rate (%)</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      name="vatRate"
-                      className="w-full text-base sm:text-lg font-black text-slate-800 outline-none"
-                      onChange={handleInputChange}
-                      onFocus={handleFocus}
-                      value={formData.vatRate}
-                      onWheel={handleWheel}
-                    />
-                  </div>
-                  <div className="p-3 sm:p-4 bg-blue-50 rounded-xl border border-blue-200 flex flex-col justify-center">
-                    <span className="text-[10px] font-black text-blue-500 uppercase mb-1">VAT Amount</span>
-                    <span className="text-base sm:text-lg font-black text-blue-700">+ Rs. {vatAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                {/* Discount */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div className="p-3 sm:p-4 bg-white rounded-xl border border-slate-200">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase mb-2">Discount (%)</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      name="discountRate"
-                      className="w-full text-base sm:text-lg font-black text-emerald-600 outline-none"
-                      onChange={handleInputChange}
-                      onFocus={handleFocus}
-                      value={formData.discountRate}
-                      placeholder="0"
-                      onWheel={handleWheel}
-                    />
-                  </div>
-                  <div className="p-3 sm:p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col justify-center">
-                    <span className="text-[10px] font-black text-emerald-500 uppercase mb-1">Discount Amount</span>
-                    <span className="text-base sm:text-lg font-black text-emerald-700">
-                      {discount > 0 ? `- Rs. ${discount.toFixed(2)}` : 'Rs. 0.00'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* TDS */}
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div className="p-3 sm:p-4 bg-white rounded-xl border border-slate-200">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase mb-2">TDS Rate (%)</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      name="tdsRate"
-                      className="w-full text-base sm:text-lg font-black text-orange-600 outline-none"
-                      onChange={handleInputChange}
-                      onFocus={handleFocus}
-                      value={formData.tdsRate}
-                      placeholder="0"
-                      onWheel={handleWheel}
-                    />
-                  </div>
-                  <div className="p-3 sm:p-4 bg-orange-50 rounded-xl border border-orange-200 flex flex-col justify-center">
-                    <span className="text-[10px] font-black text-orange-500 uppercase mb-1">TDS Amount</span>
-                    <span className="text-base sm:text-lg font-black text-orange-700">
-                      {tdsAmount > 0 ? `- Rs. ${tdsAmount.toFixed(2)}` : 'Rs. 0.00'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Net Amount - Highlighted */}
-                <div className="p-5 bg-indigo-600 rounded-xl shadow-lg">
-                  <div className="flex justify-between items-center text-white">
-                    <span className="text-xs font-bold uppercase tracking-wider">Net Receivable</span>
-                    <span className="text-xl sm:text-3xl font-black font-mono">Rs. {netAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                {/* Amount Received */}
-                <div className="p-5 bg-emerald-500 rounded-xl shadow-lg">
-                  <label className="block text-xs font-bold text-emerald-50 uppercase mb-3">Amount Received *</label>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-white font-bold text-lg">Rs.</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      name="amountReceived"
-                      required
-                      className="flex-1 text-right text-xl sm:text-3xl text-whit px-3 py-2 rounded-lg outline-none placeholder-emerald-20 text-emerald-50 font-mono font-bold"
-                      onChange={handleInputChange}
-                      onFocus={handleFocus}
-                      value={formData.amountReceived}
-                      placeholder="0.00"
-                      onWheel={handleWheel}
-                    />
-                  </div>
-                </div>
-
-                {/* Balance Indicator */}
-                {(advanceAmount > 0 || pendingAmount > 0) && (
-                  <div className={`p-4 rounded-xl border-2 ${advanceAmount > 0
-                    ? 'bg-purple-50 border-purple-200'
-                    : 'bg-amber-50 border-amber-200'
-                    }`}>
-                    <div className="flex justify-between items-center">
-                      <span className={`text-xs font-bold uppercase ${advanceAmount > 0 ? 'text-purple-600' : 'text-amber-600'
-                        }`}>
-                        {advanceAmount > 0 ? 'Advance Payment' : 'Pending Payment'}
-                      </span>
-                      <span className={`text-xl font-black ${advanceAmount > 0 ? 'text-purple-700' : 'text-amber-700'
-                        }`}>
-                        Rs. {advanceAmount > 0 ? advanceAmount.toFixed(2) : pendingAmount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <FinancialCalculationsUI 
+                formData={formData}
+                handleInputChange={handleInputChange}
+                handleFocus={handleFocus}
+                handleWheel={handleWheel}
+                calculations={calculations}
+                themeColor="blue"
+                title="Service Amount (Before VAT) *"
+                netLabel="Net Receivable"
+                amountInputName="amountReceived"
+                amountInputLabel="Amount Received *"
+              />
             </div>
 
           </form>

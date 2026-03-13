@@ -1,4 +1,6 @@
 const userService = require('./user.service');
+const AppError = require('../../utils/AppError');
+const catchAsync = require('../../utils/catchAsync');
 
 exports.createUser = async (req, res) => {
     try {
@@ -9,14 +11,21 @@ exports.createUser = async (req, res) => {
     }
 };
 
-exports.getUsers = async (req, res) => {
-    try {
-        const result = await userService.getUsers();
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+exports.getUsers = catchAsync(async (req, res) => {
+    const result = await userService.getUsers();
+    res.status(200).json(result);
+});
+
+exports.getEmployees = catchAsync(async (req, res) => {
+    const result = await userService.getUsers(); 
+    // Format lightly for security so sensitive info isn't leaked
+    const employees = result.users.map(u => ({
+        _id: u._id,
+        name: u.name,
+        role: u.role
+    }));
+    res.status(200).json({ users: employees });
+});
 
 exports.updateUserStatus = async (req, res) => {
     try {

@@ -207,6 +207,71 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
   }
+  /* ============================================================================
+     PAYROLL POSTING LOGIC
+     
+     Scenario: We pay an employee their salary
+     
+     Example:
+     - Basic Salary: Rs. 20,000
+     - Allowances: Rs. 5,000
+     - Gross Salary: Rs. 25,000
+     - Tax/TDS: Rs. 2,000
+     - PF: Rs. 1,000
+     - Net Payable: 25,000 - (2000 + 1000) = Rs. 22,000
+     - Amount Paid: Rs. 20,000
+     - Pending (Accrued Salary): Rs. 2,000
+     
+     Journal Entry:
+     DR Office Expense (Salary)   25,000  (Total Expense)
+        CR TDS Payable               2,000  (Owe tax office)
+        CR Cash/Bank                20,000  (What we paid)
+        CR Accounts Payable          3,000  (PF + Pending amount we owe)
+     
+     Note: In a pure system we would have specific charts for Provident Fund Payable and Salaries Payable. 
+     For this simplified SME module, we route them through standard AP & TDS.
+     ============================================================================ */
+  if (entryType === ENTRY_TYPE.PAYROLL) {
+    const expenseAcc = await getAccount(COA_CODES.OFFICE_EXPENSE); // Salary Expense
+    const cashOrBank = entry.paymentMode === 'BANK' 
+      ? await getAccount(COA_CODES.BANK) 
+      : await getAccount(COA_CODES.CASH);
+
+    // DEBIT SIDE: Expense
+    debitLines.push({
+      account: expenseAcc._id,
+      amount: round(entry.grossSalary)
+    });
+
+    // CREDIT SIDE: Liabilities and Cash Out
+    
+    // 1. Tax Deducted (Liability)
+    if (entry.taxDeduction > 0) {
+      const tdsPayableAcc = await getAccount(COA_CODES.TDS_PAYABLE);
+      creditLines.push({
+        account: tdsPayableAcc._id,
+        amount: round(entry.taxDeduction)
+      });
+    }
+
+    // 2. Cash/Bank - Actual payment made
+    if (entry.amountPaid > 0) {
+      creditLines.push({
+        account: cashOrBank._id,
+        amount: round(entry.amountPaid)
+      });
+    }
+
+    // 3. Accounts Payable (Unpaid Salary + PF)
+    const unpaidDues = (entry.pendingAmount || 0) + (entry.providentFund || 0);
+    if (unpaidDues > 0) {
+      const apAcc = await getAccount(COA_CODES.ACCOUNTS_PAYABLE);
+      creditLines.push({
+        account: apAcc._id,
+        amount: round(unpaidDues)
+      });
+    }
+  }
 
   /* ============================================================================
      VALIDATION: Double Entry Accounting Check
@@ -252,9 +317,9 @@ if (entryType === ENTRY_TYPE.INCOME) {
     referenceId: entry._id,
     debitLines,
     creditLines,
-    narration: `${entryType} - ${entry.name || entry.vendor?.name || 'Transaction'} - ${entry.approval.status}`,
+    narration: `${entryType} - ${entry.name || entry.vendor?.name || entry.employeeName || 'Transaction'} - ${entry.approval.status}`,
     createdBy: entry.createdBy._id || entry.createdBy, 
     approvedBy: approvedBy._id || approvedBy,
-    financialYear: entry.financialYear,
+    financialYear: entry.financialYear
   });
 };

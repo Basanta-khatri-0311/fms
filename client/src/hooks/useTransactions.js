@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import API from '../api/axiosConfig';
+import { showNotification } from '../utils/toast';
 
 // Shared logic hook for TransactionStatus
 const useTransactions = ({ mode = 'ALL', onRefresh }) => {
@@ -16,7 +17,7 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const fetchEntries = async () => {
+  const fetchEntries = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -24,17 +25,21 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
       const requests = [];
       const needIncome = ['ALL', 'PENDING', 'INCOME', 'ADVANCE', 'DUE'].includes(mode);
       const needExpense = ['ALL', 'PENDING', 'EXPENSE', 'ADVANCE', 'DUE'].includes(mode);
+      const needPayroll = ['ALL', 'PENDING', 'PAYROLL', 'ADVANCE', 'DUE'].includes(mode);
 
       if (needIncome) requests.push(API.get('/incomes'));
       if (needExpense) requests.push(API.get('/expenses'));
+      if (needPayroll) requests.push(API.get('/payroll'));
 
       const responses = await Promise.all(requests);
       let combined = [];
 
       const getData = (res) => (Array.isArray(res?.data?.data) ? res.data.data : res?.data || []);
 
+      let responseIndex = 0;
+
       if (needIncome) {
-        const incData = getData(responses[0]);
+        const incData = getData(responses[responseIndex++]);
         combined = [
           ...combined,
           ...incData.map((item) => ({
@@ -46,15 +51,25 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
       }
 
       if (needExpense) {
-        const expRes = needIncome ? responses[1] : responses[0];
-        const expData = getData(expRes);
-
+        const expData = getData(responses[responseIndex++]);
         combined = [
           ...combined,
           ...expData.map((item) => ({
             ...item,
             type: 'EXPENSE',
             displayName: item.vendor?.name || 'Unknown Vendor',
+          })),
+        ];
+      }
+      
+      if (needPayroll) {
+        const payData = getData(responses[responseIndex++]);
+        combined = [
+          ...combined,
+          ...payData.map((item) => ({
+            ...item,
+            type: 'PAYROLL',
+            displayName: item.employeeName,
           })),
         ];
       }
@@ -68,11 +83,11 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mode]);
 
   useEffect(() => {
     fetchEntries();
-  }, [mode]);
+  }, [fetchEntries]);
 
   // Listen for global transaction-change events so external creates/edits
   // (e.g. from Approver dashboard modals) can trigger a refetch.
@@ -83,7 +98,7 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
 
     window.addEventListener('transactions:changed', handler);
     return () => window.removeEventListener('transactions:changed', handler);
-  }, [mode]);
+  }, [fetchEntries]);
 
   const filteredData = useMemo(() => {
     return entries.filter((item) => {
@@ -106,14 +121,15 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
         }
       }
 
-      const net = item.type === 'INCOME' ? item.netAmount || 0 : item.netPayable || 0;
-      const paid = item.type === 'INCOME' ? item.amountReceived || 0 : item.amountPaid || 0;
+      const isAdvance = (item.advanceAmount || 0) > 0.01;
+      const isDue = (item.pendingAmount || 0) > 0.01;
 
       if (mode === 'PENDING' && item.status !== 'PENDING') return false;
       if (mode === 'INCOME' && item.type !== 'INCOME') return false;
       if (mode === 'EXPENSE' && item.type !== 'EXPENSE') return false;
-      if (mode === 'ADVANCE' && paid - net <= 0.01) return false;
-      if (mode === 'DUE' && net - paid <= 0.01) return false;
+      if (mode === 'PAYROLL' && item.type !== 'PAYROLL') return false;
+      if (mode === 'ADVANCE' && !isAdvance) return false;
+      if (mode === 'DUE' && !isDue) return false;
 
       return true;
     });
@@ -129,28 +145,41 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
     setCurrentPage(1);
   }, [statusFilter, typeFilter, searchTerm, dateRange, mode]);
 
+  const [pendingAction, setPendingAction] = useState(null); // { id, action, type }
+
   const handleAction = async (id, action, type) => {
-    if (!window.confirm(`Are you sure you want to ${action.toLowerCase()} this entry?`)) return;
+    // Instead of native window prompt/confirm, we just queue the action
+    setPendingAction({ id, action, type });
+  };
+
+  const executeAction = async (rejectionReason = null) => {
+    if (!pendingAction) return;
+    const { id, action, type } = pendingAction;
+
+    if (action === 'REJECTED' && !rejectionReason) {
+      // Validated by the UI modal
+      return;
+    }
 
     setActionLoading(id);
     try {
-      const endpoint = type === 'INCOME' ? `/incomes/${id}/status` : `/expenses/${id}/status`;
-      await API.patch(endpoint, { status: action });
+      const endpoint = `/approvals/${id}`;
+      await API.patch(endpoint, { type, action, rejectionReason });
 
-      const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 ${action === 'APPROVED' ? 'bg-emerald-500' : 'bg-orange-500'
-        } text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-bold`;
-      notification.textContent = `Entry ${action.toLowerCase()} successfully!`;
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
+      showNotification('success', `Entry ${action.toLowerCase()} successfully!`);
 
       await fetchEntries();
       if (onRefresh) onRefresh();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update status.');
+      showNotification('error', err.response?.data?.message || 'Failed to update status.');
     } finally {
       setActionLoading(null);
+      setPendingAction(null);
     }
+  };
+
+  const cancelAction = () => {
+    setPendingAction(null);
   };
 
   const clearFilters = () => {
@@ -182,6 +211,9 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
     setItemsPerPage,
     setCurrentPage,
     handleAction,
+    executeAction,
+    cancelAction,
+    pendingAction,
     clearFilters,
     refetch: fetchEntries,
   };

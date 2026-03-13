@@ -39,3 +39,42 @@ exports.getBalanceSheet = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+/**
+ * GET /reports/sales-register?financialYear=2081/82
+ */
+exports.getSalesRegister = async (req, res) => {
+  try {
+    const { financialYear } = req.query;
+    const result = await reportsService.generateSalesRegister(financialYear);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/purchase-register?financialYear=2081/82
+ */
+exports.getPurchaseRegister = async (req, res) => {
+  try {
+    const { financialYear } = req.query;
+    const result = await reportsService.generatePurchaseRegister(financialYear);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/annex13?financialYear=2081/82
+ */
+exports.getAnnex13 = async (req, res) => {
+  try {
+    const { financialYear } = req.query;
+    const result = await reportsService.generateAnnex13(financialYear);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

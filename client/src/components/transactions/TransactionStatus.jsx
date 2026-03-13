@@ -8,6 +8,9 @@ import TransactionCardsMobile from './TransactionCardsMobile';
 import TransactionPagination from './TransactionPagination';
 import IncomeModal from '../../pages/receptionist/modals/IncomeEntryModal';
 import ExpenseModal from '../../pages/receptionist/modals/ExpenseEntryModal';
+import PayrollModal from '../../pages/receptionist/modals/PayrollEntryModal';
+import ActionModal from '../shared/ActionModal';
+import InvoiceModal from '../shared/InvoiceModal';
 
 const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   const {
@@ -30,12 +33,16 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
     setItemsPerPage,
     setCurrentPage,
     handleAction,
+    executeAction,
+    cancelAction,
+    pendingAction,
     clearFilters,
     refetch,
   } = useTransactions({ mode, onRefresh });
 
   const user = JSON.parse(localStorage.getItem('user'));
   const [editEntry, setEditEntry] = useState(null);
+  const [activeInvoice, setActiveInvoice] = useState(null);
 
   if (loading) {
     return (
@@ -93,6 +100,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         onAction={handleAction}
         onEdit={setEditEntry}
         actionLoading={actionLoading}
+        onInvoice={setActiveInvoice}
       />
 
       <TransactionCardsMobile
@@ -101,6 +109,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         onAction={handleAction}
         onEdit={setEditEntry}
         actionLoading={actionLoading}
+        onInvoice={setActiveInvoice}
       />
 
       <TransactionPagination
@@ -129,6 +138,26 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
           mode="edit"
         />
       )}
+
+      {editEntry && editEntry.type === 'PAYROLL' && (
+        <PayrollModal
+          onClose={() => setEditEntry(null)}
+          refreshData={refetch}
+          initialData={editEntry}
+          mode="edit"
+        />
+      )}
+
+      <ActionModal 
+        pendingAction={pendingAction}
+        onConfirm={executeAction}
+        onCancel={cancelAction}
+      />
+
+      <InvoiceModal
+        transaction={activeInvoice}
+        onClose={() => setActiveInvoice(null)}
+      />
     </div>
   );
 };

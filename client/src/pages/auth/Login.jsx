@@ -23,6 +23,7 @@ const Login = () => {
       
       navigate('/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError('Invalid email or password. Please try again.');
     } finally {
       setLoading(false);

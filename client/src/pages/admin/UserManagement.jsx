@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
 import AddUserModal from './modals/AddUserModal';
 import Toast from '../../components/Toast';
+import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [activeUser, setActiveUser] = useState(null); // Used for Editing
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    const [confirmStatusData, setConfirmStatusData] = useState(null);
 
     useEffect(() => { fetchUsers(); }, []);
 
@@ -16,24 +17,25 @@ const UserManagement = () => {
         try {
             const { data } = await API.get('/users');
             setUsers(data.data || data.users || (Array.isArray(data) ? data : []));
-        } catch (err) { console.error(err); } finally { setLoading(false); }
+        } catch (err) { console.error(err); }
     };
 
     const triggerToast = (message, type = 'success') => {
         setToast({ show: true, message, type });
     };
 
-    const handleToggleStatus = async (user) => {
-        const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-        if (!window.confirm(`Set ${user.name} to ${newStatus}?`)) return;
+    const handleToggleStatus = async () => {
+        if (!confirmStatusData) return;
+        const { user, newStatus } = confirmStatusData;
 
         try {
-            // Matches your user.routes.js: PATCH /:id/status
             await API.patch(`/users/${user._id}/status`, { status: newStatus });
             fetchUsers();
             triggerToast(`User ${newStatus.toLowerCase()} successfully`, "warning");
         } catch (err) {
             triggerToast(err.response?.data?.message || "Status update failed", "error");
+        } finally {
+            setConfirmStatusData(null);
         }
     };
 
@@ -84,7 +86,10 @@ const UserManagement = () => {
                                         {/* HIDE REMOVE BUTTON FOR SUPERADMINS */}
                                         {user.role !== 'SUPERADMIN' ? (
                                             <button
-                                                onClick={() => handleToggleStatus(user)}
+                                                onClick={() => setConfirmStatusData({ 
+                                                    user, 
+                                                    newStatus: user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
+                                                })}
                                                 className="text-slate-300 hover:text-red-500 text-sm font-semibold transition-colors"
                                             >
                                                 {user.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
@@ -110,6 +115,16 @@ const UserManagement = () => {
                     }}
                 />
             )}
+
+            <ConfirmDialog
+                isOpen={!!confirmStatusData}
+                title={confirmStatusData?.newStatus === 'ACTIVE' ? 'Activate User' : 'Deactivate User'}
+                message={`Are you sure you want to set ${confirmStatusData?.user?.name}'s status to ${confirmStatusData?.newStatus}?`}
+                confirmText={confirmStatusData?.newStatus === 'ACTIVE' ? 'Activate' : 'Deactivate'}
+                confirmColor={confirmStatusData?.newStatus === 'ACTIVE' ? 'emerald' : 'rose'}
+                onConfirm={handleToggleStatus}
+                onCancel={() => setConfirmStatusData(null)}
+            />
 
             {toast.show && (
                 <Toast

@@ -36,7 +36,12 @@ const userSchema = new mongoose.Schema({
     },
     lastLogin: { type: Date, default: null },
     failedLoginAttempts: { type: Number, default: 0 },
-    lockUntil: { type: Date, default: null }
+    lockUntil: { type: Date, default: null },
+    permissions: {
+        canAccessPayroll: { type: Boolean, default: false },
+        canViewReports: { type: Boolean, default: false },
+        canExportReports: { type: Boolean, default: false },
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

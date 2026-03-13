@@ -8,8 +8,11 @@ const { USER_ROLES } = require('../../../constants/roles')
 
 
 
-reportsRouter.get('/trial-balance', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR), reportsController.getTrialBalance);
-reportsRouter.get('/income-statement', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR), reportsController.getIncomeStatement);
-reportsRouter.get('/balance-sheet', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR), reportsController.getBalanceSheet);
+reportsRouter.get('/trial-balance', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getTrialBalance);
+reportsRouter.get('/income-statement', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getIncomeStatement);
+reportsRouter.get('/balance-sheet', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getBalanceSheet);
+reportsRouter.get('/sales-register', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getSalesRegister);
+reportsRouter.get('/purchase-register', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getPurchaseRegister);
+reportsRouter.get('/annex13', protect, authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER), reportsController.getAnnex13);
 
 module.exports = reportsRouter;

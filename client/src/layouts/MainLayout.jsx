@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import ConfirmDialog from '../components/shared/ConfirmDialog';
 
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem('user')) || {
@@ -13,10 +15,12 @@ const MainLayout = () => {
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
-      localStorage.clear();
-      navigate('/login');
-    }
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.clear();
+    navigate('/login');
   };
 
   return (
@@ -96,6 +100,16 @@ const MainLayout = () => {
           </div>
         </main>
       </div>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account?"
+        confirmText="Sign Out"
+        confirmColor="rose"
+        onConfirm={confirmLogout}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
     </div>
   );
 };

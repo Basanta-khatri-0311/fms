@@ -14,8 +14,8 @@ exports.processApproval = async (req, res) => {
             });
         }
 
-        if (![ENTRY_TYPE.INCOME, ENTRY_TYPE.EXPENSE].includes(type)) {
-            return res.status(400).json({ message: 'Invalid type. Must be INCOME or EXPENSE' });
+        if (![ENTRY_TYPE.INCOME, ENTRY_TYPE.EXPENSE, ENTRY_TYPE.PAYROLL].includes(type)) {
+            return res.status(400).json({ message: 'Invalid type. Must be INCOME, EXPENSE, or PAYROLL' });
         }
 
         if (![ACCOUNTING_STATUS.APPROVED, ACCOUNTING_STATUS.REJECTED].includes(action)) {

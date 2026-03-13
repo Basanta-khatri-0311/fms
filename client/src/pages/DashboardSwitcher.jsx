@@ -2,6 +2,7 @@
 import ReceptionistHome  from '../pages/receptionist/ReceptionistHome'
 import ApproverHome from '../pages/approver/ApproverHome'
 import AdminHome from '../pages/admin/AdminHome'
+import AuditorView from '../pages/auditor/AuditorView'
 
 const DashboardSwitcher = () => {
   const user = JSON.parse(localStorage.getItem('user'));

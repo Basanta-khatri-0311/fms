@@ -43,7 +43,15 @@ exports.login = async (req, res) => {
         user.lastLogin = new Date();
         await user.save();
 
-        return res.status(200).json({ token, user: { id: user._id, name: user.name, role: user.role } });
+        return res.status(200).json({ 
+            token, 
+            user: { 
+                id: user._id, 
+                name: user.name, 
+                role: user.role,
+                permissions: user.permissions || {} 
+            } 
+        });
     } catch (error) {
         return res.status(500).json({ message: 'Server error' });
     }

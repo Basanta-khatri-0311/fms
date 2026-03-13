@@ -37,7 +37,8 @@ exports.createUser = async (data, isBootstrap = false) => {
             name: name.trim(),
             email: email.trim().toLowerCase(),
             password: hashedPassword,
-            role
+            role,
+            ...(data.permissions && { permissions: data.permissions })
         }], {  });
 
         // await session.commitTransaction();
@@ -91,6 +92,13 @@ exports.updateUser = async (id, data) => {
     if (name) user.name = name.trim();
     if (email) user.email = email.trim().toLowerCase();
     if (role) user.role = role;
+    
+    if (data.permissions !== undefined) {
+        user.permissions = {
+            ...user.permissions,
+            ...data.permissions
+        };
+    }
     
     // Only hash and update password if a new one is provided
     if (password && password.trim().length > 0) {

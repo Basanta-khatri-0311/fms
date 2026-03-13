@@ -10,6 +10,7 @@ import Unauthorized from './pages/Unauthorized';
 import AdminDashboard from './pages/admin/AdminHome';
 import UserManagement from './pages/admin/UserManagement';
 import COAManagement from './pages/admin/CoaManagement';
+import AuditorView from './pages/auditor/AuditorView';
 
 // Wrapper components for different modes
 const IncomeRecords = () => <TransactionStatus mode="INCOME" />;
@@ -17,6 +18,7 @@ const ExpenseRecords = () => <TransactionStatus mode="EXPENSE" />;
 const AdvanceRecords = () => <TransactionStatus mode="ADVANCE" />;
 const DueRecords = () => <TransactionStatus mode="DUE" />;
 const MySubmissions = () => <TransactionStatus mode="ALL" />;
+const PayrollRecords = () => <TransactionStatus mode="PAYROLL" />;
 
 function App() {
   return (
@@ -56,6 +58,12 @@ function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/payroll" element={
+            <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
+              <PayrollRecords />
+            </ProtectedRoute>
+          } />
+
           <Route path="/advance" element={
             <ProtectedRoute allowedRoles={['APPROVER', 'SUPERADMIN']}>
               <AdvanceRecords />
@@ -70,7 +78,7 @@ function App() {
 
           {/* SUPERADMIN Routes */}
           <Route path="/reports" element={
-            <ProtectedRoute allowedRoles={['SUPERADMIN', 'AUDITOR']}>
+            <ProtectedRoute allowedRoles={['SUPERADMIN', 'AUDITOR', 'APPROVER']} requiredPermission="canViewReports">
               <AdminDashboard />
             </ProtectedRoute>
           } />
@@ -88,21 +96,10 @@ function App() {
           } />
 
           {/* AUDITOR Routes */}
-          <Route path="/ledger" element={
-            <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
-              <div className="p-8 text-center">
-                <h2 className="text-2xl font-bold text-slate-800">Ledger Audit</h2>
-                <p className="text-slate-500 mt-2">Coming Soon</p>
-              </div>
-            </ProtectedRoute>
-          } />
 
-          <Route path="/tax-reports" element={
+          <Route path="/audit-log" element={
             <ProtectedRoute allowedRoles={['AUDITOR', 'SUPERADMIN']}>
-              <div className="p-8 text-center">
-                <h2 className="text-2xl font-bold text-slate-800">Tax Registers</h2>
-                <p className="text-slate-500 mt-2">Coming Soon</p>
-              </div>
+              <AuditorView />
             </ProtectedRoute>
           } />
           

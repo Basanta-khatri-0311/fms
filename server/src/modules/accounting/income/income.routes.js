@@ -13,11 +13,6 @@ incomeRoutes.post('/', protect,
     incomeController.createIncome
 );
 
-incomeRoutes.patch('/:id/status', protect, 
-    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN), 
-    upload.single('attachment'),
-    incomeController.updateIncomeStatus
-);
 
 // Edit income (only when pending) - Approver / Superadmin
 incomeRoutes.patch('/:id', protect,
@@ -27,7 +22,7 @@ incomeRoutes.patch('/:id', protect,
 );
 
 incomeRoutes.get('/', protect,
-    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST),
+    authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST, USER_ROLES.AUDITOR),
     incomeController.getIncomes
 )
 
