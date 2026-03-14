@@ -7,12 +7,13 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const incomeRoutes = express.Router()
 
+
+//creating income
 incomeRoutes.post('/', protect, 
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST), 
     upload.single('attachment'),
     incomeController.createIncome
 );
-
 
 // Edit income (only when pending) - Approver / Superadmin
 incomeRoutes.patch('/:id', protect,
@@ -21,6 +22,7 @@ incomeRoutes.patch('/:id', protect,
     incomeController.updateIncome
 );
 
+//get all incomes
 incomeRoutes.get('/', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST, USER_ROLES.AUDITOR),
     incomeController.getIncomes

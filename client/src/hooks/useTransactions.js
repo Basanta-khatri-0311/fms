@@ -90,7 +90,7 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
   }, [fetchEntries]);
 
   // Listen for global transaction-change events so external creates/edits
-  // (e.g. from Approver dashboard modals) can trigger a refetch.
+  // (from Approver dashboard modals) can trigger a refetch.
   useEffect(() => {
     const handler = () => {
       fetchEntries();

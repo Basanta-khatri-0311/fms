@@ -12,14 +12,14 @@ module.exports = (err, req, res, next) => {
             stack: err.stack
         });
     } else {
-        // Operational, trusted error: send message to client
+        // trusted error then send message to client
         if (err.isOperational) {
             res.status(err.statusCode).json({
                 status: err.status,
                 message: err.message
             });
         } 
-        // Programming or other unknown error: don't leak error details
+        // Programming or other unknown error no leaking of  error details
         else {
             console.error('ERROR 💥', err);
             res.status(500).json({

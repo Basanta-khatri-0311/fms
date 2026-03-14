@@ -3,11 +3,11 @@ import React from 'react';
 const QuickActionCard = ({ icon, title, description, bgClass, hoverbgClass, accent, onClick }) => (
   <button
     onClick={onClick}
-    className={`group relative overflow-hidden ${bgClass} ${hoverbgClass} p-8 rounded-[2rem] 
+    className={`group relative overflow-hidden ${bgClass} ${hoverbgClass} p-8 rounded-4xl 
       border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-500 
       hover:-translate-y-2 text-left w-full h-full flex flex-col`}
   >
-    <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br ${accent} rounded-full blur-3xl opacity-20 -mr-20 -mt-20 
+    <div className={`absolute top-0 right-0 w-64 h-64 bg-linear-to-br ${accent} rounded-full blur-3xl opacity-20 -mr-20 -mt-20 
       group-hover:scale-150 group-hover:opacity-40 transition-all duration-700 pointer-events-none`} />
     
     <div className="relative z-10 flex-grow flex flex-col">

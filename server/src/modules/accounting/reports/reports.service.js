@@ -299,14 +299,14 @@ exports.generateBalanceSheet = async (financialYear) => {
   const totalEquity = netProfit;
   const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
-  // Debug logging
-  console.log('=== BALANCE SHEET DEBUG ===');
-  console.log('Total Assets:', totalAssets);
-  console.log('Total Liabilities:', totalLiabilities);
-  console.log('Total Equity:', totalEquity);
-  console.log('Total L+E:', totalLiabilitiesAndEquity);
-  console.log('Difference:', Math.abs(totalAssets - totalLiabilitiesAndEquity));
-  console.log('Is Balanced:', Math.abs(totalAssets - totalLiabilitiesAndEquity) < 0.01);
+  // // Debug logging
+  // console.log('=== BALANCE SHEET DEBUG ===');
+  // console.log('Total Assets:', totalAssets);
+  // console.log('Total Liabilities:', totalLiabilities);
+  // console.log('Total Equity:', totalEquity);
+  // console.log('Total L+E:', totalLiabilitiesAndEquity);
+  // console.log('Difference:', Math.abs(totalAssets - totalLiabilitiesAndEquity));
+  // console.log('Is Balanced:', Math.abs(totalAssets - totalLiabilitiesAndEquity) < 0.01);
 
   return {
     assets: {
@@ -340,96 +340,6 @@ exports.generateBalanceSheet = async (financialYear) => {
     isBalanced: Math.abs(totalAssets - totalLiabilitiesAndEquity) < 0.01,
   };
 };
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
-
-/**
- * Get human-readable label for account type
- */
-function getAccountTypeLabel(type) {
-  const labels = {
-    ASSET: 'Assets',
-    LIABILITY: 'Liabilities',
-    EQUITY: 'Equity',
-    INCOME: 'Income',
-    EXPENSE: 'Expenses',
-  };
-  return labels[type] || type;
-}
-
-/**
- * Categorize expenses by type
- */
-function categorizeExpenses(expenses) {
-  const categories = {
-    operating: [],
-    administrative: [],
-    other: [],
-  };
-
-  expenses.forEach((expense) => {
-    const name = expense.name.toLowerCase();
-    
-    if (name.includes('salary') || name.includes('wage') || name.includes('rent') || 
-        name.includes('utility') || name.includes('office')) {
-      categories.operating.push(expense);
-    } else if (name.includes('admin') || name.includes('legal') || name.includes('audit')) {
-      categories.administrative.push(expense);
-    } else {
-      categories.other.push(expense);
-    }
-  });
-
-  return {
-    operatingExpenses: {
-      accounts: categories.operating,
-      total: categories.operating.reduce((sum, acc) => sum + acc.amount, 0),
-    },
-    administrativeExpenses: {
-      accounts: categories.administrative,
-      total: categories.administrative.reduce((sum, acc) => sum + acc.amount, 0),
-    },
-    otherExpenses: {
-      accounts: categories.other,
-      total: categories.other.reduce((sum, acc) => sum + acc.amount, 0),
-    },
-  };
-}
-
-/**
- * Check if an asset is current (liquid, short-term)
- * Returns true/false instead of filtering
- */
-function isCurrentAsset(accountName) {
-  const name = accountName.toLowerCase();
-  return (
-    name.includes('cash') ||
-    name.includes('bank') ||
-    name.includes('receivable') ||
-    name.includes('inventory') ||
-    name.includes('prepaid') ||
-    (name.includes('advance') && !name.includes('vendor'))
-  );
-}
-
-/**
- * Check if a liability is current (due within 1 year)
- * Returns true/false instead of filtering
- */
-function isCurrentLiability(accountName) {
-  const name = accountName.toLowerCase();
-  return (
-    name.includes('payable') ||
-    name.includes('vat payable') ||
-    name.includes('tds payable') ||
-    (name.includes('advance') && name.includes('customer'))
-  );
-}
-
-const Income = require('../income/income.model');
-const Expense = require('../expense/expense.model');
 
 /**
  * Generate Sales Register (Tax Report)
@@ -514,4 +424,96 @@ exports.generateAnnex13 = async (financialYear) => {
     }
   };
 };
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Get human readable label for account type
+ */
+function getAccountTypeLabel(type) {
+  const labels = {
+    ASSET: 'Assets',
+    LIABILITY: 'Liabilities',
+    EQUITY: 'Equity',
+    INCOME: 'Income',
+    EXPENSE: 'Expenses',
+  };
+  return labels[type] || type;
+}
+
+/**
+ * Categorize expenses by type
+ */
+function categorizeExpenses(expenses) {
+  const categories = {
+    operating: [],
+    administrative: [],
+    other: [],
+  };
+
+  expenses.forEach((expense) => {
+    const name = expense.name.toLowerCase();
+    
+    if (name.includes('salary') || name.includes('wage') || name.includes('rent') || 
+        name.includes('utility') || name.includes('office')) {
+      categories.operating.push(expense);
+    } else if (name.includes('admin') || name.includes('legal') || name.includes('audit')) {
+      categories.administrative.push(expense);
+    } else {
+      categories.other.push(expense);
+    }
+  });
+
+  return {
+    operatingExpenses: {
+      accounts: categories.operating,
+      total: categories.operating.reduce((sum, acc) => sum + acc.amount, 0),
+    },
+    administrativeExpenses: {
+      accounts: categories.administrative,
+      total: categories.administrative.reduce((sum, acc) => sum + acc.amount, 0),
+    },
+    otherExpenses: {
+      accounts: categories.other,
+      total: categories.other.reduce((sum, acc) => sum + acc.amount, 0),
+    },
+  };
+}
+
+/**
+ * Check if an asset is current (liquid, short-term)
+ * Returns true/false instead of filtering
+ */
+function isCurrentAsset(accountName) {
+  const name = accountName.toLowerCase();
+  return (
+    name.includes('cash') ||
+    name.includes('bank') ||
+    name.includes('receivable') ||
+    name.includes('inventory') ||
+    name.includes('prepaid') ||
+    (name.includes('advance') && !name.includes('vendor'))
+  );
+}
+
+/**
+ * Check if a liability is current (due within 1 year)
+ * Returns true/false instead of filtering
+ */
+function isCurrentLiability(accountName) {
+  const name = accountName.toLowerCase();
+  return (
+    name.includes('payable') ||
+    name.includes('vat payable') ||
+    name.includes('tds payable') ||
+    (name.includes('advance') && name.includes('customer'))
+  );
+}
+
+const Income = require('../income/income.model');
+const Expense = require('../expense/expense.model');
+
+
 

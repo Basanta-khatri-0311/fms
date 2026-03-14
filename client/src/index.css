@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* ... keep your existing input and fadeIn styles ... */
-
 /* Custom Scrollbar Styles */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;

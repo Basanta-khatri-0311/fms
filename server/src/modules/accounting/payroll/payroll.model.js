@@ -5,7 +5,7 @@ const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const payrollSchema = new mongoose.Schema({
     employeeName: { type: String, required: true },
     employeeRole: { type: String, enum: Object.values(USER_ROLES) },
-    paymentMonth: { type: String, required: true }, // e.g., "Mangsir 2080"
+    paymentMonth: { type: String, required: true }, // "Mangsir 2080"
     
     basicSalary: { type: Number, required: true },
     allowances: { type: Number, default: 0 },

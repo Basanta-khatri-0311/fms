@@ -181,7 +181,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // 2. Cash/Bank - Actual payment made
+    // Cash/Bank - Actual payment made
     if (entry.amountPaid > 0) {
       creditLines.push({
         account: cashOrBank._id,
@@ -189,7 +189,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // 3. Accounts Payable - Still owe vendor
+    // Accounts Payable - Still owe vendor
     if (entry.pendingAmount > 0) {
       const apAcc = await getAccount(COA_CODES.ACCOUNTS_PAYABLE);
       creditLines.push({
@@ -198,7 +198,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // 4. TDS Payable - Tax we deducted (owe government)
+    // TDS Payable - Tax we deducted (owe government)
     if (entry.tdsAmount > 0) {
       const tdsPayableAcc = await getAccount(COA_CODES.TDS_PAYABLE);
       creditLines.push({
@@ -245,7 +245,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
 
     // CREDIT SIDE: Liabilities and Cash Out
     
-    // 1. Tax Deducted (Liability)
+    // Tax Deducted (Liability)
     if (entry.taxDeduction > 0) {
       const tdsPayableAcc = await getAccount(COA_CODES.TDS_PAYABLE);
       creditLines.push({
@@ -254,7 +254,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // 2. Cash/Bank - Actual payment made
+    // Cash/Bank - Actual payment made
     if (entry.amountPaid > 0) {
       creditLines.push({
         account: cashOrBank._id,
@@ -262,7 +262,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // 3. Accounts Payable (Unpaid Salary + PF)
+    // Accounts Payable (Unpaid Salary + PF)
     const unpaidDues = (entry.pendingAmount || 0) + (entry.providentFund || 0);
     if (unpaidDues > 0) {
       const apAcc = await getAccount(COA_CODES.ACCOUNTS_PAYABLE);

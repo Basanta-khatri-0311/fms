@@ -7,6 +7,7 @@ const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting
 const AppError = require('../../../utils/AppError');
 const catchAsync = require('../../../utils/catchAsync');
 
+//create expense
 exports.createExpense = catchAsync(async (req, res, next) => {
     const { vendorName, amountBeforeVAT } = req.body;
 
@@ -23,12 +24,12 @@ exports.createExpense = catchAsync(async (req, res, next) => {
     const expense = await expenseService.createExpense(expenseData, req.user);
     return res.status(201).json(expense);
 });
-
+//get all expenses
 exports.getExpenses = catchAsync(async (req, res, next) => {
     const expenses = await expenseService.getExpenses(req.user);
     return res.status(200).json(expenses);
 });
-
+//update expenses
 exports.updateExpense = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const expenseData = {

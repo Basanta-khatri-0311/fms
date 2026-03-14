@@ -235,7 +235,7 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
   );
 };
 
-// PROFESSIONAL TRIAL BALANCE VIEW
+// TRIAL BALANCE VIEW
 const TrialBalanceView = ({ data, financialYear }) => (
   <div className="space-y-6">
     {/* Report Header */}
@@ -246,7 +246,7 @@ const TrialBalanceView = ({ data, financialYear }) => (
     </div>
 
     {/* Info Banner */}
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
+    <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
       <div className="bg-blue-100/50 p-2 rounded-lg text-blue-600">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
@@ -353,7 +353,7 @@ const TrialBalanceView = ({ data, financialYear }) => (
   </div>
 );
 
-// PROFESSIONAL INCOME STATEMENT VIEW
+// INCOME STATEMENT VIEW
 const IncomeStatementView = ({ data, financialYear }) => (
   <div className="space-y-6">
     {/* Report Header */}
@@ -364,7 +364,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
     </div>
 
     {/* Info Banner */}
-    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
+    <div className="bg-linear-to-r from-emerald-50 to-teal-50 border border-emerald-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
       <div className="bg-emerald-100/50 p-2 rounded-lg text-emerald-600">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
       </div>
@@ -450,7 +450,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
   </div>
 );
 
-// PROFESSIONAL BALANCE SHEET VIEW
+// BALANCE SHEET VIEW
 const BalanceSheetView = ({ data, financialYear }) => (
   <div className="space-y-6">
     {/* Report Header */}
@@ -461,7 +461,7 @@ const BalanceSheetView = ({ data, financialYear }) => (
     </div>
 
     {/* Info Banner */}
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
+    <div className="bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
       <div className="bg-blue-100/50 p-2 rounded-lg text-blue-600">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" /></svg>
       </div>
@@ -632,7 +632,7 @@ const BalanceSheetView = ({ data, financialYear }) => (
   </div>
 );
 
-// PROFESSIONAL SALES REGISTER VIEW
+// SALES REGISTER VIEW
 const SalesRegisterView = ({ data, financialYear }) => (
   <div className="space-y-6">
     <div className="text-center pb-6 border-b border-slate-200">
@@ -641,7 +641,7 @@ const SalesRegisterView = ({ data, financialYear }) => (
       <p className="text-sm font-medium text-slate-500 mt-2">For Financial Year {financialYear}</p>
     </div>
 
-    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
+    <div className="bg-linear-to-r from-amber-50 to-orange-50 border border-amber-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
       <div className="bg-amber-100/50 p-2 rounded-lg text-amber-600">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
       </div>
@@ -708,7 +708,7 @@ const SalesRegisterView = ({ data, financialYear }) => (
   </div>
 );
 
-// PROFESSIONAL PURCHASE REGISTER VIEW
+// PURCHASE REGISTER VIEW
 const PurchaseRegisterView = ({ data, financialYear }) => (
   <div className="space-y-6">
     <div className="text-center pb-6 border-b border-slate-200">
@@ -717,7 +717,7 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
       <p className="text-sm font-medium text-slate-500 mt-2">For Financial Year {financialYear}</p>
     </div>
 
-    <div className="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
+    <div className="bg-linear-to-r from-rose-50 to-pink-50 border border-rose-100/50 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
       <div className="bg-rose-100/50 p-2 rounded-lg text-rose-600">
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
       </div>
@@ -784,7 +784,7 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
   </div>
 );
 
-// PROFESSIONAL ANNEX 13 VIEW
+// ANNEX 13 VIEW
 const Annex13View = ({ data, financialYear }) => (
   <div className="space-y-8">
     <div className="text-center pb-6 border-b border-slate-200">

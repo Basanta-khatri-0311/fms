@@ -3,7 +3,7 @@ import API from '../../api/axiosConfig';
 
 const getApiOrigin = () => {
   const base = API.defaults.baseURL || '';
-  // e.g. http://localhost:5500/api -> http://localhost:5500
+  // http://localhost:5500/api -> http://localhost:5500
   return base.replace(/\/api\/?$/, '');
 };
 

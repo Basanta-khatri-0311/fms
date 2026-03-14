@@ -15,9 +15,7 @@ expenseRoutes.post('/', protect,
     expenseController.createExpense
 )
 
-
-
-// Get all expenses: Approver or Superadmin
+// Get all expenses Approver or Superadmin
 expenseRoutes.get('/', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST, USER_ROLES.AUDITOR),
     expenseController.getExpenses

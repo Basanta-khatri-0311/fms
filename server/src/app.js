@@ -25,8 +25,7 @@ app.use(morgan('dev')) //for monitoring the routes and their time elapsed
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
     setHeaders: (res, filePath) => {
-        // If the file has no extension (which happens with multer dest), it's likely an image upload.
-        // We set content-type to image/jpeg and content-disposition to inline to prevent downloads.
+
         if (!path.extname(filePath)) {
             res.setHeader('Content-Type', 'image/jpeg');
             res.setHeader('Content-Disposition', 'inline');

@@ -2,6 +2,7 @@ const Payroll = require('./payroll.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 
+//create payroll
 exports.createPayroll = async (payrollData, user) => {
     const grossSalary = Number(payrollData.basicSalary) + Number(payrollData.allowances || 0);
     const deductions = Number(payrollData.taxDeduction || 0) + Number(payrollData.providentFund || 0);
@@ -28,6 +29,7 @@ exports.createPayroll = async (payrollData, user) => {
     return await Payroll.create(payload);
 };
 
+//get payroll
 exports.getPayrolls = async (user) => {
     // Receptionist/other basic roles can only see own payroll entries
     if (['RECEPTIONIST', 'STUDENT'].includes(user.role)) {
@@ -42,6 +44,7 @@ exports.getPayrolls = async (user) => {
         .sort({ createdAt: -1 });
 };
 
+//update the payroll
 exports.updatePayroll = async (id, updateData, user) => {
     const payroll = await Payroll.findById(id);
 

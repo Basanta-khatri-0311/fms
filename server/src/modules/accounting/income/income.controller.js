@@ -5,6 +5,7 @@ const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../../constants/accounting
 const AppError = require('../../../utils/AppError');
 const catchAsync = require('../../../utils/catchAsync');
 
+//create income
 exports.createIncome = catchAsync(async (req, res, next) => {
     if (!req.body.name || !req.body.amountBeforeVAT) {
         return next(new AppError('Name and amountBeforeVAT are required', 400));
@@ -25,6 +26,7 @@ exports.createIncome = catchAsync(async (req, res, next) => {
     });
 });
 
+//get all income
 exports.getIncomes = catchAsync(async (req, res, next) => {
     const incomes = await incomeService.getIncomes(req.user);
 

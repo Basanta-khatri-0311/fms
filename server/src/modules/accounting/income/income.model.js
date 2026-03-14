@@ -32,7 +32,7 @@ const incomeSchema = new mongoose.Schema({
         enum: ['CASH', 'BANK', 'CHEQUE'],
         required: true,
     },
-    // New Audit Fields
+    // Audit Fields
     transactionId: { type: String }, 
     chequeNumber: { type: String },  
     bankName: { type: String },      

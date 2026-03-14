@@ -3,6 +3,7 @@ const payrollService = require('./payroll.service');
 const AppError = require('../../../utils/AppError');
 const catchAsync = require('../../../utils/catchAsync');
 
+//creating a payroll
 exports.createPayroll = catchAsync(async (req, res, next) => {
     const { employeeName, paymentMonth, basicSalary, paymentMode } = req.body;
 
@@ -19,11 +20,13 @@ exports.createPayroll = catchAsync(async (req, res, next) => {
     return res.status(201).json(payroll);
 });
 
+//get payrolls
 exports.getPayrolls = catchAsync(async (req, res, next) => {
     const payrolls = await payrollService.getPayrolls(req.user);
     return res.status(200).json(payrolls);
 });
 
+//update the payroll
 exports.updatePayroll = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const payrollData = {

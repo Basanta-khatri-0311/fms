@@ -66,22 +66,22 @@ const ApproverDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
       {/* Header Section */}
-      <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-900/10 border border-slate-700 relative overflow-hidden mb-8">
-        <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-indigo-500/20 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
+      <header className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-900/10 border border-slate-700 relative overflow-hidden mb-8">
+        <div className="absolute top-0 right-0 w-120 h-120 bg-indigo-500/20 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-60 h-60 bg-teal-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-indigo-200 text-sm font-bold uppercase tracking-widest mb-4">
               Pending Approvals
             </div>
-            <h1 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-slate-300 tracking-tight">
+            <h1 className="text-2xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-300 tracking-tight">
               Action Required
             </h1>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col md:flex-row flex-wrap gap-3">
             <button
               type="button"
               onClick={() => setActiveModal('INCOME')}
@@ -96,7 +96,7 @@ const ApproverDashboard = () => {
             >
               + Expense
             </button>
-            {(canAccessPayroll || user?.role === 'SUPERADMIN') && (
+            {canAccessPayroll  && (
               <button
                 type="button"
                 onClick={() => setActiveModal('PAYROLL')}
@@ -115,7 +115,7 @@ const ApproverDashboard = () => {
         {(canAccessPayroll || user?.role === 'SUPERADMIN') && (
           <StatCard label="Pending Payrolls" value={stats.payrollCount} color="teal" />
         )}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-[2rem] shadow-xl shadow-slate-900/20 border border-slate-700 relative overflow-hidden group">
+        <div className="bg-linear-to-br from-slate-900 to-slate-800 p-6 rounded-4xl shadow-xl shadow-slate-900/20 border border-slate-700 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
           <div className="relative z-10">
             <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2">Awaiting Value</p>
@@ -143,7 +143,7 @@ const ApproverDashboard = () => {
 };
 
 const StatCard = ({ label, value, color }) => (
-  <div className={`bg-gradient-to-br from-white to-slate-50 p-6 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-${color}-100/50 relative overflow-hidden group`}>
+  <div className={`bg-linear-to-br from-white to-slate-50 p-6 rounded-4xl shadow-xl shadow-slate-200/40 border border-${color}-100/50 relative overflow-hidden group`}>
     <div className={`absolute top-0 right-0 w-32 h-32 bg-${color}-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none`} />
     <div className="relative z-10">
       <p className={`text-[10px] font-black uppercase tracking-widest text-${color}-600/80 mb-2`}>{label}</p>

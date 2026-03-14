@@ -10,7 +10,7 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-fadeIn">
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl flex flex-col my-4 animate-slideUp overflow-hidden">
         
         <div className="px-6 py-5 shrink-0 bg-slate-800">

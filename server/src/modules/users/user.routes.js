@@ -6,10 +6,37 @@ const { authorize } = require('../middlewares/role.middleware.js');
 const { createUser, getUsers, updateUserStatus, updateUser, getEmployees } = require('./user.controller');
 const { USER_ROLES } = require('../../constants/roles');
 
-userRoutes.post('/', protect, authorize(USER_ROLES.SUPERADMIN), createUser);
-userRoutes.get('/', protect, authorize(USER_ROLES.SUPERADMIN), getUsers);
-userRoutes.get('/employees', protect, getEmployees);
-userRoutes.patch('/:id/status', protect, authorize(USER_ROLES.SUPERADMIN), updateUserStatus);
-userRoutes.patch('/:id', protect, authorize(USER_ROLES.SUPERADMIN), updateUser);
+userRoutes.post(
+    '/',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN),
+    createUser
+);
+
+userRoutes.get(
+    '/',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN),
+    getUsers);
+
+userRoutes.get(
+    '/employees',
+    protect,
+    getEmployees
+);
+
+userRoutes.patch(
+    '/:id/status',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN),
+    updateUserStatus
+);
+
+userRoutes.patch(
+    '/:id',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN),
+    updateUser
+);
 
 module.exports = userRoutes

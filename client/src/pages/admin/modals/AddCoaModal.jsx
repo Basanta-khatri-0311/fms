@@ -12,7 +12,7 @@ const CoaModal = ({ onClose, refreshData, editData = null }) => {
     type: 'ASSET'
   });
 
-  // Sync state if editing (Key for ensuring data shows up on edit)
+  // Sync state if editing (for ensuring data shows up on edit)
   useEffect(() => {
     if (isEdit && editData) {
       setFormData({

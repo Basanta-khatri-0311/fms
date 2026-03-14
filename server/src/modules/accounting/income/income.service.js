@@ -4,7 +4,7 @@ const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
 
 const buildIncomePayload = (data, user, existing = null) => {
-  // Explicitly parse to prevent "12000" + 135 = "12000135"
+  // Explicitly parsed to prevent "12000" + 135 = "12000135"
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountReceived = parseFloat(data.amountReceived) || 0;
   const discountAmount = parseFloat(data.discount) || 0;
@@ -18,7 +18,7 @@ const buildIncomePayload = (data, user, existing = null) => {
   const totalInvoiceValue = round(taxableAmount + calculatedVat);
   const calculatedTds = round(taxableAmount * (tdsRate / 100));
 
-  // The client owes the Net Amount (Total minus TDS withheld)
+  // client owes the Net Amount (Total minus TDS withheld)
   const netReceivable = round(totalInvoiceValue - calculatedTds);
 
   let pendingAmount = 0;
@@ -48,12 +48,13 @@ const buildIncomePayload = (data, user, existing = null) => {
     financialYear: base.financialYear || getCurrentFinancialYear(),
   };
 };
-
+//create income
 exports.createIncome = async (data, user) => {
   const payload = buildIncomePayload(data, user);
   return await Income.create(payload);
 };
 
+//update status of income (approve/reject)
 exports.updateIncomeStatus = async (id, status, user) => {
   const income = await Income.findById(id);
   if (!income) throw new Error('Income record not found');
@@ -91,6 +92,7 @@ exports.updateIncome = async (id, data, user) => {
   return await income.save();
 };
 
+//get all incomes
 exports.getIncomes = async (user) => {
   let query = {};
   if (user.role === 'RECEPTIONIST') query = { createdBy: user._id };

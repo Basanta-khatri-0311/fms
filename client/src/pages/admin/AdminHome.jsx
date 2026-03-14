@@ -70,13 +70,13 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-2">
           <div className="space-y-1">
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-slate-900 via-slate-700 to-slate-800 tracking-tight">
               Financial Dashboard
             </h1>
             <p className="text-slate-500 font-medium text-lg">
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 to-teal-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-linear-to-r from-emerald-400 to-teal-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
           </div>
 
           {/* Total Expenses */}
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-400 to-orange-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-linear-to-r from-rose-400 to-orange-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
           </div>
 
           {/* Net Profit */}
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-            <div className={`absolute bottom-0 left-0 right-0 h-1.5 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out ${summary.netProfit >= 0 ? 'bg-gradient-to-r from-blue-400 to-indigo-400' : 'bg-gradient-to-r from-red-400 to-rose-400'}`} />
+            <div className={`absolute bottom-0 left-0 right-0 h-1.5 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out ${summary.netProfit >= 0 ? 'bg-linear-to-r from-blue-400 to-indigo-400' : 'bg-linear-to-r from-red-400 to-rose-400'}`} />
           </div>
         </div>
 
@@ -231,7 +231,7 @@ const AdminDashboard = () => {
                 <span className="text-xl leading-none font-light mb-1">+</span> New Expense
               </span>
             </button>
-            {user?.permission?.canAccessPayroll &&(<button
+            {(user?.role === 'SUPERADMIN' || user?.permissions?.canAccessPayroll) && <button
               onClick={() => setActiveModal('PAYROLL')}
               className="group px-7 py-3.5 bg-teal-600 text-white rounded-2xl font-bold shadow-lg shadow-teal-500/25
                 hover:bg-teal-500 hover:shadow-xl hover:shadow-teal-500/40 hover:-translate-y-0.5 transition-all duration-300 
@@ -241,7 +241,7 @@ const AdminDashboard = () => {
               <span className="relative z-10 flex items-center gap-2">
                 <span className="text-xl leading-none font-light mb-1">+</span> New Payroll
               </span>
-            </button>)}
+            </button>}
           </div>
         )}
 
@@ -278,10 +278,10 @@ const AdminDashboard = () => {
 
                 {/* Icon */}
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-sm border border-white/50
-                  ${report.color === 'violet' && 'bg-gradient-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:from-violet-500 group-hover:to-violet-600 group-hover:text-white'}
-                  ${report.color === 'emerald' && 'bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:from-emerald-500 group-hover:to-emerald-600 group-hover:text-white'}
-                  ${report.color === 'blue' && 'bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:from-blue-500 group-hover:to-blue-600 group-hover:text-white'}
-                  ${report.color === 'amber' && 'bg-gradient-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:from-amber-500 group-hover:to-amber-600 group-hover:text-white'}
+                  ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:from-violet-500 group-hover:to-violet-600 group-hover:text-white'}
+                  ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:from-emerald-500 group-hover:to-emerald-600 group-hover:text-white'}
+                  ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:from-blue-500 group-hover:to-blue-600 group-hover:text-white'}
+                  ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:from-amber-500 group-hover:to-amber-600 group-hover:text-white'}
                   ${report.implemented ? 'transition-all duration-500 group-hover:shadow-md' : ''}`}>
                   {report.icon}
                 </div>
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Help Section */}
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-slate-900/10 relative overflow-hidden">
+        <div className="bg-linear-to-r from-slate-900 to-slate-800 rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-slate-900/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
           <div className="flex items-start gap-6 relative z-10">
             <div className="p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/10 shrink-0 shadow-inner">

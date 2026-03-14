@@ -2,6 +2,7 @@ const userService = require('./user.service');
 const AppError = require('../../utils/AppError');
 const catchAsync = require('../../utils/catchAsync');
 
+//create a user
 exports.createUser = async (req, res) => {
     try {
         const user = await userService.createUser(req.body, false);
@@ -11,6 +12,7 @@ exports.createUser = async (req, res) => {
     }
 };
 
+//get all users
 exports.getUsers = catchAsync(async (req, res) => {
     const result = await userService.getUsers();
     res.status(200).json(result);

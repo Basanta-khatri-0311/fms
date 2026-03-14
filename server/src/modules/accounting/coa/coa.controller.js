@@ -1,5 +1,5 @@
 const coaService = require('./coa.service');
-
+//create COA
 exports.createAccount = async (req, res) => {
   try {
     const account = await coaService.createAccount(req.body, req.user);
@@ -8,7 +8,7 @@ exports.createAccount = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
+//get all COA
 exports.getAccounts = async (req, res) => {
   try {
     const accounts = await coaService.getAllAccounts();
@@ -18,7 +18,7 @@ exports.getAccounts = async (req, res) => {
   }
 };
 
-// Fixed: Now uses the service instead of a missing Model reference
+//deleting COA account
 exports.deleteAccount = async (req, res) => {
   try {
     const deleted = await coaService.deleteAccount(req.params.id);
@@ -31,7 +31,7 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// Add this: Support for the Edit functionality
+// COA Editing functionality
 exports.updateAccount = async (req, res) => {
   try {
     const updated = await coaService.updateAccount(req.params.id, req.body);

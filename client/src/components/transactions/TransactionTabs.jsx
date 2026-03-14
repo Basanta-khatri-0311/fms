@@ -11,7 +11,7 @@ const TransactionTabs = ({ mode, statusFilter, setStatusFilter, typeFilter, setT
         <button
           key={status}
           onClick={() => setStatusFilter(status)}
-          className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-[0.1em] uppercase transition-all whitespace-nowrap ${
+          className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all whitespace-nowrap ${
             statusFilter === status 
               ? 'bg-white text-indigo-700 shadow-sm border border-slate-100 scale-100' 
               : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 scale-95'
@@ -29,7 +29,7 @@ const TransactionTabs = ({ mode, statusFilter, setStatusFilter, typeFilter, setT
           <button
             key={type}
             onClick={() => setTypeFilter(type)}
-            className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-[0.1em] uppercase transition-all whitespace-nowrap ${
+            className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all whitespace-nowrap ${
               typeFilter === type
                 ? type === 'INCOME'
                   ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 border-emerald-400 scale-100'

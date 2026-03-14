@@ -3,10 +3,10 @@ import TransactionStatus from '../../components/transactions/TransactionStatus';
 
 const AuditorView = () => {
     return (
-        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
             {/* Context Notice */}
-            <div className="bg-gradient-to-r from-blue-900 to-indigo-900 border border-blue-800 p-6 sm:p-8 rounded-[2rem] flex flex-col sm:flex-row gap-6 items-start shadow-xl shadow-blue-900/10 relative overflow-hidden">
+            <div className="bg-linear-to-r from-blue-900 to-indigo-900 border border-blue-800 p-6 sm:p-8 rounded-4xl flex flex-col sm:flex-row gap-6 items-start shadow-xl shadow-blue-900/10 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none"></div>
                 
                 <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 shrink-0 shadow-inner">
@@ -24,9 +24,9 @@ const AuditorView = () => {
             </div>
 
             {/* Read-only transaction list */}
-            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-200/60 p-6 sm:p-8 relative overflow-hidden">
+            <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/40 border border-slate-200/60 p-6 sm:p-8 relative overflow-hidden">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 pb-6 border-b border-slate-100">
-                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100/50 shadow-sm">
+                    <div className="p-4 bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100/50 shadow-sm">
                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>

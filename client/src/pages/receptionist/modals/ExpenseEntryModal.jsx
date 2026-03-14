@@ -244,7 +244,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
               </div>
             </div>
 
-            {/* Section 2: Payment Details */}
+            {/* Payment Details */}
             <div className="space-y-5">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-5 bg-rose-600  rounded-full" />
