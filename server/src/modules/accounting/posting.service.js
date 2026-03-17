@@ -1,5 +1,6 @@
 const ledgerService = require('./ledger/ledger.service');
 const ChartOfAccount = require('./coa/coa.model');
+const User = require('../users/user.model');
 const { ENTRY_TYPE, ACCOUNTING_STATUS } = require('../../constants/accounting');
 
 /**
@@ -115,6 +116,20 @@ if (entryType === ENTRY_TYPE.INCOME) {
       const advanceAcc = await getAccount(COA_CODES.CUSTOMER_ADVANCES);
       creditLines.push({ account: advanceAcc._id, amount: round(entry.advanceAmount) });
     }
+
+    // --- STUDENT BALANCE UPDATE (Concurrency-Safe Delta Approach) ---
+    if (entry.studentId) {
+      const dueDelta = round((entry.pendingAmount || 0) - (entry.previousDue || 0));
+      const advanceDelta = round((entry.advanceAmount || 0) - (entry.previousAdvance || 0));
+
+      // Use $inc for atomic updates to prevent race conditions during multiple approvals
+      await User.findByIdAndUpdate(entry.studentId, {
+        $inc: {
+          totalDue: dueDelta,
+          totalAdvance: advanceDelta
+        }
+      });
+    }
   }
 
   /* ============================================================================
@@ -138,7 +153,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
         CR Cash/Bank       5,375  (what we paid)
         CR TDS Payable        75  (owe tax office)
      
-     Balance: 5,650 = 5,650 ✓
+     Balance: 5,650 = 5,650 
      ============================================================================ */
   if (entryType === ENTRY_TYPE.EXPENSE) {
     const expenseAcc = await getAccount(COA_CODES.OFFICE_EXPENSE);

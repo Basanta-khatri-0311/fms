@@ -2,20 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, X, UserPlus, ShieldCheck } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
+import { validateField } from '../../../utils/validation';
 
-const AddUserModal = ({ onClose, refreshData, editData = null }) => {
+const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee' }) => {
   const isEdit = !!editData;
+  const initialRole = type === 'student' ? 'STUDENT' : 'RECEPTIONIST';
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
     password: '', 
-    role: 'RECEPTIONIST',
+    role: initialRole,
     permissions: {
       canAccessPayroll: false,
       canViewReports: false,
       canExportReports: false,
     }
   });
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,6 +40,27 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate
+    const newErrors = {};
+    const nameVal = validateField('name', formData.name);
+    if (!nameVal.isValid) newErrors.name = nameVal.message;
+
+    const emailVal = validateField('email', formData.email);
+    if (!emailVal.isValid) newErrors.email = emailVal.message;
+
+    // Only validate password if it's a new user OR if password is provided during edit
+    if (!isEdit || formData.password) {
+      const passVal = validateField('password', formData.password);
+      if (!passVal.isValid) newErrors.password = passVal.message;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setIsSubmitting(true);
     try {
       if (isEdit) {
@@ -71,11 +95,12 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
               {isEdit ? <ShieldCheck size={20} /> : <UserPlus size={20} />}
             </div>
             <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-              {isEdit ? 'Edit Member' : 'New Member'}
+              {isEdit ? 'Edit ' : 'New '}
+              {type === 'student' ? 'Student' : 'Staff Member'}
             </h2>
           </div>
           <p className="text-slate-500 text-sm">
-            {isEdit ? 'Update account details and permissions.' : 'Add a new member to your organization.'}
+            {isEdit ? 'Update account details and permissions.' : `Add a new ${type === 'student' ? 'student' : 'member'} to your organization.`}
           </p>
         </div>
 
@@ -87,9 +112,12 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
               required
               value={formData.name}
               placeholder="John Doe"
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 placeholder:text-slate-300"
+              className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 ${
+                errors.name ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
+              }`}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
+            {errors.name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2">{errors.name}</p>}
           </div>
 
           {/* Email Field */}
@@ -100,29 +128,41 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
               type="email"
               value={formData.email}
               placeholder="john@company.com"
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 placeholder:text-slate-300"
+              className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 ${
+                errors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
+              }`}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
+            {errors.email && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2">{errors.email}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Role Field */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Role</label>
-              <select
-                value={formData.role}
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm appearance-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-700"
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="RECEPTIONIST">Receptionist</option>
-                <option value="APPROVER">Approver</option>
-                <option value="AUDITOR">Auditor</option>
-                <option value="SUPERADMIN">Super Admin</option>
-              </select>
-            </div>
+            {/* Role Field - Hidden for Student Type */}
+            {type !== 'student' ? (
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Role</label>
+                <select
+                  value={formData.role}
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm appearance-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-700"
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                >
+                  <option value="RECEPTIONIST">Receptionist</option>
+                  <option value="APPROVER">Approver</option>
+                  <option value="AUDITOR">Auditor</option>
+                  <option value="SUPERADMIN">Super Admin</option>
+                </select>
+              </div>
+            ) : (
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Role</label>
+                    <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-400 font-bold">
+                        STUDENT (Auto)
+                    </div>
+                </div>
+            )}
             
             {/* Password Field */}
-            <div className="space-y-1.5">
+            <div className={`space-y-1.5 ${type === 'student' ? '' : ''}`}>
               <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">
                 {isEdit ? 'New Password' : 'Password'}
               </label>
@@ -131,7 +171,9 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
                   required={!isEdit}
                   type={showPassword ? 'text' : 'password'}
                   placeholder={isEdit ? '••••••••' : 'Min. 8 chars'}
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm pr-11 transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 placeholder:text-slate-300"
+                  className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm pr-11 transition-all focus:ring-4 placeholder:text-slate-300 ${
+                    errors.password ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
+                  }`}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
                 <button
@@ -142,6 +184,7 @@ const AddUserModal = ({ onClose, refreshData, editData = null }) => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {errors.password && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2 leading-tight">{errors.password}</p>}
             </div>
           </div>
 

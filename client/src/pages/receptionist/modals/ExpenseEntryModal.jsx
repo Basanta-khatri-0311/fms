@@ -4,6 +4,7 @@ import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
 import useFinancialCalculations from '../../../hooks/useFinancialCalculations';
 import FinancialCalculationsUI from '../../../components/shared/FinancialCalculationsUI';
+import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const [formData, setFormData] = useState({
@@ -97,6 +98,16 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validations
+    if (!formData.vendorName) return showNotification('error', 'Please select a vendor');
+
+    const amtVal = validateField('amount', formData.amountBeforeVAT);
+    if (!amtVal.isValid) return showNotification('error', `Bill Amount: ${amtVal.message}`);
+
+    const paidVal = validateField('amount', formData.amountPaid);
+    if (!paidVal.isValid) return showNotification('error', `Paid Amount: ${paidVal.message}`);
+
     setIsSubmitting(true);
 
     try {

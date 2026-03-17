@@ -1,9 +1,10 @@
 const Income = require('./income.model');
+const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
 const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
 
-const buildIncomePayload = (data, user, existing = null) => {
+const buildIncomePayload = async (data, user, existing = null) => {
   // Explicitly parsed to prevent "12000" + 135 = "12000135"
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountReceived = parseFloat(data.amountReceived) || 0;
@@ -21,13 +22,28 @@ const buildIncomePayload = (data, user, existing = null) => {
   // client owes the Net Amount (Total minus TDS withheld)
   const netReceivable = round(totalInvoiceValue - calculatedTds);
 
+  let previousDue = 0;
+  let previousAdvance = 0;
+
+  // If studentId is provided, fetch their current approved balance
+  if (data.studentId) {
+    const student = await User.findById(data.studentId);
+    if (student) {
+      previousDue = student.totalDue || 0;
+      previousAdvance = student.totalAdvance || 0;
+    }
+  }
+
+  // Final amount to pay = Current Net + Previous Due - Previous Advance
+  const adjustedNetReceivable = round(netReceivable + previousDue - previousAdvance);
+
   let pendingAmount = 0;
   let excessAmount = 0;
 
-  if (amountReceived > netReceivable) {
-    excessAmount = round(amountReceived - netReceivable);
+  if (amountReceived > adjustedNetReceivable) {
+    excessAmount = round(amountReceived - adjustedNetReceivable);
   } else {
-    pendingAmount = round(netReceivable - amountReceived);
+    pendingAmount = round(adjustedNetReceivable - amountReceived);
   }
 
   const base = existing ? existing.toObject() : {};
@@ -43,6 +59,8 @@ const buildIncomePayload = (data, user, existing = null) => {
     amountReceived,
     pendingAmount,
     advanceAmount: excessAmount,
+    previousDue,
+    previousAdvance,
     createdBy: base.createdBy || user._id,
     createdByRole: base.createdByRole || user.role,
     financialYear: base.financialYear || getCurrentFinancialYear(),
@@ -50,7 +68,7 @@ const buildIncomePayload = (data, user, existing = null) => {
 };
 //create income
 exports.createIncome = async (data, user) => {
-  const payload = buildIncomePayload(data, user);
+  const payload = await buildIncomePayload(data, user);
   return await Income.create(payload);
 };
 
@@ -82,7 +100,7 @@ exports.updateIncome = async (id, data, user) => {
     throw new Error('Only PENDING incomes can be edited');
   }
 
-  const payload = buildIncomePayload(
+  const payload = await buildIncomePayload(
     data,
     user,
     income

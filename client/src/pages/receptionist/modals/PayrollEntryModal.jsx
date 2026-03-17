@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
+import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const PayrollEntryModal = ({ onClose, refreshData }) => {
   const [formData, setFormData] = useState({
@@ -51,6 +52,14 @@ const PayrollEntryModal = ({ onClose, refreshData }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleWheel = (e) => {
+    e.target.blur();
+  };
+
+  const handleFocus = (e) => {
+    e.target.select();
+  };
+
   const basicSalary = parseFloat(formData.basicSalary) || 0;
   const allowances = parseFloat(formData.allowances) || 0;
   const taxDeduction = parseFloat(formData.taxDeduction) || 0;
@@ -64,6 +73,23 @@ const PayrollEntryModal = ({ onClose, refreshData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validations
+    const fieldsToValidate = [
+      { key: 'basicSalary', label: 'Basic Salary' },
+      { key: 'allowances', label: 'Allowances' },
+      { key: 'taxDeduction', label: 'Tax/TDS' },
+      { key: 'providentFund', label: 'Provident Fund' },
+      { key: 'amountPaid', label: 'Amount Paid' }
+    ];
+
+    for (const field of fieldsToValidate) {
+      if (formData[field.key]) {
+        const val = validateField('amount', formData[field.key]);
+        if (!val.isValid) return showNotification('error', `${field.label}: ${val.message}`);
+      }
+    }
+
     if (amountPaid > netPayable) {
       showNotification('error', 'Amount paid cannot exceed net payable!');
       return;
@@ -145,22 +171,22 @@ const PayrollEntryModal = ({ onClose, refreshData }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-teal-800 mb-2">Basic Salary</label>
-                  <input required type="number" name="basicSalary" value={formData.basicSalary} onChange={handleInputChange} className="w-full px-4 py-3" />
+                  <input required type="number" name="basicSalary" value={formData.basicSalary} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full px-4 py-3" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-teal-800 mb-2">Allowances</label>
-                  <input type="number" name="allowances" value={formData.allowances} onChange={handleInputChange} className="w-full px-4 py-3" />
+                  <input type="number" name="allowances" value={formData.allowances} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full px-4 py-3" />
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-rose-800 mb-2">Tax/TDS</label>
-                  <input type="number" name="taxDeduction" value={formData.taxDeduction} onChange={handleInputChange} className="w-full px-4 py-3 border-rose-200" />
+                  <input type="number" name="taxDeduction" value={formData.taxDeduction} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full px-4 py-3 border-rose-200" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-orange-800 mb-2">Provident Fund</label>
-                  <input type="number" name="providentFund" value={formData.providentFund} onChange={handleInputChange} className="w-full px-4 py-3 border-orange-200" />
+                  <input type="number" name="providentFund" value={formData.providentFund} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full px-4 py-3 border-orange-200" />
                 </div>
               </div>
 
@@ -174,7 +200,7 @@ const PayrollEntryModal = ({ onClose, refreshData }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-bold text-slate-600 mb-2">Amount Paid</label>
-                  <input required type="number" name="amountPaid" value={formData.amountPaid} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
+                  <input required type="number" name="amountPaid" value={formData.amountPaid} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl" />
                 </div>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">

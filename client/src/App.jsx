@@ -33,7 +33,7 @@ function App() {
           
           {/* Dashboard - All roles */}
           <Route path="/dashboard" element={
-            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN', 'AUDITOR']}>
+            <ProtectedRoute allowedRoles={['RECEPTIONIST', 'APPROVER', 'SUPERADMIN', 'AUDITOR', 'STUDENT']}>
               <DashboardSwitcher />
             </ProtectedRoute>
           } />
@@ -83,9 +83,15 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/users" element={
+          <Route path="/management/employees" element={
             <ProtectedRoute allowedRoles={['SUPERADMIN']}>
-              <UserManagement />
+              <UserManagement type="employee" title="Staff Management" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/management/students" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN', 'APPROVER', 'RECEPTIONIST']}>
+              <UserManagement type="student" title="Student Directory" />
             </ProtectedRoute>
           } />
 

@@ -6,9 +6,12 @@ const { ENTRY_TYPE } = require('../../../constants/accounting')
 
 const incomeSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     contactNumber: String,
     email: String,
     address: String,
+    previousDue: { type: Number, default: 0 },
+    previousAdvance: { type: Number, default: 0 },
     buyerPan: { type: String }, // for Sales Register if Company
     serviceType: { type: String, required: true },
     quantity: { type: Number, default: 1 },

@@ -41,7 +41,9 @@ const userSchema = new mongoose.Schema({
         canAccessPayroll: { type: Boolean, default: false },
         canViewReports: { type: Boolean, default: false },
         canExportReports: { type: Boolean, default: false },
-    }
+    },
+    totalDue: { type: Number, default: 0 },
+    totalAdvance: { type: Number, default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

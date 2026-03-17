@@ -11,6 +11,8 @@ const useFinancialCalculations = (formData, mode = 'income') => {
     
     // Payment amount (Income has amountReceived, Expense has amountPaid)
     const amountHandled = parseFloat(formData.amountReceived || formData.amountPaid) || 0;
+    const previousDue = parseFloat(formData.previousDue) || 0;
+    const previousAdvance = parseFloat(formData.previousAdvance) || 0;
 
     let discount = 0, vatAmount = 0, tdsAmount = 0, netAmount = 0;
 
@@ -27,8 +29,10 @@ const useFinancialCalculations = (formData, mode = 'income') => {
       netAmount = round(taxableAmount + vatAmount - tdsAmount);
     }
 
-    const advanceAmount = amountHandled > netAmount ? round(amountHandled - netAmount) : 0;
-    const pendingAmount = netAmount > amountHandled ? round(netAmount - amountHandled) : 0;
+    const adjustedNetAmount = round(netAmount + previousDue - previousAdvance);
+
+    const advanceAmount = amountHandled > adjustedNetAmount ? round(amountHandled - adjustedNetAmount) : 0;
+    const pendingAmount = adjustedNetAmount > amountHandled ? round(adjustedNetAmount - amountHandled) : 0;
 
     return {
       amountBeforeVAT,
@@ -38,10 +42,13 @@ const useFinancialCalculations = (formData, mode = 'income') => {
       vatAmount,
       discount,
       tdsAmount,
-      netAmount, // Representing both netAmount and netPayable
+      netAmount: adjustedNetAmount, // Returning the adjusted net for the UI
+      baseNetAmount: netAmount,    // Storing the base for reference if needed
       amountHandled,
       advanceAmount,
-      pendingAmount
+      pendingAmount,
+      previousDue,
+      previousAdvance
     };
   }, [
     formData.amountBeforeVAT, 
@@ -50,6 +57,8 @@ const useFinancialCalculations = (formData, mode = 'income') => {
     formData.tdsRate, 
     formData.amountReceived, 
     formData.amountPaid, 
+    formData.previousDue,
+    formData.previousAdvance,
     mode
   ]);
 };

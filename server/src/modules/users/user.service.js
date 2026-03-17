@@ -1,9 +1,10 @@
 const User = require('./user.model');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const { USER_ROLES, CREATABLE_ROLES_BY_SUPERADMIN, USER_STATUS } = require('../../constants/roles');
+const AppError = require('../../utils/AppError');
+const { USER_ROLES, CREATABLE_ROLES_BY_SUPERADMIN, CREATABLE_ROLES_BY_STAFF, USER_STATUS } = require('../../constants/roles');
 
-exports.createUser = async (data, isBootstrap = false) => {
+exports.createUser = async (data, creator = null) => {
     let { name, email, password, role } = data;
 
     // Check if a Superadmin already exists for bootstrap logic
@@ -11,25 +12,31 @@ exports.createUser = async (data, isBootstrap = false) => {
 
     if (!superAdminExists) {
         if (role !== USER_ROLES.SUPERADMIN) {
-            const err = new Error('First user must be SUPERADMIN');
-            err.statusCode = 400;
-            throw err;
+            throw new AppError('First user must be SUPERADMIN', 400);
         }
-    } else if (!isBootstrap && !CREATABLE_ROLES_BY_SUPERADMIN.includes(role)) {
-        // Prevent privilege escalation
-        const err = new Error('Invalid role assignment');
-        err.statusCode = 403;
-        throw err;
+    } else {
+        // If creator is Superadmin, check against SUPERADMIN allowlist
+        if (creator?.role === USER_ROLES.SUPERADMIN) {
+            if (!CREATABLE_ROLES_BY_SUPERADMIN.includes(role)) {
+                throw new AppError(`Superadmin cannot create ${role} role`, 403);
+            }
+        } 
+        // If creator is Staff (Approver/Receptionist), check against STAFF allowlist
+        else if ([USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST].includes(creator?.role)) {
+            if (!CREATABLE_ROLES_BY_STAFF.includes(role)) {
+                throw new AppError(`As ${creator.role}, you can only create: ${CREATABLE_ROLES_BY_STAFF.join(', ')}`, 403);
+            }
+        }
+        // Fallback for unauthorized creators
+        else if (creator) {
+            throw new AppError('You do not have permission to create users', 403);
+        }
     }
 
-    // const session = await mongoose.startSession();
-    // session.startTransaction();
     try {
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
-            const err = new Error('User already exists');
-            err.statusCode = 409;
-            throw err;
+            throw new AppError('User already exists', 409);
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -61,16 +68,19 @@ exports.getUsers = async (filter = {}, { page = 1, limit = 20 } = {}) => {
 exports.updateUserStatus = async (id, status, performedBy) => {
     const user = await User.findById(id);
     if (!user) {
-        const err = new Error('User not found');
-        err.statusCode = 404;
-        throw err;
+        throw new AppError('User not found', 404);
     }
 
-    // Prevent self-deactivation by comparing IDs
-    if (performedBy && performedBy.toString() === user._id.toString()) {
-        const err = new Error('Cannot update your own status');
-        err.statusCode = 403;
-        throw err;
+    // Prevent self-deactivation 
+    if (performedBy._id.toString() === user._id.toString()) {
+        throw new AppError('Cannot update your own status', 403);
+    }
+
+    // Staff check: Can only update students
+    if ([USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST].includes(performedBy.role)) {
+        if (user.role !== USER_ROLES.STUDENT) {
+            throw new AppError(`As ${performedBy.role}, you can only manage students`, 403);
+        }
     }
 
     user.status = status;
@@ -79,14 +89,23 @@ exports.updateUserStatus = async (id, status, performedBy) => {
 };
 
 //update user data
-exports.updateUser = async (id, data) => {
+exports.updateUser = async (id, data, performedBy) => {
     const { name, email, password, role } = data;
     
     const user = await User.findById(id);
     if (!user) {
-        const err = new Error('User not found');
-        err.statusCode = 404;
-        throw err;
+        throw new AppError('User not found', 404);
+    }
+
+    // Staff check: Can only update students
+    if ([USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST].includes(performedBy.role)) {
+        if (user.role !== USER_ROLES.STUDENT) {
+            throw new AppError(`As ${performedBy.role}, you can only manage students`, 403);
+        }
+        // Staff cannot change role
+        if (role && role !== USER_ROLES.STUDENT) {
+            throw new AppError('You cannot change user role', 403);
+        }
     }
 
     if (name) user.name = name.trim();
@@ -107,4 +126,8 @@ exports.updateUser = async (id, data) => {
 
     await user.save();
     return user;
+};
+
+exports.getUsersByRole = async (role) => {
+    return await User.find({ role }).select('name email totalDue totalAdvance');
 };

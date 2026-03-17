@@ -4,13 +4,19 @@ import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
 import useFinancialCalculations from '../../../hooks/useFinancialCalculations';
 import FinancialCalculationsUI from '../../../components/shared/FinancialCalculationsUI';
+import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
+  const [students, setStudents] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState('');
   const [formData, setFormData] = useState({
+    studentId: '',
     name: '',
     contactNumber: '',
     email: '',
     address: '',
+    previousDue: 0,
+    previousAdvance: 0,
     buyerPan: '',
     serviceType: 'Consultancy',
     quantity: '1',
@@ -34,8 +40,47 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+    fetchStudents();
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await API.get('/users/students');
+      setStudents(response.data.users || []);
+    } catch (err) {
+      console.error('Error fetching students:', err);
+    }
+  };
+
+  const handleStudentChange = (e) => {
+    const studentId = e.target.value;
+    setSelectedStudentId(studentId);
+    
+    if (!studentId) {
+      setFormData(prev => ({
+        ...prev,
+        studentId: '',
+        name: '',
+        email: '',
+        previousDue: 0,
+        previousAdvance: 0
+      }));
+      return;
+    }
+
+    const student = students.find(s => s._id === studentId);
+    if (student) {
+      setFormData(prev => ({
+        ...prev,
+        studentId: student._id,
+        name: student.name,
+        email: student.email,
+        previousDue: student.totalDue || 0,
+        previousAdvance: student.totalAdvance || 0
+      }));
+    }
+  };
 
   // Populate form when editing existing income
   useEffect(() => {
@@ -49,6 +94,9 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
         return {
           ...base,
+          studentId: initialData.studentId || '',
+          previousDue: initialData.previousDue || 0,
+          previousAdvance: initialData.previousAdvance || 0,
           name: initialData.name || '',
           contactNumber: initialData.contactNumber || '',
           email: initialData.email || '',
@@ -69,6 +117,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
           paymentScreenshot: null,
         };
       });
+      setSelectedStudentId(initialData.studentId || '');
     }
   }, [initialData]);
 
@@ -94,6 +143,22 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validations
+    const nameVal = validateField('name', formData.name);
+    if (!nameVal.isValid) return showNotification('error', nameVal.message);
+
+    if (formData.contactNumber) {
+      const phoneVal = validateField('phone', formData.contactNumber);
+      if (!phoneVal.isValid) return showNotification('error', phoneVal.message);
+    }
+
+    const amtVal = validateField('amount', formData.amountBeforeVAT);
+    if (!amtVal.isValid) return showNotification('error', `Service Amount: ${amtVal.message}`);
+
+    const recVal = validateField('amount', formData.amountReceived);
+    if (!recVal.isValid) return showNotification('error', `Received Amount: ${recVal.message}`);
+
     setIsSubmitting(true);
 
     try {
@@ -180,6 +245,51 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+                {/* Registered Student Select */}
+                <div className="lg:col-span-2">
+                  <label className="block text-xs font-bold text-slate-600 mb-2 underline decoration-blue-500/30">Select Registered Student (Optional)</label>
+                  <div className="relative">
+                    <select
+                      value={selectedStudentId}
+                      onChange={handleStudentChange}
+                      className="w-full px-4 py-3 bg-blue-50/50 border border-blue-100 rounded-xl text-sm font-medium outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 appearance-none cursor-pointer transition-all"
+                    >
+                      <option value="">-- New / Unregistered Client --</option>
+                      {students.map(student => (
+                        <option key={student._id} value={student._id}>
+                          {student.name} ({student.email})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-blue-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {formData.studentId && (
+                    <div className="mt-3 flex gap-3">
+                      {formData.previousDue > 0 && (
+                        <div className="px-3 py-1.5 bg-red-50 border border-red-100 rounded-lg flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                          <span className="text-[10px] font-black text-red-700 uppercase tracking-tight">Previous Due: NPR. {formData.previousDue}</span>
+                        </div>
+                      )}
+                      {formData.previousAdvance > 0 && (
+                        <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                          <span className="text-[10px] font-black text-emerald-700 uppercase tracking-tight">Previous Advance: NPR. {formData.previousAdvance}</span>
+                        </div>
+                      )}
+                      {formData.previousDue === 0 && formData.previousAdvance === 0 && (
+                        <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg flex items-center gap-2">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-tight">Clear Balance</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
                 {/* Client Name */}
                 <div className="lg:col-span-2">
                   <label className="block text-xs font-bold text-slate-600 mb-2">Client Name </label>
@@ -292,6 +402,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                       min="1"
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all"
                       onChange={handleInputChange}
+                      onKeyDown={handleNumberKeyDown}
                       value={formData.quantity}
                       onWheel={handleWheel}
                     />

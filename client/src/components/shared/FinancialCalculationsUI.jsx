@@ -1,4 +1,6 @@
 import React from 'react';
+import { numberToWords } from '../../utils/numberToWords';
+import { handleNumberKeyDown } from '../../utils/validation';
 
 const FinancialCalculationsUI = ({ 
   formData, 
@@ -44,6 +46,7 @@ const FinancialCalculationsUI = ({
             className={`flex-1 text-right text-xl sm:text-3xl font-black ${theme.text} bg-transparent outline-none`}
             onChange={handleInputChange}
             onFocus={handleFocus}
+            onKeyDown={handleNumberKeyDown}
             value={formData.amountBeforeVAT}
             placeholder="0.00"
             onWheel={handleWheel}
@@ -63,6 +66,7 @@ const FinancialCalculationsUI = ({
             className="w-full text-base sm:text-lg font-black text-emerald-600 outline-none"
             onChange={handleInputChange}
             onFocus={handleFocus}
+            onKeyDown={handleNumberKeyDown}
             value={formData.discountRate}
             placeholder="0"
             onWheel={handleWheel}
@@ -88,6 +92,7 @@ const FinancialCalculationsUI = ({
             className="w-full text-base sm:text-lg font-black text-slate-800 outline-none"
             onChange={handleInputChange}
             onFocus={handleFocus}
+            onKeyDown={handleNumberKeyDown}
             value={formData.vatRate}
             onWheel={handleWheel}
           />
@@ -110,6 +115,7 @@ const FinancialCalculationsUI = ({
             className="w-full text-base sm:text-lg font-black text-orange-600 outline-none"
             onChange={handleInputChange}
             onFocus={handleFocus}
+            onKeyDown={handleNumberKeyDown}
             value={formData.tdsRate}
             placeholder="0"
             onWheel={handleWheel}
@@ -131,6 +137,14 @@ const FinancialCalculationsUI = ({
         </div>
       </div>
 
+      {/* Amount in words toggle/display */}
+      <div className="px-1 border-l-2 border-slate-200">
+        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">In Words</p>
+        <p className="text-xs font-bold text-slate-600 italic leading-tight">
+          {numberToWords(netAmount)}
+        </p>
+      </div>
+
       {/* Amount Handled */}
       <div className="p-5 bg-emerald-500 rounded-xl shadow-lg">
         <label className="block text-xs font-bold text-emerald-50 uppercase mb-3">{amountInputLabel}</label>
@@ -145,6 +159,7 @@ const FinancialCalculationsUI = ({
             className="flex-1 text-right text-xl sm:text-3xl text-white px-3 py-2 rounded-lg outline-none placeholder-emerald-200 bg-transparent font-mono font-bold"
             onChange={handleInputChange}
             onFocus={handleFocus}
+            onKeyDown={handleNumberKeyDown}
             value={formData[amountInputName]}
             placeholder="0.00"
             onWheel={handleWheel}

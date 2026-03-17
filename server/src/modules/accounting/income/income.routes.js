@@ -22,6 +22,12 @@ incomeRoutes.patch('/:id', protect,
     incomeController.updateIncome
 );
 
+// Student dashboard
+incomeRoutes.get('/student/dashboard', protect,
+    authorize(USER_ROLES.STUDENT),
+    incomeController.getStudentDashboard
+);
+
 //get all incomes
 incomeRoutes.get('/', protect,
     authorize(USER_ROLES.APPROVER, USER_ROLES.SUPERADMIN, USER_ROLES.RECEPTIONIST, USER_ROLES.AUDITOR),

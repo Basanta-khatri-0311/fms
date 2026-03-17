@@ -11,14 +11,20 @@ const COAManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => { fetchAccounts(); }, []);
 
   const fetchAccounts = async () => {
     try {
+      setIsLoading(true);
       const { data } = await API.get('/coa');
       setAccounts(data.data || data || []);
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error(err); 
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const triggerToast = (message, type = 'success') => {
@@ -74,16 +80,22 @@ const COAManagement = () => {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50/50 border-b border-slate-100">
-            <tr>
-              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Account Name</th>
-              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Code</th>
-              <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Type</th>
-              <th className="px-6 py-4 text-right text-[10px] font-black uppercase text-slate-400 tracking-widest">Actions</th>
-            </tr>
-          </thead>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8 min-h-[300px] flex flex-col">
+        {isLoading ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-12">
+            <div className="w-10 h-10 border-4 border-slate-100 border-t-indigo-600 rounded-full animate-spin mb-4" />
+            <p className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">Loading Ledger Accounts...</p>
+          </div>
+        ) : (
+          <table className="w-full text-left">
+            <thead className="bg-slate-50/50 border-b border-slate-100">
+              <tr>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Account Name</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Code</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">Type</th>
+                <th className="px-6 py-4 text-right text-[10px] font-black uppercase text-slate-400 tracking-widest">Actions</th>
+              </tr>
+            </thead>
           <tbody className="divide-y divide-slate-50">
             {filteredAccounts.map((account) => (
               <tr key={account._id} className="hover:bg-slate-50/50 transition-colors">
@@ -104,6 +116,7 @@ const COAManagement = () => {
             ))}
           </tbody>
         </table>
+        )}
       </div>
 
       {showModal && (
