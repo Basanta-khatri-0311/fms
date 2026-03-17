@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { X, Receipt, CreditCard, Truck, Hash, Calendar, ChevronDown } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
@@ -47,7 +48,6 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
     return () => { document.body.style.overflow = 'unset'; };
   }, []);
 
-  // Populate form on edit
   useEffect(() => {
     if (initialData) {
       setFormData((prev) => {
@@ -83,23 +83,14 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFocus = (e) => {
-    e.target.select();
-  };
-
-  const handleWheel = (e) => {
-    e.target.blur();
-  };
+  const handleFocus = (e) => e.target.select();
+  const handleWheel = (e) => e.target.blur();
 
   const calculations = useFinancialCalculations(formData, 'expense');
-  // netPayable is aliased to netAmount in the hook
   const { vatAmount, discount, tdsAmount, netAmount: netPayable, advanceAmount, pendingAmount } = calculations;
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validations
     if (!formData.vendorName) return showNotification('error', 'Please select a vendor');
 
     const amtVal = validateField('amount', formData.amountBeforeVAT);
@@ -109,23 +100,13 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
     if (!paidVal.isValid) return showNotification('error', `Paid Amount: ${paidVal.message}`);
 
     setIsSubmitting(true);
-
     try {
       const data = new FormData();
-      
-      // Append all text fields
       Object.keys(formData).forEach(key => {
-        if (key !== 'billAttachment') {
-          data.append(key, formData[key]);
-        }
+        if (key !== 'billAttachment') data.append(key, formData[key]);
       });
+      if (formData.billAttachment) data.append('attachment', formData.billAttachment);
 
-      // Append the actual file
-      if (formData.billAttachment) {
-        data.append('attachment', formData.billAttachment);
-      }
-
-      // Add calculated values
       data.append('discount', discount);
       data.append('vatAmount', vatAmount);
       data.append('netPayable', netPayable);
@@ -139,19 +120,14 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
         showNotification('success', 'Expense updated successfully!');
       } else {
         await API.post('/expenses', data);
-
         const successMsg = advanceAmount > 0
           ? `Expense recorded with Rs. ${advanceAmount.toFixed(2)} advance!`
           : pendingAmount > 0
             ? `Expense recorded with Rs. ${pendingAmount.toFixed(2)} pending!`
             : 'Expense recorded successfully!';
-
         showNotification('success', successMsg);
       }
-
-      // Notify the shared transaction hook that entries changed
       window.dispatchEvent(new CustomEvent('transactions:changed'));
-
       if (refreshData) refreshData();
       onClose();
     } catch (err) {
@@ -162,171 +138,174 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm overflow-y-auto animate-fadeIn">
-      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl flex flex-col max-h-[92vh] my-4 animate-slideUp">
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
+      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200">
+        
         {/* Header */}
-        <div className="px-6 sm:px-8 py-5 sm:py-6 bg-rose-500 rounded-t-3xl shrink-0">
-          <div className="flex justify-between items-start sm:items-center gap-4">
+        <div className="relative px-10 pt-10 pb-8 bg-slate-50/50 shrink-0">
+          <button 
+            onClick={onClose}
+            className="absolute right-8 top-8 p-2.5 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all shadow-sm"
+          >
+            <X size={20} />
+          </button>
+          
+          <div className="flex items-center gap-4 mb-3">
+            <div className={`p-3 rounded-2xl ${mode === 'edit' ? 'bg-indigo-100 text-indigo-600' : 'bg-rose-100 text-rose-600 shadow-rose-100'}`}>
+              {mode === 'edit' ? <CreditCard size={26} /> : <Receipt size={26} />}
+            </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {mode === 'edit' ? 'Edit Expense Entry' : 'New Expense Entry'}
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                {mode === 'edit' ? 'Edit Expense Entry' : 'Log New Expense'}
               </h2>
-              <p className="text-rose-100 text-xs sm:text-sm mt-1">
-                {mode === 'edit'
-                  ? 'Update vendor bill details before approval'
-                  : 'Record vendor payments and track payables'}
+              <p className="text-slate-500 text-sm font-medium mt-0.5">
+                {mode === 'edit' ? 'Update procurement details and vendor billing.' : 'Record a new business expense or vendor payment.'}
               </p>
             </div>
-            <button 
-              onClick={onClose} 
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 hover:bg-white/30 hover:rotate-90 transition-all duration-200 flex items-center justify-center text-white text-xl font-bold shrink-0"
-            >
-              ✕
-            </button>
           </div>
         </div>
 
         {/* Form Body */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8">
-          <form id="expense-form" onSubmit={handleSubmit} className="space-y-8">
+        <div className="flex-1 overflow-y-auto px-10 py-8 scrollbar-hide">
+          <form id="expense-form" onSubmit={handleSubmit} className="space-y-12">
             
             {/* Vendor & Bill Information */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-rose-600 rounded-full" />
-                <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Vendor & Bill Information</h3>
+                <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Procurement Entity</h3>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Vendor Selection */}
-                <div className="lg:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Select Vendor </label>
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Registered Vendor *</label>
                   <div className="relative">
                     <select
                       name="vendorName"
                       required
                       disabled={loadingVendors}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-100 appearance-none cursor-pointer transition-all disabled:opacity-50"
+                      className="w-full pl-11 pr-10 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/5 appearance-none cursor-pointer transition-all disabled:opacity-50"
                       onChange={handleInputChange}
                       value={formData.vendorName}
                     >
                       <option value="">
-                        {loadingVendors ? 'Loading vendors...' : '-- Choose Registered Vendor --'}
+                        {loadingVendors ? 'Loading vendors...' : '-- Choose Business Directory --'}
                       </option>
                       {vendors.map(v => (
                         <option key={v._id} value={v.name}>
-                          {v.name} {v.pan ? `(PAN: ${v.pan})` : ''}
+                          {v.name} {v.pan ? `(${v.pan})` : ''}
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                      </svg>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Truck size={18} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                      <ChevronDown size={18} />
                     </div>
                   </div>
                 </div>
 
                 {/* Bill Number */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Bill Number</label>
-                  <input
-                    type="text"
-                    name="billNumber"
-                    placeholder="e.g. INV-001"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-100 transition-all"
-                    onChange={handleInputChange}
-                    value={formData.billNumber}
-                  />
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Invoice / Bill Number</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="billNumber"
+                      placeholder="e.g. INV-2024-001"
+                      className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 transition-all"
+                      onChange={handleInputChange}
+                      value={formData.billNumber}
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Hash size={18} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bill Date */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-2">Bill Date</label>
-                  <input
-                    type="date"
-                    name="billDate"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-100 transition-all"
-                    onChange={handleInputChange}
-                    value={formData.billDate}
-                  />
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Transaction Date</label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="billDate"
+                      className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 transition-all cursor-pointer"
+                      onChange={handleInputChange}
+                      value={formData.billDate}
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Calendar size={18} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Payment Details */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-rose-600  rounded-full" />
-                <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Payment Details</h3>
+                <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Settlement Method</h3>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-                <PaymentMethodSelector 
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  setFormData={setFormData}
-                  themeColor="rose"
-                  fileLabel="Bill Attachment"
-                  fileKey="billAttachment"
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="lg:col-span-2">
+                  <PaymentMethodSelector 
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    setFormData={setFormData}
+                    themeColor="rose"
+                    fileLabel="Attach Receipt / Statement"
+                    fileKey="billAttachment"
+                  />
+                </div>
               </div>
             </div>
 
             {/*Financial Calculation */}
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-5 bg-rose-600 rounded-full" />
-                <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">Financial Details (NPR)</h3>
+                <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Financial Appraisal (NPR)</h3>
               </div>
 
-              <FinancialCalculationsUI 
-                formData={formData}
-                handleInputChange={handleInputChange}
-                handleFocus={handleFocus}
-                handleWheel={handleWheel}
-                calculations={calculations}
-                themeColor="rose"
-                title="Bill Amount (Before VAT) *"
-                netLabel="Net Payable"
-                amountInputName="amountPaid"
-                amountInputLabel="Amount Paid *"
-              />
-
+              <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-100">
+                <FinancialCalculationsUI 
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  handleFocus={handleFocus}
+                  handleWheel={handleWheel}
+                  calculations={calculations}
+                  themeColor="rose"
+                  title="Base Bill Valuation *"
+                  netLabel="Total Payable"
+                  amountInputName="amountPaid"
+                  amountInputLabel="Amount Remitted *"
+                />
+              </div>
             </div>
-
           </form>
         </div>
 
         {/* Footer */}
-        <div className="px-6 sm:px-8 py-4 sm:py-5 bg-slate-50 border-t border-slate-200 rounded-b-3xl flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 shrink-0">
+        <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 rounded-b-3xl flex flex-col-reverse sm:flex-row justify-end gap-4 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all"
+            className="px-8 py-4 text-sm font-black text-slate-500 hover:text-slate-700 hover:bg-white rounded-2xl transition-all uppercase tracking-widest"
           >
-            Cancel
+            Discard
           </button>
           <button
             type="submit"
             form="expense-form"
             disabled={isSubmitting || vendors.length === 0}
-            className="px-8 py-3 bg-rose-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
+            className="px-10 py-4 bg-rose-600 text-white font-black rounded-2xl shadow-xl shadow-rose-200 hover:bg-rose-500 active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest text-sm"
           >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Recording...
-              </span>
-            ) : mode === 'edit' ? (
-              'Update Expense'
-            ) : (
-              'Submit Expense'
-            )}
+            {isSubmitting ? 'Synchronizing...' : mode === 'edit' ? 'Update Entry' : 'Commit Entry'}
           </button>
         </div>
       </div>

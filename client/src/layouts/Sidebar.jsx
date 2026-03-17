@@ -26,7 +26,7 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
         <div className="relative h-24 flex items-center justify-center border-b border-slate-800/50">
           <div className="absolute inset-0 bgg-slate-800/50" />
           <div className="relative text-center">
-            <h1 className="text-2xl font-black tracking-tight text-white">
+            <h1 className="text-3xl font-black tracking-tight text-white">
               CRM
             </h1>
           </div>
@@ -51,7 +51,7 @@ const Sidebar = ({ isOpen, onClose, userRole }) => {
                 key={item.path}
                 to={item.path}
                 onClick={() => window.innerWidth < 1024 && onClose && onClose()}
-                className={`group relative flex items-center px-4 py-3.5 text-sm font-semibold rounded-xl animate-slideIn
+                className={`group relative flex items-center px-4 py-3.5 text-l font-semibold rounded-xl animate-slideIn
                   transition-all duration-300 ${isActive
                     ? 'bg-blue-700 text-white shadow-lg shadow-blue-900/50'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/50'}`}

@@ -10,6 +10,7 @@ import Unauthorized from './pages/Unauthorized';
 import AdminDashboard from './pages/admin/AdminHome';
 import UserManagement from './pages/admin/UserManagement';
 import COAManagement from './pages/admin/CoaManagement';
+import VendorManagement from './pages/admin/VendorManagement';
 import AuditorView from './pages/auditor/AuditorView';
 
 // Wrapper components for different modes
@@ -92,6 +93,12 @@ function App() {
           <Route path="/management/students" element={
             <ProtectedRoute allowedRoles={['SUPERADMIN', 'APPROVER', 'RECEPTIONIST']}>
               <UserManagement type="student" title="Student Directory" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/management/vendors" element={
+            <ProtectedRoute allowedRoles={['SUPERADMIN', 'APPROVER', 'RECEPTIONIST']}>
+              <VendorManagement />
             </ProtectedRoute>
           } />
 

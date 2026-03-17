@@ -10,13 +10,15 @@ import {
   LineChart, 
   ShieldCheck, 
   Settings,
-  LayoutDashboard
+  LayoutDashboard,
+  Truck
 } from 'lucide-react';
 
 export const MENU_CONFIG = {
   RECEPTIONIST: [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { name: 'Manage Students', path: '/management/students', icon: <Users className="w-5 h-5" /> },
+    { name: 'Manage Vendors', path: '/management/vendors', icon: <Truck className="w-5 h-5" /> },
     { name: 'My Submissions', path: '/submissions', icon: <FileText className="w-5 h-5" /> },
   ],
   APPROVER: [
@@ -27,6 +29,7 @@ export const MENU_CONFIG = {
     { name: 'Advance Records', path: '/advance', icon: <Wallet className="w-5 h-5" /> },
     { name: 'Due Records', path: '/due', icon: <CalendarDays className="w-5 h-5" /> },
     { name: 'Manage Students', path: '/management/students', icon: <Users className="w-5 h-5" /> },
+    { name: 'Manage Vendors', path: '/management/vendors', icon: <Truck className="w-5 h-5" /> },
     { name: 'Financial Reports', path: '/reports', icon: <LineChart className="w-5 h-5" />, permission: 'canViewReports' },
   ],
   SUPERADMIN: [
@@ -34,6 +37,7 @@ export const MENU_CONFIG = {
     { name: 'Master Ledger', path: '/audit-log', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Staff Management', path: '/management/employees', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Student Management', path: '/management/students', icon: <Users className="w-5 h-5" /> },
+    { name: 'Vendor Management', path: '/management/vendors', icon: <Truck className="w-5 h-5" /> },
     { name: 'COA Setup', path: '/coa', icon: <Settings className="w-5 h-5" /> },
   ],
   AUDITOR: [

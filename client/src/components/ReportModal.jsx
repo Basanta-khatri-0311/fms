@@ -175,24 +175,27 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-6xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="bg-white w-full max-w-6xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
-        <div className="px-8 py-6 bg-slate-800 border-b-2 border-slate-700 shrink-0">
-          <div className="flex justify-between items-center">
+        <div className="relative px-10 pt-10 pb-8 bg-slate-50/50 shrink-0">
+          <button 
+            onClick={onClose}
+            className="absolute right-8 top-8 p-2.5 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all shadow-sm z-10"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-100 text-indigo-600 rounded-2xl">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>
+            </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">{getReportTitle()}</h2>
-              <p className="text-slate-300 text-sm mt-1">
-                Financial Year: <span className="font-semibold">{financialYear}</span>
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight">{getReportTitle()}</h2>
+              <p className="text-slate-500 text-sm font-medium mt-0.5">
+                Analytical period: <span className="font-bold text-slate-900">FY {financialYear}</span>
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 rounded-xl bg-slate-700 hover:bg-slate-600 
-                transition-all flex items-center justify-center text-white font-bold text-xl"
-            >
-              ✕
-            </button>
           </div>
         </div>
 
@@ -202,7 +205,7 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-5 bg-white border-t-2 border-slate-200 flex flex-col sm:flex-row 
+        <div className="px-10 py-6 bg-slate-50/50 border-t border-slate-100 flex flex-col-reverse sm:flex-row 
           justify-between items-center gap-4 shrink-0">
           <div className="text-xs text-slate-500 font-medium">
             Generated on {new Date().toLocaleDateString('en-US', { 
@@ -215,16 +218,16 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
             <button
               onClick={exportToCSV}
               disabled={loading || error || !data}
-              className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-semibold 
-                hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                shadow-sm active:scale-95"
+              className="px-8 py-3.5 bg-emerald-600 text-white rounded-2xl font-bold
+                hover:bg-emerald-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                shadow-lg shadow-emerald-200 active:scale-95 uppercase tracking-widest text-xs"
             >
-              📊 Export CSV
+              Export Archive
             </button>
             <button
               onClick={onClose}
-              className="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-semibold 
-                hover:bg-slate-300 transition-all shadow-sm active:scale-95"
+              className="px-8 py-3.5 bg-white text-slate-500 rounded-2xl font-bold 
+                hover:text-slate-700 hover:bg-slate-50 border border-slate-100 transition-all active:scale-95 uppercase tracking-widest text-xs"
             >
               Close
             </button>

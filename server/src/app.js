@@ -23,20 +23,38 @@ const path = require('path');
 const app = express()
 
 // 1) GLOBAL MIDDLEWARES
+// Development logging - Moved to top to see all hits
+app.use(morgan('dev')) 
+
 // Set security HTTP headers
-app.use(helmet())
+// Relaxing crossOriginResourcePolicy for dev if needed
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
 
 // Limit requests from same API
 const limiter = rateLimit({
-    max: 100, // limit each IP to 100 requests per windowMs
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 1000, // Increased for dev
+    windowMs: 15 * 60 * 1000, 
     message: 'Too many requests from this IP, please try again in 15 minutes!'
 })
 app.use('/api', limiter)
 
-// CORS
+// CORS - More permissive for local dev
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }))
 
@@ -44,19 +62,19 @@ app.use(cors({
 app.use(express.json({ limit: '10kb' })) 
 
 // Data sanitization against NoSQL query injection
+// Express 5 Fix: Sanitize values without reassigning getters
 app.use((req, res, next) => {
     if (req.body) mongoSanitize.sanitize(req.body);
-    if (req.query) mongoSanitize.sanitize(req.query);
+    if (req.query && typeof req.query === 'object') {
+        // Sanitize existing object instead of reassigning
+        mongoSanitize.sanitize(req.query);
+    }
     if (req.params) mongoSanitize.sanitize(req.params);
     next();
 });
 
 // Prevent parameter pollution
 app.use(hpp())
-
-// Development logging
-app.use(morgan('dev')) 
-
 // 2) ROUTES
 // Serve static uploads (with safe headers)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {

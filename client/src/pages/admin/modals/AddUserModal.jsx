@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, X, UserPlus, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, X, Users, ShieldCheck, Mail, Lock, Key, ChevronDown } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import { validateField } from '../../../utils/validation';
@@ -79,109 +79,134 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
-      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
-        <div className="relative px-8 pt-8 pb-6">
+        <div className="relative px-8 pt-8 pb-6 bg-slate-50/50">
           <button 
             onClick={onClose}
-            className="absolute right-6 top-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-all"
+            className="absolute right-6 top-6 p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all shadow-sm"
           >
             <X size={20} />
           </button>
           
           <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2 rounded-xl ${isEdit ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
-              {isEdit ? <ShieldCheck size={20} /> : <UserPlus size={20} />}
+            <div className={`p-2.5 rounded-xl ${isEdit ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600 shadow-emerald-100'}`}>
+              {isEdit ? <ShieldCheck size={22} /> : <Users size={22} />}
             </div>
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
-              {isEdit ? 'Edit ' : 'New '}
-              {type === 'student' ? 'Student' : 'Staff Member'}
+            <h2 className="text-xl font-black text-slate-800 tracking-tight">
+              {isEdit ? 'Edit Identity' : (type === 'student' ? 'Register Student' : 'Invite Staff Member')}
             </h2>
           </div>
-          <p className="text-slate-500 text-sm">
-            {isEdit ? 'Update account details and permissions.' : `Add a new ${type === 'student' ? 'student' : 'member'} to your organization.`}
+          <p className="text-slate-500 text-sm font-medium">
+            {isEdit ? 'Update account details and security permissions.' : `Establish a new ${type === 'student' ? 'student' : 'staff'} identity in the directory.`}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-5">
+        <form onSubmit={handleSubmit} className="px-8 py-8 space-y-6">
           {/* Name Field */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Full Name</label>
-            <input
-              required
-              value={formData.name}
-              placeholder="John Doe"
-              className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 ${
-                errors.name ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
-              }`}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
+            <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Legal Name *</label>
+            <div className="relative">
+              <input
+                required
+                value={formData.name}
+                placeholder="e.g. Johnathan Doe"
+                className={`w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 font-semibold ${
+                  errors.name ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
+                }`}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <Users size={18} />
+              </div>
+            </div>
             {errors.name && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2">{errors.name}</p>}
           </div>
 
           {/* Email Field */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Email Address</label>
-            <input
-              required
-              type="email"
-              value={formData.email}
-              placeholder="john@company.com"
-              className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 ${
-                errors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
-              }`}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
+            <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address *</label>
+            <div className="relative">
+              <input
+                required
+                type="email"
+                value={formData.email}
+                placeholder="identity@organization.com"
+                className={`w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 font-semibold ${
+                  errors.email ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
+                }`}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                <Mail size={18} />
+              </div>
+            </div>
             {errors.email && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2">{errors.email}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Role Field - Hidden for Student Type */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Role Field */}
             {type !== 'student' ? (
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Role</label>
-                <select
-                  value={formData.role}
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none text-sm appearance-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-700"
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                >
-                  <option value="RECEPTIONIST">Receptionist</option>
-                  <option value="APPROVER">Approver</option>
-                  <option value="AUDITOR">Auditor</option>
-                  <option value="SUPERADMIN">Super Admin</option>
-                </select>
+                <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Designated Role</label>
+                <div className="relative">
+                  <select
+                    value={formData.role}
+                    className="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-2xl outline-none text-sm appearance-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-700 font-bold"
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  >
+                    <option value="RECEPTIONIST">Receptionist</option>
+                    <option value="APPROVER">Approver</option>
+                    <option value="AUDITOR">Auditor</option>
+                    <option value="SUPERADMIN">Super Admin</option>
+                  </select>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <ChevronDown size={18} />
+                  </div>
+                </div>
               </div>
             ) : (
                 <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Role</label>
-                    <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-400 font-bold">
-                        STUDENT (Auto)
+                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Account Role</label>
+                    <div className="relative">
+                      <div className="w-full pl-11 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-400 font-black tracking-widest">
+                          STUDENT
+                      </div>
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">
+                        <Users size={18} />
+                      </div>
                     </div>
                 </div>
             )}
             
             {/* Password Field */}
-            <div className={`space-y-1.5 ${type === 'student' ? '' : ''}`}>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">
-                {isEdit ? 'New Password' : 'Password'}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                {isEdit ? 'Security Refresh' : 'Security Credential *'}
               </label>
               <div className="relative">
                 <input
                   required={!isEdit}
                   type={showPassword ? 'text' : 'password'}
-                  placeholder={isEdit ? '••••••••' : 'Min. 8 chars'}
-                  className={`w-full px-4 py-3 bg-white border rounded-2xl outline-none text-sm pr-11 transition-all focus:ring-4 placeholder:text-slate-300 ${
+                  placeholder={isEdit ? '••••••••' : 'Min. 8 characters'}
+                  className={`w-full pl-11 pr-12 py-3.5 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 font-semibold ${
                     errors.password ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
                   }`}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                  {isEdit ? <Key size={18} /> : <Lock size={18} />}
+                </div>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
               {errors.password && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2 leading-tight">{errors.password}</p>}
@@ -191,57 +216,66 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
           {/* Permissions Section */}
           {(formData.role === 'RECEPTIONIST' || formData.role === 'APPROVER') && (
             <div className="space-y-3 pt-2">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ml-1">Custom Permissions</label>
-              <div className="grid grid-cols-1 gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.permissions.canAccessPayroll}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      permissions: { ...prev.permissions, canAccessPayroll: e.target.checked }
-                    }))}
-                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
-                  />
-                  <span className="text-sm font-semibold text-slate-700">Access Payroll Forms</span>
+              <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Extended Permissions</label>
+              <div className="grid grid-cols-1 gap-3 p-5 bg-slate-50 border border-slate-100 rounded-3xl">
+                <label className="flex items-center gap-4 cursor-pointer group">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
+                      checked={formData.permissions.canAccessPayroll}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        permissions: { ...prev.permissions, canAccessPayroll: e.target.checked }
+                      }))}
+                    />
+                    <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-indigo-400 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 flex items-center justify-center">
+                      <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                    </div>
+                  </div>
+                  <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Form Access: Payroll & Salary Records</span>
                 </label>
+                
                 {(formData.role === 'APPROVER') && (
-                  <>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center gap-4 cursor-pointer group">
+                    <div className="relative flex items-center">
                       <input 
                         type="checkbox" 
+                        className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
                         checked={formData.permissions.canViewReports}
                         onChange={(e) => setFormData(prev => ({
                           ...prev,
                           permissions: { ...prev.permissions, canViewReports: e.target.checked }
                         }))}
-                        className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
                       />
-                      <span className="text-sm font-semibold text-slate-700">View and Export Financial Reports</span>
-                    </label>
-                  </>
+                      <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-indigo-400 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 flex items-center justify-center">
+                        <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Analytics: View & Export Strategic Reports</span>
+                  </label>
                 )}
               </div>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 text-slate-500 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-all"
+              className="flex-1 px-6 py-3.5 text-slate-500 rounded-2xl text-sm font-black hover:bg-slate-50 transition-all uppercase tracking-widest"
             >
               Discard
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`flex-1 px-4 py-3 text-white rounded-2xl text-sm font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95 disabled:opacity-50 ${
-                isEdit ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-900 hover:bg-slate-800'
+              className={`flex-1 px-6 py-3.5 text-white rounded-2xl text-sm font-black shadow-xl transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest ${
+                isEdit ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 'bg-slate-900 hover:bg-slate-800 shadow-slate-200'
               }`}
             >
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update Member' : 'Create Member'}
+              {isSubmitting ? 'Syncing...' : isEdit ? 'Update Identity' : 'Create Identity'}
             </button>
           </div>
         </form>

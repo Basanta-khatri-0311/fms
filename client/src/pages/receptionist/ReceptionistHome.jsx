@@ -21,7 +21,7 @@ const ReceptionistDashboard = () => {
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-10">
 
       {/* Header Section */}
-      <header className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 border border-slate-700 relative overflow-hidden">
+      <header className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-10 md:p-14 shadow-2xl shadow-slate-900/10 border border-slate-700 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-160 h-160 bg-indigo-500/20 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
         <div className="relative z-10 max-w-2xl">

@@ -31,25 +31,28 @@ const InvoiceModal = ({ transaction, onClose }) => {
   const wordsAmount = (isIncome && balance > 0) ? amountHandled : (isPayroll ? transaction.netPayable : totalPayable);
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm print:bg-white print:p-0">
-      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl flex flex-col relative print:shadow-none print:w-full print:h-full print:rounded-none">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md print:bg-white print:p-0">
+      <div className="bg-white w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col relative print:shadow-none print:w-full print:h-full print:rounded-none animate-in fade-in zoom-in duration-200 scrollbar-hide">
         
         {/* Controls (Hidden in Print) */}
-        <div className="sticky top-0 right-0 p-4 flex justify-end gap-3 bg-white/90 backdrop-blur-md border-b print:hidden">
+        <div className="sticky top-0 right-0 p-6 flex justify-end gap-3 bg-white/80 backdrop-blur-md border-b border-slate-100 z-10 print:hidden">
           <button 
             onClick={handlePrint} 
             disabled={isIncome && balance !== 0}
             title={isIncome && balance !== 0 ? "Settlement required to print" : ""}
-            className={`px-4 py-2 text-white text-sm font-bold rounded-xl shadow-lg transition-all ${
+            className={`px-6 py-3 text-white text-[11px] font-black rounded-xl shadow-lg transition-all uppercase tracking-widest active:scale-95 ${
               isIncome && balance !== 0 
-                ? 'bg-slate-400 cursor-not-allowed opacity-60' 
-                : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95'
+                ? 'bg-slate-300 cursor-not-allowed opacity-60 shadow-none' 
+                : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-100'
             }`}
           >
             {isIncome ? (balance === 0 ? 'Print Invoice' : 'Print Receipt') : 'Print Document'}
           </button>
-          <button onClick={onClose} className="px-4 py-2 bg-slate-200 text-slate-800 text-sm font-bold rounded-xl hover:bg-slate-300">
-            Close
+          <button 
+            onClick={onClose} 
+            className="px-6 py-3 bg-white text-slate-500 text-[11px] font-black rounded-xl border border-slate-100 hover:text-slate-700 hover:bg-slate-50 transition-all uppercase tracking-widest active:scale-95"
+          >
+            Dismiss
           </button>
         </div>
 
