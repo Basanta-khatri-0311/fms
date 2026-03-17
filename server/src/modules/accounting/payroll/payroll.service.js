@@ -29,6 +29,11 @@ exports.createPayroll = async (payrollData, user) => {
     return await Payroll.create(payload);
 };
 
+// Check for existing records for employee and month
+exports.checkExistingPayroll = async (employeeName, paymentMonth) => {
+    return await Payroll.find({ employeeName, paymentMonth });
+};
+
 //get payroll
 exports.getPayrolls = async (user) => {
     // Receptionist/other basic roles can only see own payroll entries

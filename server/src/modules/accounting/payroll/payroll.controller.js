@@ -39,3 +39,9 @@ exports.updatePayroll = catchAsync(async (req, res, next) => {
     const payroll = await payrollService.updatePayroll(id, payrollData, req.user);
     return res.status(200).json(payroll);
 });
+
+exports.checkExists = catchAsync(async (req, res, next) => {
+    const { employeeName, paymentMonth } = req.query;
+    const existing = await payrollService.checkExistingPayroll(employeeName, paymentMonth);
+    return res.status(200).json({ success: true, data: existing });
+});

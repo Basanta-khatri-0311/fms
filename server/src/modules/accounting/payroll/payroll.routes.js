@@ -21,6 +21,12 @@ payrollRoutes.get('/', protect,
     payrollController.getPayrolls
 );
 
+//check exist
+payrollRoutes.get('/check-exists', protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),
+    payrollController.checkExists
+);
+
 //edit the payroll
 payrollRoutes.patch('/:id', protect,
     authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),

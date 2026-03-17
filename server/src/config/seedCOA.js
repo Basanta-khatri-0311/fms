@@ -64,6 +64,11 @@ const seedCOA = async () => {
                 name: 'Customer Advances (Unearned Revenue)',
                 type: ACCOUNT_TYPES.LIABILITY,
             },
+            {
+                code: 'STAFF_FUND_PAYABLE',
+                name: 'Staff Fund Payable (Sanchaya Kosh)',
+                type: ACCOUNT_TYPES.LIABILITY,
+            },
 
             // === INCOME ===
             {
@@ -86,6 +91,11 @@ const seedCOA = async () => {
             {
                 code: 'DISCOUNT_GIVEN',
                 name: 'Discount Given (Customer Discount)',
+                type: ACCOUNT_TYPES.EXPENSE,
+            },
+            {
+                code: 'SALARY_EXPENSE',
+                name: 'Staff Salary Expense',
                 type: ACCOUNT_TYPES.EXPENSE,
             },
         ];

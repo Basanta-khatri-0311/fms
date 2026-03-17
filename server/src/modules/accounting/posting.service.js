@@ -1,6 +1,7 @@
 const ledgerService = require('./ledger/ledger.service');
 const ChartOfAccount = require('./coa/coa.model');
 const User = require('../users/user.model');
+const Vendor = require('../vendors/vendor.model');
 const { ENTRY_TYPE, ACCOUNTING_STATUS } = require('../../constants/accounting');
 
 /**
@@ -11,6 +12,8 @@ const COA_CODES = {
   BANK: 'BANK',
   CONSULTANCY_INCOME: 'CONSULTANCY_INCOME',
   OFFICE_EXPENSE: 'OFFICE_EXPENSE',
+  SALARY_EXPENSE: 'SALARY_EXPENSE',
+  STAFF_FUND_PAYABLE: 'STAFF_FUND_PAYABLE',
   VAT_PAYABLE: 'VAT_PAYABLE',      // Liability: Tax collected from customers
   VAT_INPUT: 'VAT_INPUT',          // Asset: Tax paid to vendors (claimable)
   TDS_PAYABLE: 'TDS_PAYABLE',      // Liability: Tax we deduct from vendors
@@ -117,12 +120,15 @@ if (entryType === ENTRY_TYPE.INCOME) {
       creditLines.push({ account: advanceAcc._id, amount: round(entry.advanceAmount) });
     }
 
-    // --- STUDENT BALANCE UPDATE (Concurrency-Safe Delta Approach) ---
+    // --- STUDENT BALANCE UPDATE ---
     if (entry.studentId) {
+      // Net change to student's position
+      // increase totalDue if they didn't pay in full
+      // increase totalAdvance if they overpaid
+      // We also subtract previous dues if this invoice settled them
       const dueDelta = round((entry.pendingAmount || 0) - (entry.previousDue || 0));
       const advanceDelta = round((entry.advanceAmount || 0) - (entry.previousAdvance || 0));
 
-      // Use $inc for atomic updates to prevent race conditions during multiple approvals
       await User.findByIdAndUpdate(entry.studentId, {
         $inc: {
           totalDue: dueDelta,
@@ -221,6 +227,18 @@ if (entryType === ENTRY_TYPE.INCOME) {
         amount: round(entry.tdsAmount)
       });
     }
+
+    // --- VENDOR BALANCE UPDATE ---
+    if (entry.vendor) {
+      // advanceAmount (+) means vendor owes us (asset)
+      // pendingAmount (-) means we owe vendor (liability)
+      // Balance definition: (+) you have overpaid them, (-) you owe them.
+      const balanceDelta = round((entry.advanceAmount || 0) - (entry.pendingAmount || 0));
+      
+      await Vendor.findByIdAndUpdate(entry.vendor, {
+        $inc: { balance: balanceDelta }
+      });
+    }
   }
   /* ============================================================================
      PAYROLL POSTING LOGIC
@@ -228,14 +246,14 @@ if (entryType === ENTRY_TYPE.INCOME) {
      Scenario: We pay an employee their salary
      
      Example:
-     - Basic Salary: Rs. 20,000
-     - Allowances: Rs. 5,000
-     - Gross Salary: Rs. 25,000
-     - Tax/TDS: Rs. 2,000
-     - PF: Rs. 1,000
-     - Net Payable: 25,000 - (2000 + 1000) = Rs. 22,000
-     - Amount Paid: Rs. 20,000
-     - Pending (Accrued Salary): Rs. 2,000
+     - Basic Salary: NRs. 20,000
+     - Allowances: NRs. 5,000
+     - Gross Salary: NRs. 25,000
+     - Tax/TDS: NRs. 2,000
+     - PF: NRs. 1,000
+     - Net Payable: 25,000 - (2000 + 1000) = NRs. 22,000
+     - Amount Paid: NRs. 20,000
+     - Pending (Accrued Salary): NRs. 2,000
      
      Journal Entry:
      DR Office Expense (Salary)   25,000  (Total Expense)
@@ -247,7 +265,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
      For this simplified SME module, we route them through standard AP & TDS.
      ============================================================================ */
   if (entryType === ENTRY_TYPE.PAYROLL) {
-    const expenseAcc = await getAccount(COA_CODES.OFFICE_EXPENSE); // Salary Expense
+    const expenseAcc = await getAccount(COA_CODES.SALARY_EXPENSE); // Specific Salary Expense
     const cashOrBank = entry.paymentMode === 'BANK' 
       ? await getAccount(COA_CODES.BANK) 
       : await getAccount(COA_CODES.CASH);
@@ -277,13 +295,21 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // Accounts Payable (Unpaid Salary + PF)
-    const unpaidDues = (entry.pendingAmount || 0) + (entry.providentFund || 0);
-    if (unpaidDues > 0) {
+    // Staff Fund / Provident Fund (Sanchaya Kosh) - Liability we owe the fund
+    if (entry.providentFund > 0) {
+      const fundAcc = await getAccount(COA_CODES.STAFF_FUND_PAYABLE);
+      creditLines.push({
+        account: fundAcc._id,
+        amount: round(entry.providentFund)
+      });
+    }
+
+    // Accounts Payable (Unpaid portion of salary)
+    if (entry.pendingAmount > 0) {
       const apAcc = await getAccount(COA_CODES.ACCOUNTS_PAYABLE);
       creditLines.push({
         account: apAcc._id,
-        amount: round(unpaidDues)
+        amount: round(entry.pendingAmount)
       });
     }
   }
@@ -299,27 +325,27 @@ if (entryType === ENTRY_TYPE.INCOME) {
   console.log(`Entry ID: ${entry._id}`);
   console.log('\nDEBIT LINES:');
   debitLines.forEach((line, i) => {
-    console.log(`  ${i + 1}. Amount: Rs. ${line.amount.toFixed(2)}`);
+    console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
   });
-  console.log(`TOTAL DEBIT: Rs. ${debitTotal.toFixed(2)}`);
+  console.log(`TOTAL DEBIT: ${debitTotal.toFixed(2)}`);
   
   console.log('\nCREDIT LINES:');
   creditLines.forEach((line, i) => {
-    console.log(`  ${i + 1}. Amount: Rs. ${line.amount.toFixed(2)}`);
+    console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
   });
-  console.log(`TOTAL CREDIT: Rs. ${creditTotal.toFixed(2)}`);
+  console.log(`TOTAL CREDIT: ${creditTotal.toFixed(2)}`);
   
   const difference = round(debitTotal - creditTotal);
-  console.log(`\nDIFFERENCE: Rs. ${difference.toFixed(2)}`);
+  console.log(`\nDIFFERENCE: ${difference.toFixed(2)}`);
   console.log('=====================================\n');
 
   // Allow 1 paisa difference for rounding
   if (Math.abs(difference) > 0.01) {
     throw new Error(
       `LEDGER NOT BALANCED!\n` +
-      `Debit Total: Rs. ${debitTotal.toFixed(2)}\n` +
-      `Credit Total: Rs. ${creditTotal.toFixed(2)}\n` +
-      `Difference: Rs. ${difference.toFixed(2)}\n` +
+      `Debit Total: ${debitTotal.toFixed(2)}\n` +
+      `Credit Total: ${creditTotal.toFixed(2)}\n` +
+      `Difference: ${difference.toFixed(2)}\n` +
       `Please check calculations in ${entryType} entry.`
     );
   }

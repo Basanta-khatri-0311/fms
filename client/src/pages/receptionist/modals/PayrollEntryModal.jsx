@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Banknote, User, Calendar, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { X, Banknote, User, Calendar, ChevronDown, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
@@ -26,6 +26,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingPayrollStatus, setExistingPayrollStatus] = useState(null); // 'APPROVED', 'PENDING', or null
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -65,6 +66,31 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
 
     return () => { document.body.style.overflow = 'unset'; };
   }, [mode, initialData]);
+
+  // Check for existing records for this month/user
+  useEffect(() => {
+    if (mode === 'create' && formData.employeeName && formData.paymentMonth) {
+        const checkExists = async () => {
+            try {
+                const res = await API.get(`/payroll/check-exists?employeeName=${formData.employeeName}&paymentMonth=${formData.paymentMonth}`);
+                const data = res.data?.data || [];
+                
+                if (data.some(p => p.approval?.status === 'APPROVED')) {
+                    setExistingPayrollStatus('APPROVED');
+                } else if (data.some(p => p.approval?.status === 'PENDING')) {
+                    setExistingPayrollStatus('PENDING');
+                } else {
+                    setExistingPayrollStatus(null);
+                }
+            } catch (err) {
+                console.error("Check exists failed", err);
+            }
+        };
+        checkExists();
+    } else {
+        setExistingPayrollStatus(null);
+    }
+  }, [formData.employeeName, formData.paymentMonth, mode]);
 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
@@ -110,6 +136,11 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
       return;
     }
 
+    if (mode === 'create' && existingPayrollStatus === 'APPROVED') {
+        showNotification('error', `Salary for ${formData.employeeName} for ${formData.paymentMonth} is already approved and cannot be duplicated!`);
+        return;
+    }
+
     setIsSubmitting(true);
     try {
       const data = new FormData();
@@ -121,6 +152,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
       data.append('grossSalary', grossSalary);
       data.append('netPayable', netPayable);
       data.append('pendingAmount', pendingAmount);
+      data.append('narration', `Staff Salary Payment - ${formData.employeeName} (${formData.paymentMonth})`);
 
       if (mode === 'edit') {
         await API.patch(`/payroll/${initialData._id}`, data);
@@ -159,14 +191,37 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
             </div>
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                {mode === 'edit' ? 'Edit Payroll' : 'Process Payroll'}
+                {mode === 'edit' ? 'Edit Salary Record' : 'Process Salary Payment'}
               </h2>
               <p className="text-slate-500 text-sm font-medium mt-0.5">
-                {mode === 'edit' ? 'Update employee salary and deduction records.' : 'Record employee salary, allowances, and tax deductions.'}
+                {mode === 'edit' ? 'Update employee salary and deduction records.' : 'Record employee salary, allowances, and fund deductions.'}
               </p>
             </div>
           </div>
         </div>
+
+        {/* Duplicate Warning UI */}
+        {existingPayrollStatus && (
+          <div className={`mx-10 mt-2 p-4 rounded-2xl flex items-center gap-4 border animate-in slide-in-from-top duration-300 ${
+            existingPayrollStatus === 'APPROVED' 
+              ? 'bg-rose-50 border-rose-100 text-rose-700' 
+              : 'bg-amber-50 border-amber-100 text-amber-700'
+          }`}>
+            <div className={`p-2 rounded-xl ${existingPayrollStatus === 'APPROVED' ? 'bg-rose-100' : 'bg-amber-100'}`}>
+              {existingPayrollStatus === 'APPROVED' ? <AlertCircle size={20} /> : <AlertTriangle size={20} />}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-black uppercase tracking-tight">
+                {existingPayrollStatus === 'APPROVED' ? 'Salary Already Provided' : 'Existing Record Pending'}
+              </p>
+              <p className="text-xs font-bold opacity-80 mt-0.5">
+                {existingPayrollStatus === 'APPROVED' 
+                  ? `Salary for ${formData.employeeName} for ${formData.paymentMonth} has already been approved.` 
+                  : `A salary record for ${formData.employeeName} for ${formData.paymentMonth} is currently awaiting approval. Do you want to submit another entry?`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Form Body */}
         <div className="flex-1 overflow-y-auto px-10 py-8 scrollbar-hide">
