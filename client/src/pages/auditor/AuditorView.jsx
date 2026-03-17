@@ -15,10 +15,9 @@ const AuditorView = () => {
                     </svg>
                 </div>
                 <div className="relative z-10">
-                    <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Auditor Privileges Enabled</h3>
+                    <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Auditor Access</h3>
                     <p className="text-sm font-medium text-blue-100/80 leading-relaxed max-w-3xl">
-                        Your account has elevated read-only privileges.
-                        You can comprehensively view all transaction data, including income, expenses, advance deposits, and approvals across all departments. You cannot modify or delete any structural records.
+                        You have read-only access to view all reports, income, and expenses across the system. You cannot add or change any records.
                     </p>
                 </div>
             </div>
@@ -32,8 +31,8 @@ const AuditorView = () => {
                         </svg>
                     </div>
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Master Ledger</h2>
-                        <p className="text-slate-500 font-medium mt-1">View and track complete financial trail</p>
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Transaction Logs</h2>
+                        <p className="text-slate-500 font-medium mt-1">View all transaction records</p>
                     </div>
                 </div>
 

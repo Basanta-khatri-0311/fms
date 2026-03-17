@@ -222,7 +222,7 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
                 hover:bg-emerald-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed
                 shadow-lg shadow-emerald-200 active:scale-95 uppercase tracking-widest text-xs"
             >
-              Export Archive
+              Export Report
             </button>
             <button
               onClick={onClose}
@@ -255,7 +255,7 @@ const TrialBalanceView = ({ data, financialYear }) => (
       </div>
       <div>
         <p className="text-sm text-slate-700 font-medium leading-relaxed">
-          <span className="font-bold text-slate-900">About Trial Balance:</span> Lists all accounts grouped by type with their debit and credit totals. The grand total of debits must structurally equal the grand total of credits.
+          <span className="font-bold text-slate-900">Trial Balance:</span> This report lists all your accounts and their totals. The total Debits must match the total Credits to ensure your books are balanced.
         </p>
       </div>
     </div>
@@ -373,7 +373,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
       </div>
       <div>
         <p className="text-sm text-slate-700 font-medium leading-relaxed">
-          <span className="font-bold text-slate-900">Profit & Loss Statement:</span> Shows revenue earned and expenses incurred during the period, resulting in net profit or loss.
+          <span className="font-bold text-slate-900">Income Statement:</span> View your total income and expenses to see if your business made a profit or a loss during this period.
         </p>
       </div>
     </div>
@@ -385,7 +385,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
         {/* REVENUE SECTION */}
         <div>
           <h5 className="text-[10px] font-black text-indigo-500 mb-3 uppercase tracking-widest border-b border-slate-100 pb-2">
-            Operating Revenue
+            Income Breakdown
           </h5>
           <div className="space-y-1">
             {data.revenue.breakdown.map((acc, idx) => (
@@ -408,7 +408,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
         {/* EXPENSES SECTION */}
         <div>
           <h5 className="text-[10px] font-black text-rose-500 mb-3 uppercase tracking-widest border-b border-slate-100 pb-2">
-            Operating Expenses
+            Expense Breakdown
           </h5>
           <div className="space-y-1">
             {data.expenses.breakdown.map((acc, idx) => (
@@ -440,7 +440,7 @@ const IncomeStatementView = ({ data, financialYear }) => (
                 {data.netProfit >= 0 ? 'Net Profit' : 'Net Loss'}
               </div>
               <div className="text-sm text-slate-400 font-medium">
-                {data.netProfit >= 0 ? 'Profitable operations period' : 'Loss-making operations period'}
+                {data.netProfit >= 0 ? 'Your business was profitable during this period.' : 'Your business had a loss during this period.'}
               </div>
             </div>
             <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight">
@@ -470,7 +470,7 @@ const BalanceSheetView = ({ data, financialYear }) => (
       </div>
       <div>
         <p className="text-sm text-slate-700 font-medium leading-relaxed">
-          <span className="font-bold text-slate-900">Balance Sheet Equation:</span> Assets = Liabilities + Equity. Shows what the company owns and how it's financed.
+          <span className="font-bold text-slate-900">Balance Sheet:</span> A summary of what your business owns (Assets) and what it owes (Liabilities and Equity).
         </p>
       </div>
     </div>
@@ -650,7 +650,7 @@ const SalesRegisterView = ({ data, financialYear }) => (
       </div>
       <div>
         <p className="text-sm text-slate-700 font-medium leading-relaxed">
-          <span className="font-bold text-slate-900">Sales Register:</span> Detailed log of all sales invoices including generated VAT out.
+          <span className="font-bold text-slate-900">Sales Register:</span> A detailed list of all sales and invoices, including the VAT collected.
         </p>
       </div>
     </div>
@@ -663,11 +663,11 @@ const SalesRegisterView = ({ data, financialYear }) => (
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Date</th>
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Inv No.</th>
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Buyer & PAN</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Gross Amt</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Discount</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-indigo-500">VAT (13%)</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">TDS</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Net Value</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100/50">Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -726,7 +726,7 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
       </div>
       <div>
         <p className="text-sm text-slate-700 font-medium leading-relaxed">
-          <span className="font-bold text-slate-900">Purchase Register:</span> Detailed log of all expense/purchase bills including VAT in.
+          <span className="font-bold text-slate-900">Purchase Register:</span> A detailed list of all purchases and expenses, including the VAT paid.
         </p>
       </div>
     </div>
@@ -739,11 +739,11 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Date</th>
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Bill No.</th>
               <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Vendor & PAN</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Gross Amt</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Discount</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-indigo-500">VAT (13%)</th>
               <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">TDS</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Net Payable</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100/50">Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -800,7 +800,7 @@ const Annex13View = ({ data, financialYear }) => (
       {/* Sales Summary */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         <div className="bg-slate-50 border-b border-slate-100 p-5">
-          <h5 className="text-[10px] font-black text-orange-500 tracking-widest uppercase">SALES (OUTPUT VAT)</h5>
+          <h5 className="text-[10px] font-black text-orange-500 tracking-widest uppercase">Sales VAT (Output)</h5>
         </div>
         <div className="p-8 space-y-6 flex-1">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4">
@@ -817,7 +817,7 @@ const Annex13View = ({ data, financialYear }) => (
       {/* Purchase Summary */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         <div className="bg-slate-50 border-b border-slate-100 p-5">
-          <h5 className="text-[10px] font-black text-indigo-500 tracking-widest uppercase">PURCHASES (INPUT VAT)</h5>
+          <h5 className="text-[10px] font-black text-indigo-500 tracking-widest uppercase">Purchase VAT (Input)</h5>
         </div>
         <div className="p-8 space-y-6 flex-1">
           <div className="flex justify-between items-center border-b border-slate-100 pb-4">

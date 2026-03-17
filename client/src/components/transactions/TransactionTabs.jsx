@@ -4,17 +4,17 @@ const STATUS_OPTIONS = ['ALL', 'PENDING', 'APPROVED', 'REJECTED'];
 const TYPE_OPTIONS = ['ALL', 'INCOME', 'EXPENSE', 'PAYROLL'];
 
 const TransactionTabs = ({ mode, statusFilter, setStatusFilter, typeFilter, setTypeFilter }) => (
-  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between pb-2">
-    {/* Status Filter */}
-    <div className="flex bg-slate-200/50 p-1.5 rounded-2xl border border-slate-200/80 backdrop-blur-sm overflow-x-auto shadow-inner">
+  <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between py-6">
+    {/* Status Synthesis Filter */}
+    <div className="flex bg-slate-900/5 p-1.5 rounded-[1.5rem] border border-slate-100 backdrop-blur-sm overflow-x-auto shadow-inner">
       {STATUS_OPTIONS.map((status) => (
         <button
           key={status}
           onClick={() => setStatusFilter(status)}
-          className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all whitespace-nowrap ${
+          className={`px-6 sm:px-8 py-3 rounded-2xl text-[10px] font-black tracking-[0.15em] uppercase transition-all duration-300 whitespace-nowrap ${
             statusFilter === status 
-              ? 'bg-white text-indigo-700 shadow-sm border border-slate-100 scale-100' 
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 scale-95'
+              ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-100' 
+              : 'text-slate-400 hover:text-slate-900 hover:bg-white/50 scale-95'
           }`}
         >
           {status}
@@ -22,23 +22,23 @@ const TransactionTabs = ({ mode, statusFilter, setStatusFilter, typeFilter, setT
       ))}
     </div>
 
-    {/* Type Filter */}
+    {/* Entity Category Filter */}
     {['ALL', 'PENDING', 'ADVANCE', 'DUE'].includes(mode) && (
-      <div className="flex bg-slate-200/50 p-1.5 rounded-2xl border border-slate-200/80 backdrop-blur-sm overflow-x-auto shadow-inner">
+      <div className="flex bg-slate-900/5 p-1.5 rounded-[1.5rem] border border-slate-100 backdrop-blur-sm overflow-x-auto shadow-inner">
         {TYPE_OPTIONS.map((type) => (
           <button
             key={type}
             onClick={() => setTypeFilter(type)}
-            className={`px-4 sm:px-6 py-2 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all whitespace-nowrap ${
+            className={`px-4 sm:px-8 py-3 rounded-2xl text-[10px] font-black tracking-[0.15em] uppercase transition-all duration-300 whitespace-nowrap ${
               typeFilter === type
                 ? type === 'INCOME'
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 border-emerald-400 scale-100'
+                  ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-500/20 scale-100'
                   : type === 'EXPENSE'
-                  ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20 border-rose-400 scale-100'
+                  ? 'bg-rose-600 text-white shadow-xl shadow-rose-500/20 scale-100'
                   : type === 'PAYROLL'
-                  ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20 border-teal-400 scale-100'
-                  : 'bg-white text-slate-800 shadow-sm border border-slate-100 scale-100'
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 scale-95'
+                  ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20 scale-100'
+                  : 'bg-white text-slate-900 shadow-xl shadow-slate-200/50 scale-100'
+                : 'text-slate-400 hover:text-slate-900 hover:bg-white/50 scale-95'
             }`}
           >
             {type}

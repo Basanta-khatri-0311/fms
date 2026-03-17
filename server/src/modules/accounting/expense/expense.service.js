@@ -1,8 +1,8 @@
 const Expense = require('./expense.model');
 const { USER_ROLES } = require('../../../constants/roles');
-const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
+const SystemSetting = require('../../system/SystemSetting.model');
 
-const buildExpensePayload = (data, user, existing = null) => {
+const buildExpensePayload = async (data, user, existing = null) => {
   // conversion to Numbers
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountPaid = parseFloat(data.amountPaid) || 0;
@@ -44,7 +44,7 @@ const buildExpensePayload = (data, user, existing = null) => {
     advanceAmount,
     createdBy: base.createdBy || user._id,
     createdByRole: base.createdByRole || user.role,
-    financialYear: base.financialYear || getCurrentFinancialYear(),
+    financialYear: base.financialYear || (await SystemSetting.findOne()).fiscalYearBS,
   };
 };
 
@@ -52,7 +52,7 @@ const buildExpensePayload = (data, user, existing = null) => {
  * Create a new expense entry with payment tracking
  */
 exports.createExpense = async (data, user) => {
-  const payload = buildExpensePayload(data, user);
+  const payload = await buildExpensePayload(data, user);
   return await Expense.create(payload);
 };
 
@@ -104,7 +104,7 @@ exports.updateExpense = async (id, data, user) => {
     throw new Error('Only PENDING expenses can be edited');
   }
 
-  const payload = buildExpensePayload(data, user, expense);
+  const payload = await buildExpensePayload(data, user, expense);
   Object.assign(expense, payload);
   return await expense.save();
 };

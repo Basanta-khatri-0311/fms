@@ -1,5 +1,6 @@
 import React from 'react';
 import API from '../../api/axiosConfig';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const getApiOrigin = () => {
   const base = API.defaults.baseURL || '';
@@ -16,17 +17,19 @@ const buildAttachmentUrl = (path) => {
   return `${origin}/${normalizedPath}`;
 };
 
-const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => (
-  <div className="hidden lg:block bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/60 overflow-hidden relative">
+const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => {
+  const { settings } = useSystemSettings();
+  return (
+    <div className="hidden lg:block bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/60 overflow-hidden relative">
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200/80">
             <th className="px-6 py-5 text-[10px] font-black uppercase text-slate-400">Transaction Details</th>
-            <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">Gross</th>
-            <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">VAT/Disc</th>
+            <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">Base Amount</th>
+            <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">Tax/Disc</th>
             <th className="px-6 py-5 text-right text-[10px] font-black uppercase text-slate-900 bg-slate-100/30">
-              Net Value
+              Total Amount
             </th>
             <th className="px-6 py-5 text-center text-[10px] font-black uppercase text-slate-400">Status</th>
             <th className="px-6 py-5 text-center text-[10px] font-black uppercase text-slate-400">
@@ -71,7 +74,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                     </div>
                   </td>
                   <td className="px-4 py-4 text-right text-sm font-bold text-slate-600">
-                    Rs. {(item.amountBeforeVAT || item.grossSalary)?.toLocaleString() || '0'}
+                    {settings.currencySymbol} {(item.amountBeforeVAT || item.grossSalary)?.toLocaleString() || '0'}
                   </td>
                   <td className="px-4 py-4 text-right">
                     {isPay ? (
@@ -96,19 +99,19 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                   </td>
                   <td className="px-6 py-4 text-right bg-slate-50/30">
                     <p className={`text-sm font-black font-mono ${isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      Rs. {net.toLocaleString()}
+                      {settings.currencySymbol} {net.toLocaleString()}
                     </p>
                     {advanceAmount > 0.01 && (
                       <div className="mt-1">
                         <span className="text-[9px] font-black px-2 py-0.5 rounded border bg-purple-50 border-purple-100 text-purple-600">
-                          ADV: Rs. {advanceAmount.toLocaleString()}
+                          ADV: {settings.currencySymbol} {advanceAmount.toLocaleString()}
                         </span>
                       </div>
                     )}
                     {pendingAmount > 0.01 && (
                       <div className="mt-1">
                         <span className="text-[9px] font-black px-2 py-0.5 rounded border bg-red-50 border-red-100 text-red-600">
-                          DUE: Rs. {pendingAmount.toLocaleString()}
+                          DUE: {settings.currencySymbol} {pendingAmount.toLocaleString()}
                         </span>
                       </div>
                     )}
@@ -168,7 +171,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                         onClick={() => onInvoice(item)}
                         className="px-4 py-2 bg-indigo-50 border border-indigo-100/50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl text-xs font-black uppercase tracking-wide transition-all duration-300 shadow-sm hover:shadow-indigo-500/25 active:scale-95"
                       >
-                        Create Invoice
+                        View Invoice
                       </button>
 
                     ) : (
@@ -193,6 +196,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
       </table>
     </div>
   </div>
-);
+  );
+};
 
 export default TransactionTableDesktop;

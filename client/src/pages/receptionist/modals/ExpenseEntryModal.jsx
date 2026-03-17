@@ -5,9 +5,11 @@ import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
 import useFinancialCalculations from '../../../hooks/useFinancialCalculations';
 import FinancialCalculationsUI from '../../../components/shared/FinancialCalculationsUI';
+import { useSystemSettings } from '../../../context/SystemSettingsContext';
 import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
+  const { settings } = useSystemSettings();
   const [formData, setFormData] = useState({
     vendorName: '',
     billNumber: '',
@@ -121,9 +123,9 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
       } else {
         await API.post('/expenses', data);
         const successMsg = advanceAmount > 0
-          ? `Expense recorded with Rs. ${advanceAmount.toFixed(2)} advance!`
+          ? `Expense recorded with ${settings.currencySymbol} ${advanceAmount.toFixed(2)} advance!`
           : pendingAmount > 0
-            ? `Expense recorded with Rs. ${pendingAmount.toFixed(2)} pending!`
+            ? `Expense recorded with ${settings.currencySymbol} ${pendingAmount.toFixed(2)} pending!`
             : 'Expense recorded successfully!';
         showNotification('success', successMsg);
       }
@@ -139,7 +141,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
-      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200 overflow-hidden">
         
         {/* Header */}
         <div className="relative px-10 pt-10 pb-8 bg-slate-50/50 shrink-0">
@@ -156,10 +158,10 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             </div>
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                {mode === 'edit' ? 'Edit Expense Entry' : 'Log New Expense'}
+                {mode === 'edit' ? 'Edit Expense' : 'Record Expense'}
               </h2>
               <p className="text-slate-500 text-sm font-medium mt-0.5">
-                {mode === 'edit' ? 'Update procurement details and vendor billing.' : 'Record a new business expense or vendor payment.'}
+                {mode === 'edit' ? 'Update the details for this expense record.' : 'Enter details for a payment or other expense.'}
               </p>
             </div>
           </div>
@@ -173,13 +175,13 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Procurement Entity</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Vendor Details</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Vendor Selection */}
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Registered Vendor *</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Choose Vendor *</label>
                   <div className="relative">
                     <select
                       name="vendorName"
@@ -190,7 +192,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                       value={formData.vendorName}
                     >
                       <option value="">
-                        {loadingVendors ? 'Loading vendors...' : '-- Choose Business Directory --'}
+                        {loadingVendors ? 'Loading vendors...' : '-- Choose Vendor --'}
                       </option>
                       {vendors.map(v => (
                         <option key={v._id} value={v.name}>
@@ -248,7 +250,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Settlement Method</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Payment Method</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -258,7 +260,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                     handleInputChange={handleInputChange}
                     setFormData={setFormData}
                     themeColor="rose"
-                    fileLabel="Attach Receipt / Statement"
+                    fileLabel="Upload Attachment (Screenshot/Slip)"
                     fileKey="billAttachment"
                   />
                 </div>
@@ -269,7 +271,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-rose-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Financial Appraisal (NPR)</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Financial Details ({settings.currencySymbol.replace('.', '')})</h3>
               </div>
 
               <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-100">
@@ -280,10 +282,10 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                   handleWheel={handleWheel}
                   calculations={calculations}
                   themeColor="rose"
-                  title="Base Bill Valuation *"
-                  netLabel="Total Payable"
+                  title="Total Amount *"
+                  netLabel="Total to Pay"
                   amountInputName="amountPaid"
-                  amountInputLabel="Amount Remitted *"
+                  amountInputLabel="Amount Paid *"
                 />
               </div>
             </div>
@@ -305,7 +307,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             disabled={isSubmitting || vendors.length === 0}
             className="px-10 py-4 bg-rose-600 text-white font-black rounded-2xl shadow-xl shadow-rose-200 hover:bg-rose-500 active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest text-sm"
           >
-            {isSubmitting ? 'Synchronizing...' : mode === 'edit' ? 'Update Entry' : 'Commit Entry'}
+            {isSubmitting ? 'Saving...' : mode === 'edit' ? 'Save Changes' : 'Save Record'}
           </button>
         </div>
       </div>

@@ -33,15 +33,16 @@ export const MENU_CONFIG = {
     { name: 'Financial Reports', path: '/reports', icon: <LineChart className="w-5 h-5" />, permission: 'canViewReports' },
   ],
   SUPERADMIN: [
-    { name: 'Financial Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { name: 'Master Ledger', path: '/audit-log', icon: <ShieldCheck className="w-5 h-5" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { name: 'Audit Logs', path: '/audit-log', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Staff Management', path: '/management/employees', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Student Management', path: '/management/students', icon: <Users className="w-5 h-5" /> },
     { name: 'Vendor Management', path: '/management/vendors', icon: <Truck className="w-5 h-5" /> },
     { name: 'COA Setup', path: '/coa', icon: <Settings className="w-5 h-5" /> },
+    { name: 'System Settings', path: '/management/settings', icon: <Settings className="w-5 h-5" /> },
   ],
   AUDITOR: [
-    { name: 'Master Ledger', path: '/dashboard', icon: <ShieldCheck className="w-5 h-5" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Financial Reports', path: '/reports', icon: <LineChart className="w-5 h-5" /> },
   ]
 };

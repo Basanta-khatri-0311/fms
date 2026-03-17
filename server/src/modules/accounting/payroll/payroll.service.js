@@ -1,6 +1,6 @@
 const Payroll = require('./payroll.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
-const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
+const SystemSetting = require('../../system/SystemSetting.model');
 
 //create payroll
 exports.createPayroll = async (payrollData, user) => {
@@ -23,7 +23,7 @@ exports.createPayroll = async (payrollData, user) => {
         pendingAmount,
         createdBy: user._id,
         createdByRole: user.role,
-        financialYear: getCurrentFinancialYear(),
+        financialYear: (await SystemSetting.findOne()).fiscalYearBS,
     };
 
     return await Payroll.create(payload);

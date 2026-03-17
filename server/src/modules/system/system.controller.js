@@ -6,7 +6,10 @@ exports.getSettings = async (req, res) => {
         if (!settings) {
             // Create default if none exists
             settings = await SystemSetting.create({
+                systemName: "Finance Management System",
+                currencySymbol: "NPR.",
                 fiscalYearBS: "2081/82",
+                availableFiscalYears: ["2081/82", "2082/83", "2083/84"],
                 startDateAD: new Date("2024-07-16"),
                 endDateAD: new Date("2025-07-15")
             });

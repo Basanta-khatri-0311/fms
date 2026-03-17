@@ -1,7 +1,9 @@
 import React from 'react';
 import { numberToWords } from '../../utils/numberToWords';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const InvoiceModal = ({ transaction, onClose }) => {
+  const { settings } = useSystemSettings();
   if (!transaction) return null;
 
   const isIncome = transaction.type === 'INCOME';
@@ -32,7 +34,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md print:bg-white print:p-0">
-      <div className="bg-white w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col relative print:shadow-none print:w-full print:h-full print:rounded-none animate-in fade-in zoom-in duration-200 scrollbar-hide">
+      <div className="bg-white w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col relative print:shadow-none print:w-full print:h-full print:rounded-none animate-in fade-in zoom-in duration-200 scrollbar-hide overflow-hidden">
         
         {/* Controls (Hidden in Print) */}
         <div className="sticky top-0 right-0 p-6 flex justify-end gap-3 bg-white/80 backdrop-blur-md border-b border-slate-100 z-10 print:hidden">
@@ -67,10 +69,10 @@ const InvoiceModal = ({ transaction, onClose }) => {
               </div>
             </div>
             <div className="text-right space-y-1">
-              <h2 className="text-2xl font-black text-indigo-700 tracking-tight">FinCorp Advisory</h2>
-              <p className="text-sm font-semibold text-slate-500">123 Business Avenue, Tech Hub</p>
-              <p className="text-sm font-semibold text-slate-500">Contact: +977-9800000000</p>
-              <p className="text-sm font-bold text-slate-600">PAN / VAT: <span className="text-slate-900">123456789</span></p>
+              <h2 className="text-2xl font-black text-indigo-700 tracking-tight">{settings.systemName}</h2>
+              <p className="text-sm font-semibold text-slate-500">Authorized Financial Entity</p>
+              <p className="text-sm font-semibold text-slate-500">System Integrated Workflow</p>
+              <p className="text-sm font-bold text-slate-600">PAN / VAT: <span className="text-slate-900">{settings.taxSettings.panNumber || '---'}</span></p>
             </div>
           </div>
 
@@ -104,7 +106,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="py-4 px-6 text-xs font-black uppercase tracking-widest text-slate-500">Description</th>
-                  <th className="py-4 px-6 text-right text-xs font-black uppercase tracking-widest text-slate-500">Amount (NPR)</th>
+                  <th className="py-4 px-6 text-right text-xs font-black uppercase tracking-widest text-slate-500">Amount ({settings.currencySymbol.replace('.', '')})</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -124,7 +126,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
               )}
               {transaction.vatAmount > 0 && (
                 <tr className="bg-indigo-50/30">
-                  <td className="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest pl-10 border-l-[3px] border-indigo-400">Add: VAT (13%)</td>
+                  <td className="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest pl-10 border-l-[3px] border-indigo-400">Add: VAT ({settings.taxSettings.vatRate}%)</td>
                   <td className="py-3 px-6 text-right text-sm font-bold text-indigo-600 font-mono">+ {transaction.vatAmount?.toFixed(2)}</td>
                 </tr>
               )}
@@ -150,18 +152,18 @@ const InvoiceModal = ({ transaction, onClose }) => {
                 <div className="mb-4 space-y-2 border-b border-slate-700 pb-4 print:border-slate-300">
                   <div className="flex justify-between items-center">
                     <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Current Service</span>
-                    <span className="text-xs font-bold text-slate-300 print:text-slate-600">Rs. {transaction.netAmount?.toFixed(2)}</span>
+                    <span className="text-xs font-bold text-slate-300 print:text-slate-600">{settings.currencySymbol} {transaction.netAmount?.toFixed(2)}</span>
                   </div>
                   {transaction.previousDue > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Previous Due</span>
-                      <span className="text-xs font-bold text-rose-400 print:text-rose-600">+ Rs. {transaction.previousDue?.toFixed(2)}</span>
+                      <span className="text-xs font-bold text-rose-400 print:text-rose-600 text-rose-400 group-hover:text-rose-600 transition-colors">+ {settings.currencySymbol} {transaction.previousDue?.toFixed(2)}</span>
                     </div>
                   )}
                   {transaction.previousAdvance > 0 && (
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Prev. Advance</span>
-                      <span className="text-xs font-bold text-emerald-400 print:text-emerald-600">- Rs. {transaction.previousAdvance?.toFixed(2)}</span>
+                      <span className="text-xs font-bold text-emerald-400 print:text-emerald-600">- {settings.currencySymbol} {transaction.previousAdvance?.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -172,7 +174,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
                     {isIncome ? 'Total Payable' : 'Net Total'}
                 </span>
                 <span className="text-2xl font-black text-white font-mono tracking-tight print:text-slate-900">
-                  Rs. {(isPayroll ? transaction.netPayable : totalPayable)?.toFixed(2)}
+                  {settings.currencySymbol} {(isPayroll ? transaction.netPayable : totalPayable)?.toFixed(2)}
                 </span>
               </div>
 
@@ -189,14 +191,14 @@ const InvoiceModal = ({ transaction, onClose }) => {
                     {isIncome ? 'Amount Received' : 'Amount Paid'}
                 </span>
                 <span className="text-sm font-bold text-slate-200 font-mono print:text-slate-800">
-                  Rs. {amountHandled.toFixed(2)}
+                  {settings.currencySymbol} {amountHandled.toFixed(2)}
                 </span>
               </div>
               {(transaction.pendingAmount > 0) && (
                 <div className="flex justify-between items-center pt-3 mt-3 border-t border-slate-700/50 print:border-slate-200">
                   <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest print:text-rose-600">Balance Due</span>
                   <span className="text-sm font-black text-rose-400 font-mono tracking-wide print:text-rose-600">
-                    Rs. {transaction.pendingAmount?.toFixed(2)}
+                    {settings.currencySymbol} {transaction.pendingAmount?.toFixed(2)}
                   </span>
                 </div>
               )}
@@ -204,7 +206,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
                 <div className="flex justify-between items-center pt-3 mt-3 border-t border-slate-700/50 print:border-slate-200">
                   <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest print:text-emerald-600">Excess Advance</span>
                   <span className="text-sm font-black text-emerald-400 font-mono tracking-wide print:text-emerald-600">
-                    Rs. {transaction.advanceAmount?.toFixed(2)}
+                    {settings.currencySymbol} {transaction.advanceAmount?.toFixed(2)}
                   </span>
                 </div>
               )}

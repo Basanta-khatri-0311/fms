@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 
 const SystemSettingSchema = new mongoose.Schema({
+    systemName: { type: String, default: "Finance Management System" },
+    currencySymbol: { type: String, default: "NPR." },
+    
     // Store as "2081/82" for display
     fiscalYearBS: { type: String, required: true },
     
-    // Exact AD range to filter database queries correctly
+    // List of all valid fiscal years for the system
+    availableFiscalYears: [{ type: String }],
+    
+    // Exact AD range for the CURRENT/ACTIVE period to filter database queries correctly
     startDateAD: { type: Date, required: true }, 
     endDateAD: { type: Date, required: true },
 

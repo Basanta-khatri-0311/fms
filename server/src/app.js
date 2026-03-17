@@ -15,6 +15,7 @@ const approvalRoute = require('./modules/approvals/approval.routes');
 const reportsRouter = require('./modules/accounting/reports/reports.routes');
 const coaRoute = require('./modules/accounting/coa/coa.routes');
 const payrollRoutes = require('./modules/accounting/payroll/payroll.routes');
+const systemRoutes = require('./modules/system/system.routes');
 
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./modules/middlewares/errorHandler');
@@ -100,6 +101,7 @@ app.use('/api/approvals', approvalRoute)
 app.use('/api/coa', coaRoute)
 app.use('/api/reports', reportsRouter)
 app.use('/api/payroll', payrollRoutes)
+app.use('/api/system', systemRoutes)
 
 // Handle undefined routes
 app.use((req, res, next) => {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { numberToWords } from '../../utils/numberToWords';
 import { handleNumberKeyDown } from '../../utils/validation';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const FinancialCalculationsUI = ({ 
   formData, 
@@ -9,11 +10,12 @@ const FinancialCalculationsUI = ({
   handleWheel,
   calculations,
   themeColor = 'blue',
-  title = 'Service Amount (Before VAT) *',
-  netLabel = 'Net Receivable',
+  title = 'Base Amount *',
+  netLabel = 'Total Amount',
   amountInputName = 'amountReceived',
   amountInputLabel = 'Amount Received *'
 }) => {
+  const { settings } = useSystemSettings();
   const { 
     vatAmount, 
     discount, 
@@ -36,7 +38,7 @@ const FinancialCalculationsUI = ({
       <div className={`bg-white p-4 sm:p-5 rounded-xl border-2 ${theme.border} shadow-sm`}>
         <label className={`block text-xs font-bold ${theme.text} mb-3`}>{title}</label>
         <div className="flex items-baseline gap-2">
-          <span className="text-slate-500 font-bold text-lg">Rs.</span>
+          <span className="text-slate-500 font-bold text-lg">{settings.currencySymbol}</span>
           <input
             type="number"
             min={0}
@@ -75,7 +77,7 @@ const FinancialCalculationsUI = ({
         <div className="p-3 sm:p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col justify-center">
           <span className="text-[10px] font-black text-emerald-500 uppercase mb-1">Discount Amount</span>
           <span className="text-base sm:text-lg font-black text-emerald-700">
-            {discount > 0 ? `- Rs. ${discount.toFixed(2)}` : 'Rs. 0.00'}
+            {discount > 0 ? `- ${settings.currencySymbol} ${discount.toFixed(2)}` : `${settings.currencySymbol} 0.00`}
           </span>
         </div>
       </div>
@@ -99,7 +101,7 @@ const FinancialCalculationsUI = ({
         </div>
         <div className={`p-3 sm:p-4 ${theme.bg} rounded-xl border ${theme.border} flex flex-col justify-center`}>
           <span className={`text-[10px] font-black ${theme.textLight} uppercase mb-1`}>VAT Amount</span>
-          <span className={`text-base sm:text-lg font-black ${theme.textBold}`}>+ Rs. {vatAmount.toFixed(2)}</span>
+          <span className={`text-base sm:text-lg font-black ${theme.textBold}`}>+ {settings.currencySymbol} {vatAmount.toFixed(2)}</span>
         </div>
       </div>
 
@@ -124,7 +126,7 @@ const FinancialCalculationsUI = ({
         <div className="p-3 sm:p-4 bg-orange-50 rounded-xl border border-orange-200 flex flex-col justify-center">
           <span className="text-[10px] font-black text-orange-500 uppercase mb-1">TDS Amount</span>
           <span className="text-base sm:text-lg font-black text-orange-700">
-            {tdsAmount > 0 ? `- Rs. ${tdsAmount.toFixed(2)}` : 'Rs. 0.00'}
+            {tdsAmount > 0 ? `- ${settings.currencySymbol} ${tdsAmount.toFixed(2)}` : `${settings.currencySymbol} 0.00`}
           </span>
         </div>
       </div>
@@ -133,7 +135,7 @@ const FinancialCalculationsUI = ({
       <div className={`p-5 ${theme.headerBg} rounded-xl shadow-lg`}>
         <div className="flex justify-between items-center text-white">
           <span className="text-xs font-bold uppercase tracking-wider">{netLabel}</span>
-          <span className="text-xl sm:text-3xl font-black font-mono">Rs. {netAmount.toFixed(2)}</span>
+          <span className="text-xl sm:text-3xl font-black font-mono">{settings.currencySymbol} {netAmount.toFixed(2)}</span>
         </div>
       </div>
 
@@ -149,7 +151,7 @@ const FinancialCalculationsUI = ({
       <div className="p-5 bg-emerald-500 rounded-xl shadow-lg">
         <label className="block text-xs font-bold text-emerald-50 uppercase mb-3">{amountInputLabel}</label>
         <div className="flex items-baseline gap-2">
-          <span className="text-white font-bold text-lg">Rs.</span>
+          <span className="text-white font-bold text-lg">{settings.currencySymbol}</span>
           <input
             type="number"
             min={0}
@@ -180,7 +182,7 @@ const FinancialCalculationsUI = ({
             </span>
             <span className={`text-xl font-black ${advanceAmount > 0 ? 'text-purple-700' : 'text-amber-700'
               }`}>
-              Rs. {advanceAmount > 0 ? advanceAmount.toFixed(2) : pendingAmount.toFixed(2)}
+              {settings.currencySymbol} {advanceAmount > 0 ? advanceAmount.toFixed(2) : pendingAmount.toFixed(2)}
             </span>
           </div>
         </div>

@@ -4,8 +4,10 @@ import TransactionStatus from '../../components/transactions/TransactionStatus';
 import IncomeModal from '../receptionist/modals/IncomeEntryModal';
 import ExpenseModal from '../receptionist/modals/ExpenseEntryModal';
 import PayrollModal from '../receptionist/modals/PayrollEntryModal';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const ApproverDashboard = () => {
+  const { settings, loading: settingsLoading } = useSystemSettings();
   const [stats, setStats] = useState({
     incomeCount: 0,
     expenseCount: 0,
@@ -61,65 +63,81 @@ const ApproverDashboard = () => {
     fetchStats();
   }, [fetchStats]);
 
-  if (loading) {
-    return <div className="p-10 text-center font-bold text-slate-500">Loading Stats...</div>;
+  if (loading || settingsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-16 h-16 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-      {/* Header Section */}
-      <header className="bg-linear-to-r from-slate-900 via-slate-800 to-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-900/10 border border-slate-700 relative overflow-hidden mb-8">
-        <div className="absolute top-0 right-0 w-120 h-120 bg-indigo-500/20 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-60 h-60 bg-teal-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-indigo-200 text-sm font-bold uppercase tracking-widest mb-4">
-              Pending Approvals
+      {/* Decision Center Header */}
+      <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800 mb-10">
+        {/* Mesh Background */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none animate-pulse" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+          <div className="space-y-3">
+            <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-indigo-300 text-[11px] font-black uppercase tracking-[0.2em] mb-2">
+              Approver Access
             </div>
-            <h1 className="text-2xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-300 tracking-tight">
-              Action Required
+            <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-400 tracking-tight leading-tight">
+              Approval <br /> Queue
             </h1>
+            <p className="text-slate-400 text-lg font-medium max-w-xl">
+              Review and approve pending transactions, expenses, and payroll records.
+            </p>
           </div>
-          <div className="flex flex-col md:flex-row flex-wrap gap-3">
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <button
               type="button"
               onClick={() => setActiveModal('INCOME')}
-              className="px-5 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20 border border-indigo-500/50 backdrop-blur-sm transition-all"
+              className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-500/20 hover:bg-indigo-500 transition-all active:scale-95 uppercase tracking-widest text-[11px]"
             >
-              + Income
+              + Record Income
             </button>
             <button
               type="button"
               onClick={() => setActiveModal('EXPENSE')}
-              className="px-5 py-2.5 bg-rose-600/90 hover:bg-rose-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-rose-500/20 border border-rose-500/50 backdrop-blur-sm transition-all"
+              className="w-full sm:w-auto px-8 py-3.5 bg-rose-600 text-white rounded-2xl font-bold shadow-xl shadow-rose-500/20 hover:bg-rose-500 transition-all active:scale-95 uppercase tracking-widest text-[11px]"
             >
-              + Expense
+              + Record Expense
             </button>
-            {canAccessPayroll  && (
+            {canAccessPayroll && (
               <button
                 type="button"
                 onClick={() => setActiveModal('PAYROLL')}
-                className="px-5 py-2.5 bg-teal-600/90 hover:bg-teal-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-teal-500/20 border border-teal-500/50 backdrop-blur-sm transition-all"
+                className="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl shadow-emerald-500/20 hover:bg-emerald-500 transition-all active:scale-95 uppercase tracking-widest text-[11px]"
               >
-                + Payroll
+                + Process Payroll
               </button>
             )}
           </div>
         </div>
       </header>
-      {/* Stat Cards */}
-      <div className={`grid grid-cols-1 gap-6 ${(canAccessPayroll || user?.role === 'SUPERADMIN') ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
-        <StatCard label="Pending Incomes" value={stats.incomeCount} color="blue" />
-        <StatCard label="Pending Expenses" value={stats.expenseCount} color="rose" />
+      {/* Decision Metrics */}
+      <div className={`grid grid-cols-1 gap-8 mb-10 ${(canAccessPayroll || user?.role === 'SUPERADMIN') ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+        <StatCard label="Awaiting Income" value={stats.incomeCount} color="indigo" />
+        <StatCard label="Awaiting Expense" value={stats.expenseCount} color="rose" />
         {(canAccessPayroll || user?.role === 'SUPERADMIN') && (
-          <StatCard label="Pending Payrolls" value={stats.payrollCount} color="teal" />
+          <StatCard label="Awaiting Payroll" value={stats.payrollCount} color="emerald" />
         )}
-        <div className="bg-linear-to-br from-slate-900 to-slate-800 p-6 rounded-4xl shadow-xl shadow-slate-900/20 border border-slate-700 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none" />
-          <div className="relative z-10">
-            <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2">Awaiting Value</p>
-            <h2 className="text-2xl sm:text-3xl font-black text-white">Rs. {stats.totalValue.toLocaleString()}</h2>
+        <div className="bg-slate-900 p-8 rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-800 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
+          <div className="relative z-10 flex flex-col h-full justify-between">
+            <div className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Total Pending Value</div>
+            <div>
+              <div className="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-2">{settings.currencySymbol} {stats.totalValue.toLocaleString()}</div>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Pending Amount</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -142,14 +160,38 @@ const ApproverDashboard = () => {
   );
 };
 
-const StatCard = ({ label, value, color }) => (
-  <div className={`bg-linear-to-br from-white to-slate-50 p-6 rounded-4xl shadow-xl shadow-slate-200/40 border border-${color}-100/50 relative overflow-hidden group`}>
-    <div className={`absolute top-0 right-0 w-32 h-32 bg-${color}-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500 pointer-events-none`} />
-    <div className="relative z-10">
-      <p className={`text-[10px] font-black uppercase tracking-widest text-${color}-600/80 mb-2`}>{label}</p>
-      <h2 className="text-4xl md:text-5xl font-black text-slate-800">{value}</h2>
+const StatCard = ({ label, value, color }) => {
+  const colorClasses = {
+    indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100/50',
+    rose: 'bg-rose-50 text-rose-600 border-rose-100/50',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100/50',
+  };
+
+  const glowClasses = {
+    indigo: 'bg-indigo-500/5',
+    rose: 'bg-rose-500/5',
+    emerald: 'bg-emerald-500/5',
+  };
+
+  return (
+    <div className={`relative bg-white p-8 rounded-[2rem] shadow-2xl shadow-slate-100/50 border border-slate-100 overflow-hidden group hover:-translate-y-2 transition-all duration-500`}>
+      <div className={`absolute top-0 right-0 w-48 h-48 ${glowClasses[color]} rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700 pointer-events-none`} />
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-8">
+          <div className={`p-2.5 rounded-xl ${colorClasses[color]} shadow-sm`}>
+            {color === 'indigo' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>}
+            {color === 'rose' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>}
+            {color === 'emerald' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>}
+          </div>
+          <p className={`text-[10px] font-black uppercase tracking-[0.2em] text-slate-400`}>{label}</p>
+        </div>
+        <div className="flex items-baseline gap-2">
+           <h2 className="text-5xl font-black text-slate-900 tracking-tighter">{value}</h2>
+           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Entries</span>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default ApproverDashboard;

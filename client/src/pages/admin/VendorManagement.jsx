@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Truck, Search, Plus, Filter, CheckCircle2, ShieldAlert, Edit3, Mail, Phone } from 'lucide-react';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 import API from '../../api/axiosConfig';
 import AddVendorModal from './modals/AddVendorModal';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 const VendorManagement = () => {
+    const { settings } = useSystemSettings();
     const [vendors, setVendors] = useState([]);
     const [activeVendor, setActiveVendor] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -181,7 +183,7 @@ const VendorManagement = () => {
                                         </td>
                                         <td className="px-8 py-5">
                                             <p className={`text-sm font-black ${vendor.balance < 0 ? 'text-rose-600' : vendor.balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                                NPR. {Math.abs(vendor.balance || 0).toLocaleString()}
+                                                {settings.currencySymbol} {Math.abs(vendor.balance || 0).toLocaleString()}
                                                 <span className="text-[10px] ml-1 font-bold uppercase opacity-60">
                                                     {vendor.balance < 0 ? '(Payable)' : vendor.balance > 0 ? '(Credit)' : ''}
                                                 </span>

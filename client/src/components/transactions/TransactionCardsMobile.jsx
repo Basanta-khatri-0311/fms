@@ -1,6 +1,7 @@
 import React from 'react';
 import API from '../../api/axiosConfig';
 import { Inbox } from 'lucide-react';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const getApiOrigin = () => {
   const base = API.defaults.baseURL || '';
@@ -16,8 +17,10 @@ const buildAttachmentUrl = (path) => {
   return `${origin}/${normalizedPath}`;
 };
 
-const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => (
-  <div className="lg:hidden space-y-4">
+const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => {
+  const { settings } = useSystemSettings();
+  return (
+    <div className="lg:hidden space-y-4">
     {rows.length > 0 ? (
       rows.map((item) => {
         const isInc = item.type === 'INCOME';
@@ -59,13 +62,12 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                 </div>
               </div>
               <span
-                className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border shadow-sm ${
-                  item.status === 'PENDING'
+                className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border shadow-sm ${item.status === 'PENDING'
                     ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-amber-500/10'
                     : item.status === 'APPROVED'
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-emerald-500/10'
-                    : 'bg-red-50 border-red-200 text-red-600 shadow-red-500/10'
-                }`}
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-600 shadow-emerald-500/10'
+                      : 'bg-red-50 border-red-200 text-red-600 shadow-red-500/10'
+                  }`}
               >
                 {item.status}
               </span>
@@ -74,9 +76,9 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
             {/* Amount Details */}
             <div className="bg-slate-50 rounded-xl p-3 mb-3 space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-slate-500 font-bold">Gross</span>
+                <span className="text-slate-500 font-bold">Base Amount</span>
                 <span className="text-slate-700 font-bold">
-                  Rs. {(item.amountBeforeVAT || item.grossSalary)?.toLocaleString() || '0'}
+                  {settings.currencySymbol} {(item.amountBeforeVAT || item.grossSalary)?.toLocaleString() || '0'}
                 </span>
               </div>
               <div className="flex flex-col text-[10px] space-y-1 mb-1">
@@ -93,27 +95,25 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                 )}
               </div>
               <div className="border-t border-slate-200 pt-2 flex justify-between">
-                <span className="text-xs font-black text-slate-600">Net</span>
+                <span className="text-xs font-black text-slate-600">Total Amount</span>
                 <span
-                  className={`text-base font-black ${
-                    isInc ? 'text-emerald-600' : 'text-rose-600'
-                  }`}
+                  className={`text-base font-black ${isInc ? 'text-emerald-600' : 'text-rose-600'
+                    }`}
                 >
-                  Rs. {net.toLocaleString()}
+                  {settings.currencySymbol} {net.toLocaleString()}
                 </span>
               </div>
               {Math.abs(balance) > 0.01 && (
                 <div className="pt-1">
                   <span
-                    className={`inline-block px-2 py-1 rounded-lg text-[9px] font-black border ${
-                      balance < 0
+                    className={`inline-block px-2 py-1 rounded-lg text-[9px] font-black border ${balance < 0
                         ? 'bg-red-50 border-red-200 text-red-600'
                         : 'bg-purple-50 border-purple-200 text-purple-600'
-                    }`}
+                      }`}
                   >
                     {balance < 0
-                      ? `DUE: Rs. ${Math.abs(balance).toLocaleString()}`
-                      : `ADV: Rs. ${balance.toLocaleString()}`}
+                      ? `DUE: ${settings.currencySymbol} ${Math.abs(balance).toLocaleString()}`
+                      : `ADV: ${settings.currencySymbol} ${balance.toLocaleString()}`}
                   </span>
                 </div>
               )}
@@ -170,7 +170,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                     onClick={() => onInvoice(item)}
                     className="flex-1 py-2.5 bg-indigo-50 border border-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl text-[11px] font-black uppercase tracking-wider transition-all duration-300 shadow-sm hover:shadow-indigo-500/20"
                   >
-                    Create Invoice
+                    View Invoice
                   </button>
                 )}
               </div>
@@ -185,6 +185,7 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default TransactionCardsMobile;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axiosConfig';
 import { showNotification } from '../../utils/toast';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
 const StudentDashboard = () => {
   const [data, setData] = useState({
@@ -11,6 +12,7 @@ const StudentDashboard = () => {
     transactions: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const { settings, loading: settingsLoading } = useSystemSettings();
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const StudentDashboard = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -71,7 +73,7 @@ const StudentDashboard = () => {
                 </svg>
               </div>
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Current Due Balance</h3>
-              <p className="text-4xl font-black text-slate-800 tabular-nums">NPR. {data.totalDue.toLocaleString()}</p>
+              <p className="text-4xl font-black text-slate-800 tabular-nums">{settings.currencySymbol} {data.totalDue.toLocaleString()}</p>
             </div>
             <p className="mt-6 text-xs font-bold text-slate-400 italic">This amount will be added to your next service fee.</p>
           </div>
@@ -85,7 +87,7 @@ const StudentDashboard = () => {
                 </svg>
               </div>
               <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Advance Payment</h3>
-              <p className="text-4xl font-black text-slate-800 tabular-nums">NPR. {data.totalAdvance.toLocaleString()}</p>
+              <p className="text-4xl font-black text-slate-800 tabular-nums">{settings.currencySymbol} {data.totalAdvance.toLocaleString()}</p>
             </div>
             <p className="mt-6 text-xs font-bold text-slate-400 italic">This will be deducted from your next service payment.</p>
           </div>
@@ -160,10 +162,10 @@ const StudentDashboard = () => {
                         <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black uppercase tracking-tight">{tx.serviceType}</span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <span className="text-sm font-bold text-slate-600">NPR. {tx.netAmount.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-slate-600">{settings.currencySymbol} {tx.netAmount.toLocaleString()}</span>
                       </td>
                       <td className="px-8 py-6 text-right">
-                        <span className="text-sm font-black text-emerald-600">NPR. {tx.amountReceived.toLocaleString()}</span>
+                        <span className="text-sm font-black text-emerald-600">{settings.currencySymbol} {tx.amountReceived.toLocaleString()}</span>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex justify-center">

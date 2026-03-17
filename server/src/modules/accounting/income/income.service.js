@@ -1,7 +1,7 @@
 const Income = require('./income.model');
 const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
-const { getCurrentFinancialYear } = require('../../../utils/dateUtils');
+const SystemSetting = require('../../system/SystemSetting.model');
 const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
 
 const buildIncomePayload = async (data, user, existing = null) => {
@@ -63,7 +63,7 @@ const buildIncomePayload = async (data, user, existing = null) => {
     previousAdvance,
     createdBy: base.createdBy || user._id,
     createdByRole: base.createdByRole || user.role,
-    financialYear: base.financialYear || getCurrentFinancialYear(),
+    financialYear: base.financialYear || (await SystemSetting.findOne()).fiscalYearBS,
   };
 };
 //create income

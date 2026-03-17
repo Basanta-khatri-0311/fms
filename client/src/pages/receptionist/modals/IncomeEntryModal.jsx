@@ -5,9 +5,11 @@ import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
 import useFinancialCalculations from '../../../hooks/useFinancialCalculations';
 import FinancialCalculationsUI from '../../../components/shared/FinancialCalculationsUI';
+import { useSystemSettings } from '../../../context/SystemSettingsContext';
 import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
+  const { settings } = useSystemSettings();
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [formData, setFormData] = useState({
@@ -169,7 +171,12 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
         showNotification('success', 'Income updated successfully!');
       } else {
         await API.post('/incomes', data);
-        showNotification('success', 'Income recorded successfully!');
+        const successMsg = advanceAmount > 0
+          ? `Income recorded with ${settings.currencySymbol} ${advanceAmount.toFixed(2)} advance!`
+          : pendingAmount > 0
+            ? `Income recorded with ${settings.currencySymbol} ${pendingAmount.toFixed(2)} pending!`
+            : 'Income recorded successfully!';
+        showNotification('success', successMsg);
       }
       window.dispatchEvent(new CustomEvent('transactions:changed'));
       if (refreshData) refreshData();
@@ -183,7 +190,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
-      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200 overflow-hidden">
         
         {/* Header */}
         <div className="relative px-10 pt-10 pb-8 bg-slate-50/50 shrink-0">
@@ -200,10 +207,10 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
             </div>
             <div>
               <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                {mode === 'edit' ? 'Edit Income Record' : 'Log New Revenue'}
+                {mode === 'edit' ? 'Edit Income' : 'Record Income'}
               </h2>
               <p className="text-slate-500 text-sm font-medium mt-0.5">
-                {mode === 'edit' ? 'Refine financial data and classification.' : 'Record a new student payment or service revenue.'}
+                {mode === 'edit' ? 'Update the details for this income record.' : 'Enter details for a payment or other income.'}
               </p>
             </div>
           </div>
@@ -217,20 +224,20 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Client Information</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Customer Information</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Registered Student Select */}
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Directory Identity (Optional)</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Student (Optional)</label>
                   <div className="relative">
                     <select
                       value={selectedStudentId}
                       onChange={handleStudentChange}
                       className="w-full pl-11 pr-10 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 appearance-none cursor-pointer transition-all"
                     >
-                      <option value="">-- Guest / Unregistered Client --</option>
+                      <option value="">-- Guest / Custom Client --</option>
                       {students.map(student => (
                         <option key={student._id} value={student._id}>
                           {student.name} • {student.email}
@@ -250,13 +257,13 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                       {formData.previousDue > 0 && (
                         <div className="px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                          <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Arrears: NPR {formData.previousDue}</span>
+                          <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Arrears: {settings.currencySymbol} {formData.previousDue}</span>
                         </div>
                       )}
                       {formData.previousAdvance > 0 && (
                         <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Credit: NPR {formData.previousAdvance}</span>
+                          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Credit: {settings.currencySymbol} {formData.previousAdvance}</span>
                         </div>
                       )}
                     </div>
@@ -265,7 +272,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
                 {/* Client Name */}
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Client Full Name *</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Customer Full Name *</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -318,7 +325,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                 </div>
 
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Physical Address</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Address</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -340,12 +347,12 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Revenue Classification</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Income Category</h3>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="lg:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Primary Service *</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Service *</label>
                   <div className="relative">
                     <select
                       name="serviceType"
@@ -355,11 +362,11 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                       value={formData.serviceType}
                     >
                       <option value="">Select Category</option>
-                      <option value="Consultancy">Professional Consultancy</option>
-                      <option value="Visa Processing">Immigration & Visa Support</option>
-                      <option value="Language Class">Academic Training (IELTS/PTE)</option>
-                      <option value="Documentation">Administrative Documentation</option>
-                      <option value="Other">Miscellaneous Service</option>
+                      <option value="Consultancy">Consultancy</option>
+                      <option value="Visa Processing">Visa Processing</option>
+                      <option value="Language Class">Language Classes (IELTS/PTE)</option>
+                      <option value="Documentation">Documentation</option>
+                      <option value="Other">Other Services</option>
                     </select>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                       <Layers size={18} />
@@ -433,7 +440,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                     handleInputChange={handleInputChange}
                     setFormData={setFormData}
                     themeColor="indigo"
-                    fileLabel="Verification Document"
+                    fileLabel="Upload Attachment (Screenshot/Slip)"
                     fileKey="paymentScreenshot"
                   />
                 </div>
@@ -444,7 +451,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Balance Appraisal (NPR)</h3>
+                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Financial Details ({settings.currencySymbol.replace('.', '')})</h3>
               </div>
 
               <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-100">
@@ -455,10 +462,10 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                   handleWheel={handleWheel}
                   calculations={calculations}
                   themeColor="indigo"
-                  title="Base Service Valuation *"
-                  netLabel="Total Receivable"
+                  title="Total Amount *"
+                  netLabel="Total to Receive"
                   amountInputName="amountReceived"
-                  amountInputLabel="Amount Remitted *"
+                  amountInputLabel="Amount Received *"
                 />
               </div>
             </div>
@@ -480,7 +487,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
             disabled={isSubmitting}
             className="px-10 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-200 hover:bg-slate-800 active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest text-sm"
           >
-            {isSubmitting ? 'Synchronizing...' : mode === 'edit' ? 'Update Entry' : 'Commit Entry'}
+            {isSubmitting ? 'Saving...' : mode === 'edit' ? 'Save Changes' : 'Save Record'}
           </button>
         </div>
       </div>
