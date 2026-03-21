@@ -425,6 +425,44 @@ exports.generateAnnex13 = async (financialYear) => {
   };
 };
 
+/**
+ * Get detailed transaction history for a specific entity
+ */
+exports.generateEntityHistory = async (type, id) => {
+  let history = [];
+  let summary = { totalInvoiced: 0, totalPaid: 0, balance: 0 };
+
+  if (type === 'vendor') {
+    history = await Expense.find({ vendor: id }).sort({ createdAt: -1 });
+    summary.totalInvoiced = history.reduce((sum, item) => sum + item.netPayable, 0);
+    summary.totalPaid = history.reduce((sum, item) => sum + item.amountPaid, 0);
+    summary.balance = summary.totalInvoiced - summary.totalPaid; // What we owe vendor
+  } else if (type === 'student') {
+    history = await Income.find({ studentId: id }).sort({ createdAt: -1 });
+    summary.totalInvoiced = history.reduce((sum, item) => sum + item.netAmount, 0);
+    summary.totalPaid = history.reduce((sum, item) => sum + item.amountReceived, 0);
+    summary.balance = summary.totalInvoiced - summary.totalPaid; // What student owes us
+  } else if (type === 'employee') {
+    // We search by employeeId if available, fallback to name (not ideal but covers transitional period)
+    const user = await User.findById(id);
+    if (!user) throw new Error('Employee not found');
+    
+    // Search for payrolls either by ID link or by name match
+    history = await Payroll.find({
+      $or: [
+        { employeeId: id },
+        { employeeName: user.name }
+      ]
+    }).sort({ createdAt: -1 });
+    
+    summary.totalInvoiced = history.reduce((sum, item) => sum + item.grossSalary, 0);
+    summary.totalPaid = history.reduce((sum, item) => sum + item.amountPaid, 0);
+    summary.balance = history.reduce((sum, item) => sum + item.pendingAmount, 0); // Unpaid salaries
+  }
+
+  return { history, summary };
+};
+
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -514,6 +552,8 @@ function isCurrentLiability(accountName) {
 
 const Income = require('../income/income.model');
 const Expense = require('../expense/expense.model');
+const Payroll = require('../payroll/payroll.model');
+const User = require('../../users/user.model');
 
 
 

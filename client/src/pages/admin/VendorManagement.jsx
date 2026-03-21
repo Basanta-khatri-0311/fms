@@ -3,6 +3,7 @@ import { Truck, Search, Plus, Filter, CheckCircle2, ShieldAlert, Edit3, Mail, Ph
 import { useSystemSettings } from '../../context/SystemSettingsContext';
 import API from '../../api/axiosConfig';
 import AddVendorModal from './modals/AddVendorModal';
+import EntityHistoryModal from '../../components/modals/EntityHistoryModal';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
@@ -16,6 +17,7 @@ const VendorManagement = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [historyEntityId, setHistoryEntityId] = useState(null);
 
     useEffect(() => { fetchVendors(); }, []);
 
@@ -151,19 +153,22 @@ const VendorManagement = () => {
                                 {filteredVendors.map((vendor) => (
                                     <tr key={vendor._id} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="px-8 py-5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm uppercase">
+                                            <button 
+                                                onClick={() => setHistoryEntityId(vendor._id)}
+                                                className="flex items-center gap-4 group/item text-left transition-all hover:scale-[1.01]"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm uppercase group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
                                                     {vendor.name.substring(0, 2)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-black text-slate-900 leading-tight">{vendor.name}</p>
+                                                    <p className="text-sm font-black text-slate-900 leading-tight group-hover/item:text-indigo-600 transition-colors">{vendor.name}</p>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded uppercase tracking-tighter">PAN: {vendor.pan}</span>
                                                         <span className="text-[10px] text-slate-300">|</span>
-                                                        <span className="text-[10px] font-medium text-slate-400">{vendor.email || 'No Email'}</span>
+                                                        <span className="text-[10px] font-medium text-slate-400 group-hover/item:text-slate-500">{vendor.email || 'No Email'}</span>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </button>
                                         </td>
                                         <td className="px-8 py-5">
                                             <button 
@@ -226,6 +231,14 @@ const VendorManagement = () => {
                         fetchVendors();
                         triggerToast(activeVendor ? "Vendor details updated" : "New vendor registered");
                     }}
+                />
+            )}
+
+            {historyEntityId && (
+                <EntityHistoryModal
+                    type="vendor"
+                    entityId={historyEntityId}
+                    onClose={() => setHistoryEntityId(null)}
                 />
             )}
 

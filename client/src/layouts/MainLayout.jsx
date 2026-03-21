@@ -5,6 +5,7 @@ import ConfirmDialog from '../components/shared/ConfirmDialog';
 
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
@@ -25,7 +26,13 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar isOpen={isOpen} onClose={() => setIsOpen(false)} userRole={user.role} />
+      <Sidebar 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+        userRole={user.role} 
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* Premium Top Navigation */}

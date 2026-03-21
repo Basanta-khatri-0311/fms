@@ -78,3 +78,16 @@ exports.getAnnex13 = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+/**
+ * GET /reports/history/:type/:id
+ */
+exports.getEntityHistory = async (req, res) => {
+  try {
+    const { type, id } = req.params;
+    const result = await reportsService.generateEntityHistory(type, id);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

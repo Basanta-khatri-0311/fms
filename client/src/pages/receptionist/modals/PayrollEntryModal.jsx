@@ -10,6 +10,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
   const { settings } = useSystemSettings();
   const [formData, setFormData] = useState({
     employeeName: '',
+    employeeId: '',
     employeeRole: 'RECEPTIONIST',
     paymentMonth: '',
     basicSalary: '',
@@ -50,6 +51,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
     if (mode === 'edit' && initialData) {
       setFormData({
         employeeName: initialData.employeeName || '',
+        employeeId: initialData.employeeId || '',
         employeeRole: initialData.employeeRole || 'RECEPTIONIST',
         paymentMonth: initialData.paymentMonth || '',
         basicSalary: initialData.basicSalary || '',
@@ -95,10 +97,21 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     if (type === 'number' && value !== '' && parseFloat(value) < 0) return;
+    
+    if (name === 'employeeName') {
+        const emp = employees.find(e => e.name === value);
+        setFormData(prev => ({ 
+            ...prev, 
+            employeeName: value,
+            employeeId: emp?._id || '',
+            employeeRole: emp?.role || prev.employeeRole
+        }));
+        return;
+    }
+    
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleWheel = (e) => e.target.blur();
   const handleFocus = (e) => e.target.select();
 
   const basicSalary = parseFloat(formData.basicSalary) || 0;
@@ -293,7 +306,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-emerald-600 ml-1">Basic Salary *</label>
                     <div className="relative">
-                      <input required type="number" name="basicSalary" value={formData.basicSalary} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
+                      <input required type="number" name="basicSalary" value={formData.basicSalary} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-bold">
                         {settings.currencySymbol}
                       </div>
@@ -302,7 +315,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-emerald-600 ml-1">Allowances</label>
                     <div className="relative">
-                      <input type="number" name="allowances" value={formData.allowances} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
+                      <input type="number" name="allowances" value={formData.allowances} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 font-bold">
                         {settings.currencySymbol}
                       </div>
@@ -314,7 +327,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-rose-500 ml-1">Tax / TDS Deduction</label>
                     <div className="relative">
-                      <input type="number" name="taxDeduction" value={formData.taxDeduction} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-rose-100 rounded-2xl text-sm font-bold text-rose-600 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 transition-all text-right" />
+                      <input type="number" name="taxDeduction" value={formData.taxDeduction} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-rose-100 rounded-2xl text-sm font-bold text-rose-600 outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/5 transition-all text-right" />
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-rose-300 font-bold">
                         {settings.currencySymbol}
                       </div>
@@ -323,7 +336,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-orange-500 ml-1">Staff Fund (Sanchaya Kosh)</label>
                     <div className="relative">
-                      <input type="number" name="providentFund" value={formData.providentFund} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-orange-100 rounded-2xl text-sm font-bold text-orange-600 outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all text-right" />
+                      <input type="number" name="providentFund" value={formData.providentFund} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-orange-100 rounded-2xl text-sm font-bold text-orange-600 outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 transition-all text-right" />
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-300 font-bold">
                         {settings.currencySymbol}
                       </div>
@@ -352,7 +365,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Amount Paid *</label>
                   <div className="relative">
-                    <input required type="number" name="amountPaid" value={formData.amountPaid} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onWheel={handleWheel} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-emerald-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
+                    <input required type="number" name="amountPaid" value={formData.amountPaid} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-emerald-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">
                       {settings.currencySymbol}
                     </div>

@@ -7,7 +7,6 @@ const FinancialCalculationsUI = ({
   formData, 
   handleInputChange, 
   handleFocus, 
-  handleWheel,
   calculations,
   themeColor = 'blue',
   title = 'Base Amount *',
@@ -51,7 +50,6 @@ const FinancialCalculationsUI = ({
             onKeyDown={handleNumberKeyDown}
             value={formData.amountBeforeVAT}
             placeholder="0.00"
-            onWheel={handleWheel}
           />
         </div>
       </div>
@@ -71,7 +69,6 @@ const FinancialCalculationsUI = ({
             onKeyDown={handleNumberKeyDown}
             value={formData.discountRate}
             placeholder="0"
-            onWheel={handleWheel}
           />
         </div>
         <div className="p-3 sm:p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex flex-col justify-center">
@@ -96,7 +93,6 @@ const FinancialCalculationsUI = ({
             onFocus={handleFocus}
             onKeyDown={handleNumberKeyDown}
             value={formData.vatRate}
-            onWheel={handleWheel}
           />
         </div>
         <div className={`p-3 sm:p-4 ${theme.bg} rounded-xl border ${theme.border} flex flex-col justify-center`}>
@@ -120,7 +116,6 @@ const FinancialCalculationsUI = ({
             onKeyDown={handleNumberKeyDown}
             value={formData.tdsRate}
             placeholder="0"
-            onWheel={handleWheel}
           />
         </div>
         <div className="p-3 sm:p-4 bg-orange-50 rounded-xl border border-orange-200 flex flex-col justify-center">
@@ -164,7 +159,6 @@ const FinancialCalculationsUI = ({
             onKeyDown={handleNumberKeyDown}
             value={formData[amountInputName]}
             placeholder="0.00"
-            onWheel={handleWheel}
           />
         </div>
       </div>

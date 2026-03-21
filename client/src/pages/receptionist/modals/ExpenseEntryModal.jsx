@@ -12,6 +12,9 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
   const { settings } = useSystemSettings();
   const [formData, setFormData] = useState({
     vendorName: '',
+    vendorId: '',
+    previousDue: 0,
+    previousAdvance: 0,
     billNumber: '',
     billDate: new Date().toISOString().split('T')[0],
     amountBeforeVAT: '',
@@ -61,6 +64,9 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
         return {
           ...base,
           vendorName: initialData.vendor?.name || initialData.vendorName || '',
+          vendorId: initialData.vendor?._id || initialData.vendor || '',
+          previousDue: initialData.previousDue || 0,
+          previousAdvance: initialData.previousAdvance || 0,
           billNumber: initialData.billNumber || '',
           billDate: initialData.billDate
             ? new Date(initialData.billDate).toISOString().split('T')[0]
@@ -82,11 +88,26 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'vendorName') {
+        const vendor = vendors.find(v => v.name === value);
+        if (vendor) {
+            setFormData(prev => ({
+                ...prev,
+                vendorName: value,
+                vendorId: vendor._id,
+                // Balance in vendor is: (+) they owe us (advance), (-) we owe them (due)
+                previousDue: vendor.balance < 0 ? Math.abs(vendor.balance) : 0,
+                previousAdvance: vendor.balance > 0 ? vendor.balance : 0
+            }));
+            return;
+        }
+    }
+    
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleFocus = (e) => e.target.select();
-  const handleWheel = (e) => e.target.blur();
 
   const calculations = useFinancialCalculations(formData, 'expense');
   const { vatAmount, discount, tdsAmount, netAmount: netPayable, advanceAmount, pendingAmount } = calculations;
@@ -207,6 +228,23 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                       <ChevronDown size={18} />
                     </div>
                   </div>
+                  
+                  {formData.vendorId && (
+                    <div className="flex gap-2 sm:gap-3 pt-1 flex-wrap">
+                      {parseFloat(formData.previousDue) > 0.01 && (
+                        <div className="px-3 sm:px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                          <span className="text-[9px] sm:text-[10px] font-black text-rose-600 uppercase tracking-widest">Amount Due: {settings.currencySymbol} {parseFloat(formData.previousDue).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {parseFloat(formData.previousAdvance) > 0.01 && (
+                        <div className="px-3 sm:px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Advance Credit: {settings.currencySymbol} {parseFloat(formData.previousAdvance).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Bill Number */}
@@ -279,10 +317,9 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                   formData={formData}
                   handleInputChange={handleInputChange}
                   handleFocus={handleFocus}
-                  handleWheel={handleWheel}
                   calculations={calculations}
                   themeColor="rose"
-                  title="Total Amount *"
+                  title="Bill Amount *"
                   netLabel="Total to Pay"
                   amountInputName="amountPaid"
                   amountInputLabel="Amount Paid *"

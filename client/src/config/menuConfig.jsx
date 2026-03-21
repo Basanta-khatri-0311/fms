@@ -11,7 +11,9 @@ import {
   ShieldCheck, 
   Settings,
   LayoutDashboard,
-  Truck
+  Truck,
+  Layers,
+  UserCog
 } from 'lucide-react';
 
 export const MENU_CONFIG = {
@@ -35,10 +37,10 @@ export const MENU_CONFIG = {
   SUPERADMIN: [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { name: 'Audit Logs', path: '/audit-log', icon: <ShieldCheck className="w-5 h-5" /> },
-    { name: 'Staff Management', path: '/management/employees', icon: <ShieldCheck className="w-5 h-5" /> },
+    { name: 'Staff Management', path: '/management/employees', icon: <UserCog className="w-5 h-5" /> },
     { name: 'Student Management', path: '/management/students', icon: <Users className="w-5 h-5" /> },
     { name: 'Vendor Management', path: '/management/vendors', icon: <Truck className="w-5 h-5" /> },
-    { name: 'COA Setup', path: '/coa', icon: <Settings className="w-5 h-5" /> },
+    { name: 'COA Setup', path: '/coa', icon: <Layers className="w-5 h-5" /> },
     { name: 'System Settings', path: '/management/settings', icon: <Settings className="w-5 h-5" /> },
   ],
   AUDITOR: [

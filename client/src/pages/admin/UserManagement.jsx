@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, Search, Filter, ShieldCheck, Mail, ShieldAlert, UserPlus, Trash2, Edit3, CheckCircle2, XCircle } from 'lucide-react';
 import API from '../../api/axiosConfig';
 import AddUserModal from './modals/AddUserModal';
+import EntityHistoryModal from '../../components/modals/EntityHistoryModal';
 import Toast from '../../components/Toast';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
@@ -14,6 +15,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [historyEntityId, setHistoryEntityId] = useState(null);
 
     useEffect(() => { fetchUsers(); }, [type]);
 
@@ -150,18 +152,21 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="px-10 py-6">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-12 h-12 rounded-[1.25rem] bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-base shadow-sm ring-1 ring-indigo-100">
+                                            <button 
+                                                onClick={() => setHistoryEntityId(user._id)}
+                                                className="flex items-center gap-5 group/item text-left hover:scale-[1.01] transition-all"
+                                            >
+                                                <div className="w-12 h-12 rounded-[1.25rem] bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-base shadow-sm ring-1 ring-indigo-100 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
                                                     {user.name.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-base font-black text-slate-900 tracking-tight leading-tight">{user.name}</p>
+                                                    <p className="text-base font-black text-slate-900 tracking-tight leading-tight group-hover/item:text-indigo-600 transition-colors">{user.name}</p>
                                                     <div className="flex items-center gap-2 mt-1.5 capitalize text-slate-400 text-xs font-semibold">
                                                         <Mail size={14} className="text-slate-300" />
                                                         {user.email}
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </button>
                                         </td>
                                         <td className="px-10 py-6">
                                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black tracking-widest uppercase ${
@@ -222,6 +227,14 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                         fetchUsers();
                         triggerToast(activeUser ? "Account settings updated" : "New user identity established");
                     }}
+                />
+            )}
+
+            {historyEntityId && (
+                <EntityHistoryModal
+                    type={type === 'student' ? 'student' : 'employee'}
+                    entityId={historyEntityId}
+                    onClose={() => setHistoryEntityId(null)}
                 />
             )}
 

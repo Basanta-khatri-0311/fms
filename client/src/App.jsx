@@ -23,7 +23,19 @@ const DueRecords = () => <TransactionStatus mode="DUE" />;
 const MySubmissions = () => <TransactionStatus mode="ALL" />;
 const PayrollRecords = () => <TransactionStatus mode="PAYROLL" />;
 
+import { useEffect } from 'react';
+
 function App() {
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (document.activeElement.type === 'number') {
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    return () => document.removeEventListener('wheel', handleWheel);
+  }, []);
+
   return (
     <SystemSettingsProvider>
       <Router>

@@ -17,7 +17,7 @@ const buildAttachmentUrl = (path) => {
   return `${origin}/${normalizedPath}`;
 };
 
-const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => {
+const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, onInvoice, onViewHistory }) => {
   const { settings } = useSystemSettings();
   return (
     <div className="hidden lg:block bg-white rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/60 overflow-hidden relative">
@@ -54,7 +54,22 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                     <div className="flex items-center gap-4">
                       <div className={`w-1.5 h-10 rounded-full ${barColor} shadow-sm`} />
                       <div>
-                        <p className="font-bold text-slate-800 text-sm group-hover:text-indigo-900 transition-colors">{item.displayName}</p>
+                        {onViewHistory && (item.studentId || item.vendor?._id || item.employeeId) ? (
+                          <button 
+                            onClick={() => {
+                              const type = item.studentId ? 'student' : item.vendor?._id ? 'vendor' : 'employee';
+                              const id = item.studentId || item.vendor?._id || item.employeeId;
+                              onViewHistory(type, id);
+                            }}
+                            className="font-bold text-slate-800 text-sm hover:text-indigo-600 hover:underline transition-all text-left"
+                          >
+                            {item.displayName}
+                          </button>
+                        ) : (
+                          <p className="font-bold text-slate-800 text-sm group-hover:text-indigo-900 transition-colors">
+                            {item.displayName}
+                          </p>
+                        )}
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </p>

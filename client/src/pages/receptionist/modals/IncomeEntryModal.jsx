@@ -8,6 +8,7 @@ import FinancialCalculationsUI from '../../../components/shared/FinancialCalcula
 import { useSystemSettings } from '../../../context/SystemSettingsContext';
 import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
+
 const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const { settings } = useSystemSettings();
   const [students, setStudents] = useState([]);
@@ -76,8 +77,8 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
         studentId: student._id,
         name: student.name,
         email: student.email,
-        previousDue: student.totalDue || 0,
-        previousAdvance: student.totalAdvance || 0
+        previousDue: Math.round((student.totalDue || 0) * 100) / 100,
+        previousAdvance: Math.round((student.totalAdvance || 0) * 100) / 100
       }));
     }
   };
@@ -127,7 +128,6 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleWheel = (e) => e.target.blur();
   const handleFocus = (e) => e.target.select();
 
   const calculations = useFinancialCalculations(formData, 'income');
@@ -253,17 +253,17 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                   </div>
                   
                   {formData.studentId && (
-                    <div className="flex gap-3 pt-1">
-                      {formData.previousDue > 0 && (
-                        <div className="px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2">
+                    <div className="flex gap-2 sm:gap-3 pt-1 flex-wrap">
+                      {parseFloat(formData.previousDue) > 0.01 && (
+                        <div className="px-3 sm:px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                          <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Arrears: {settings.currencySymbol} {formData.previousDue}</span>
+                          <span className="text-[9px] sm:text-[10px] font-black text-rose-600 uppercase tracking-widest">Arrears: {settings.currencySymbol} {parseFloat(formData.previousDue).toLocaleString()}</span>
                         </div>
                       )}
-                      {formData.previousAdvance > 0 && (
-                        <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
+                      {parseFloat(formData.previousAdvance) > 0.01 && (
+                        <div className="px-3 sm:px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Credit: {settings.currencySymbol} {formData.previousAdvance}</span>
+                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Credit: {settings.currencySymbol} {parseFloat(formData.previousAdvance).toLocaleString()}</span>
                         </div>
                       )}
                     </div>
@@ -407,7 +407,6 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                         onChange={handleInputChange}
                         onKeyDown={handleNumberKeyDown}
                         value={formData.quantity}
-                        onWheel={handleWheel}
                       />
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <Package size={18} />
@@ -459,7 +458,6 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                   formData={formData}
                   handleInputChange={handleInputChange}
                   handleFocus={handleFocus}
-                  handleWheel={handleWheel}
                   calculations={calculations}
                   themeColor="indigo"
                   title="Total Amount *"

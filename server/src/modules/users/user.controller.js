@@ -67,3 +67,8 @@ exports.getStudents = catchAsync(async (req, res) => {
     const result = await userService.getUsersByRole('STUDENT');
     res.status(200).json({ users: result });
 });
+
+exports.getUser = catchAsync(async (req, res) => {
+    const user = await userService.getUserById(req.params.id);
+    res.status(200).json({ success: true, data: user });
+});

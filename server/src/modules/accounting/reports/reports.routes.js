@@ -51,4 +51,11 @@ reportsRouter.get(
     reportsController.getAnnex13
 );
 
+reportsRouter.get(
+    '/history/:type/:id',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),
+    reportsController.getEntityHistory
+);
+
 module.exports = reportsRouter;

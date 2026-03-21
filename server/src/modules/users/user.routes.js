@@ -3,7 +3,7 @@ const userRoutes = express.Router()
 
 const { protect } = require('../auth/auth.middleware.js');
 const { authorize } = require('../middlewares/role.middleware.js');
-const { createUser, getUsers, updateUserStatus, updateUser, getEmployees, getStudents } = require('./user.controller');
+const { createUser, getUsers, updateUserStatus, updateUser, getEmployees, getStudents, getUser } = require('./user.controller');
 const { USER_ROLES } = require('../../constants/roles');
 
 userRoutes.post(
@@ -44,6 +44,12 @@ userRoutes.patch(
     protect,
     authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),
     updateUser
+);
+
+userRoutes.get(
+    '/:id',
+    protect,
+    getUser
 );
 
 module.exports = userRoutes

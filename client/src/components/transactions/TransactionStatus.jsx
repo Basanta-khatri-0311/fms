@@ -11,6 +11,7 @@ import ExpenseModal from '../../pages/receptionist/modals/ExpenseEntryModal';
 import PayrollModal from '../../pages/receptionist/modals/PayrollEntryModal';
 import ActionModal from '../shared/ActionModal';
 import InvoiceModal from '../shared/InvoiceModal';
+import EntityHistoryModal from '../modals/EntityHistoryModal';
 
 const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   const {
@@ -43,6 +44,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const [editEntry, setEditEntry] = useState(null);
   const [activeInvoice, setActiveInvoice] = useState(null);
+  const [historyEntity, setHistoryEntity] = useState(null); // { type, id }
 
   if (loading) {
     return (
@@ -102,6 +104,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         onEdit={setEditEntry}
         actionLoading={actionLoading}
         onInvoice={setActiveInvoice}
+        onViewHistory={(type, id) => setHistoryEntity({ type, id })}
       />
 
       <TransactionCardsMobile
@@ -111,6 +114,7 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         onEdit={setEditEntry}
         actionLoading={actionLoading}
         onInvoice={setActiveInvoice}
+        onViewHistory={(type, id) => setHistoryEntity({ type, id })}
       />
 
       <TransactionPagination
@@ -159,6 +163,14 @@ const TransactionStatus = ({ onRefresh, mode = 'ALL' }) => {
         transaction={activeInvoice}
         onClose={() => setActiveInvoice(null)}
       />
+
+      {historyEntity && (
+        <EntityHistoryModal
+          type={historyEntity.type}
+          entityId={historyEntity.id}
+          onClose={() => setHistoryEntity(null)}
+        />
+      )}
     </div>
   );
 };

@@ -17,7 +17,7 @@ const buildAttachmentUrl = (path) => {
   return `${origin}/${normalizedPath}`;
 };
 
-const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, onInvoice }) => {
+const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, onInvoice, onViewHistory }) => {
   const { settings } = useSystemSettings();
   return (
     <div className="lg:hidden space-y-4">
@@ -42,7 +42,20 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                 <div className={`w-2 h-14 rounded-full ${barColor} shadow-md`} />
                 <div>
                   <h3 className="font-extrabold text-slate-800 text-base leading-tight">
-                    {item.displayName || (isInc ? item.name : item.vendorName)}
+                    {onViewHistory && (item.studentId || item.vendor?._id || item.employeeId) ? (
+                      <button 
+                         onClick={() => {
+                           const type = item.studentId ? 'student' : item.vendor?._id ? 'vendor' : 'employee';
+                           const id = item.studentId || item.vendor?._id || item.employeeId;
+                           onViewHistory(type, id);
+                         }}
+                         className="text-left hover:text-indigo-600 hover:underline transition-all"
+                      >
+                         {item.displayName || (isInc ? item.name : item.vendorName)}
+                      </button>
+                    ) : (
+                      item.displayName || (isInc ? item.name : item.vendorName)
+                    )}
                   </h3>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
                     {new Date(item.createdAt).toLocaleDateString()}
