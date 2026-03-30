@@ -26,7 +26,7 @@ const buildIncomePayload = async (data, user, existing = null) => {
   let previousAdvance = 0;
 
   // If studentId is provided, fetch their current approved balance
-  if (data.studentId) {
+  if (data.studentId && mongoose.Types.ObjectId.isValid(data.studentId)) {
     const student = await User.findById(data.studentId);
     if (student) {
       previousDue = student.totalDue || 0;

@@ -34,7 +34,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     transactionId: '',
     chequeNumber: '',
     bankName: '',
-    paymentScreenshot: null, 
+    paymentScreenshot: null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,7 +57,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
   const handleStudentChange = (e) => {
     const studentId = e.target.value;
     setSelectedStudentId(studentId);
-    
+
     if (!studentId) {
       setFormData(prev => ({
         ...prev,
@@ -153,7 +153,9 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     try {
       const data = new FormData();
       Object.keys(formData).forEach(key => {
-        if (key !== 'paymentScreenshot') data.append(key, formData[key]);
+        if (key === 'paymentScreenshot') return;
+        if (key === 'studentId' && !formData[key]) return;
+        data.append(key, formData[key]);
       });
       if (formData.paymentScreenshot) data.append('attachment', formData.paymentScreenshot);
 
@@ -191,16 +193,16 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md overflow-y-auto">
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] my-4 animate-in fade-in zoom-in duration-200 overflow-hidden">
-        
+
         {/* Header */}
         <div className="relative px-10 pt-10 pb-8 bg-slate-50/50 shrink-0">
-          <button 
+          <button
             onClick={onClose}
             className="absolute right-8 top-8 p-2.5 text-slate-400 hover:text-slate-600 hover:bg-white rounded-full transition-all shadow-sm"
           >
             <X size={20} />
           </button>
-          
+
           <div className="flex items-center gap-4 mb-3">
             <div className={`p-3 rounded-2xl ${mode === 'edit' ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600 shadow-emerald-100'}`}>
               {mode === 'edit' ? <Wallet size={26} /> : <TrendingUp size={26} />}
@@ -251,7 +253,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                       <ChevronDown size={18} />
                     </div>
                   </div>
-                  
+
                   {formData.studentId && (
                     <div className="flex gap-2 sm:gap-3 pt-1 flex-wrap">
                       {parseFloat(formData.previousDue) > 0.01 && (
@@ -434,7 +436,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                 </div>
 
                 <div className="lg:col-span-2">
-                  <PaymentMethodSelector 
+                  <PaymentMethodSelector
                     formData={formData}
                     handleInputChange={handleInputChange}
                     setFormData={setFormData}
@@ -454,7 +456,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
               </div>
 
               <div className="bg-slate-50/50 rounded-2xl p-8 border border-slate-100">
-                <FinancialCalculationsUI 
+                <FinancialCalculationsUI
                   formData={formData}
                   handleInputChange={handleInputChange}
                   handleFocus={handleFocus}
