@@ -58,8 +58,11 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
       setFormData((prev) => {
         const base = { ...prev };
         const amt = initialData.amountBeforeVAT || 0;
-        const safeRate = (amount) =>
-          amt > 0 && amount != null ? ((amount * 100) / amt).toFixed(2) : '';
+        const safeRate = (amount, isTax = true) => {
+          const discount = initialData.discount || 0;
+          const base = isTax ? (amt - discount) : amt;
+          return base > 0 && amount != null ? ((amount * 100) / base).toFixed(2) : '';
+        };
 
         return {
           ...base,
@@ -72,9 +75,9 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             ? new Date(initialData.billDate).toISOString().split('T')[0]
             : base.billDate,
           amountBeforeVAT: initialData.amountBeforeVAT ?? '',
-          vatRate: safeRate(initialData.vatAmount),
-          discountRate: safeRate(initialData.discount),
-          tdsRate: safeRate(initialData.tdsAmount),
+          vatRate: initialData.vatRate != null ? String(initialData.vatRate) : safeRate(initialData.vatAmount, true),
+          discountRate: initialData.discountRate != null ? String(initialData.discountRate) : safeRate(initialData.discount, false),
+          tdsRate: initialData.tdsRate != null ? String(initialData.tdsRate) : safeRate(initialData.tdsAmount, true),
           amountPaid: initialData.amountPaid ?? '',
           paymentMode: initialData.paymentMode || 'CASH',
           transactionId: initialData.transactionId || '',

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Income = require('./income.model');
 const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
@@ -8,6 +9,7 @@ const buildIncomePayload = async (data, user, existing = null) => {
   // Explicitly parsed to prevent "12000" + 135 = "12000135"
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountReceived = parseFloat(data.amountReceived) || 0;
+  const discountRate = parseFloat(data.discountRate) || 0;
   const discountAmount = parseFloat(data.discount) || 0;
   const vatRate = parseFloat(data.vatRate) || 13;
   const tdsRate = parseFloat(data.tdsRate) || 0;
@@ -52,8 +54,11 @@ const buildIncomePayload = async (data, user, existing = null) => {
     ...base,
     ...data,
     amountBeforeVAT,
+    vatRate,
     vatAmount: calculatedVat,
+    discountRate,
     discount: discountAmount,
+    tdsRate,
     tdsAmount: calculatedTds,
     netAmount: totalInvoiceValue,
     amountReceived,

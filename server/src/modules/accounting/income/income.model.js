@@ -18,8 +18,11 @@ const incomeSchema = new mongoose.Schema({
     unit: { type: String, default: 'Unit' },
 
     amountBeforeVAT: { type: Number, required: true },
+    vatRate: { type: Number, default: 0 },
     vatAmount: { type: Number, default: 0 },
+    discountRate: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
+    tdsRate: { type: Number, default: 0 },
     tdsAmount: { type: Number, default: 0 },
     netAmount: { type: Number, required: true },
 

@@ -6,6 +6,9 @@ const buildExpensePayload = async (data, user, existing = null) => {
   // conversion to Numbers
   const amountBeforeVAT = parseFloat(data.amountBeforeVAT) || 0;
   const amountPaid = parseFloat(data.amountPaid) || 0;
+  const previousDue = parseFloat(data.previousDue) || 0;
+  const previousAdvance = parseFloat(data.previousAdvance) || 0;
+  const discountRate = parseFloat(data.discountRate) || 0;
   const discountAmount = parseFloat(data.discount) || 0;
   const vatRate = parseFloat(data.vatRate) || 13;
   const tdsRate = parseFloat(data.tdsRate) || 0;
@@ -18,16 +21,19 @@ const buildExpensePayload = async (data, user, existing = null) => {
   const totalBillAmount = round(taxableAmount + calculatedVat); // Total amount on vendor's bill
   const calculatedTds = round(taxableAmount * (tdsRate / 100)); // TDS we withhold
 
-  // Net Payable is what we actually owe the vendor (Bill - TDS)
-  const netPayable = round(totalBillAmount - calculatedTds);
+  // Net Payable is what we actually owe the vendor for this bill
+  const currentNetBalance = round(totalBillAmount - calculatedTds);
+
+  // Adjusted Net incorporates previous due/advance
+  const totalRequired = round(currentNetBalance + previousDue - previousAdvance);
 
   let pendingAmount = 0;
   let advanceAmount = 0;
 
-  if (amountPaid > netPayable) {
-    advanceAmount = round(amountPaid - netPayable);
+  if (amountPaid > totalRequired) {
+    advanceAmount = round(amountPaid - totalRequired);
   } else {
-    pendingAmount = round(netPayable - amountPaid);
+    pendingAmount = round(totalRequired - amountPaid);
   }
 
   const base = existing ? existing.toObject() : {};
@@ -36,10 +42,16 @@ const buildExpensePayload = async (data, user, existing = null) => {
     ...base,
     ...data,
     amountBeforeVAT,
+    vatRate,
     vatAmount: calculatedVat,
+    discountRate,
+    discount: discountAmount,
+    tdsRate,
     tdsAmount: calculatedTds,
-    netPayable: totalBillAmount, // The full bill value
+    netPayable: totalBillAmount, // The full bill value for documentation
     amountPaid,
+    previousDue,
+    previousAdvance,
     pendingAmount,
     advanceAmount,
     createdBy: base.createdBy || user._id,
@@ -47,6 +59,8 @@ const buildExpensePayload = async (data, user, existing = null) => {
     financialYear: base.financialYear || (await SystemSetting.findOne()).fiscalYearBS,
   };
 };
+
+
 
 /**
  * Create a new expense entry with payment tracking

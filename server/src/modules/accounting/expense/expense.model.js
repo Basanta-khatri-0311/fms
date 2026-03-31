@@ -9,11 +9,16 @@ const expenseSchema = new mongoose.Schema({
     billDate: Date,
 
     amountBeforeVAT: { type: Number, required: true },
+    vatRate: { type: Number, default: 0 },
     vatAmount: { type: Number, default: 0 },
+    discountRate: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
+    tdsRate: { type: Number, default: 0 },
     tdsAmount: { type: Number, default: 0 },
     netPayable: { type: Number, required: true },
     amountPaid: { type: Number, default: 0 },
+    previousDue: { type: Number, default: 0 },
+    previousAdvance: { type: Number, default: 0 },
     pendingAmount: { type: Number, default: 0 },
     advanceAmount: { type: Number, default: 0 },
 

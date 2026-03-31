@@ -230,10 +230,11 @@ if (entryType === ENTRY_TYPE.INCOME) {
 
     // --- VENDOR BALANCE UPDATE ---
     if (entry.vendor) {
-      // advanceAmount (+) means vendor owes us (asset)
-      // pendingAmount (-) means we owe vendor (liability)
-      // Balance definition: (+) you have overpaid them, (-) you owe them.
-      const balanceDelta = round((entry.advanceAmount || 0) - (entry.pendingAmount || 0));
+      // Balance definition: (+) you have overpaid them (asset), (-) you owe them (liability)
+      const currentNetPosition = round((entry.advanceAmount || 0) - (entry.pendingAmount || 0));
+      const previousNetPosition = round((entry.previousAdvance || 0) - (entry.previousDue || 0));
+      
+      const balanceDelta = round(currentNetPosition - previousNetPosition);
       
       await Vendor.findByIdAndUpdate(entry.vendor, {
         $inc: { balance: balanceDelta }

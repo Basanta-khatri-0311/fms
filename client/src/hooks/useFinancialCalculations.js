@@ -16,16 +16,21 @@ const useFinancialCalculations = (formData, mode = 'income') => {
 
     let discount = 0, vatAmount = 0, tdsAmount = 0, netAmount = 0;
 
+    // Both modes should calculate Discount on Gross first
+    discount = round((amountBeforeVAT * discountRate) / 100);
+    const taxableAmount = round(amountBeforeVAT - discount);
+
     if (mode === 'income') {
-      vatAmount = round((amountBeforeVAT * vatRate) / 100);
-      discount = round((amountBeforeVAT * discountRate) / 100);
-      tdsAmount = round((amountBeforeVAT * tdsRate) / 100);
-      netAmount = round(amountBeforeVAT + vatAmount - discount - tdsAmount);
-    } else {
-      discount = round((amountBeforeVAT * discountRate) / 100);
-      const taxableAmount = round(amountBeforeVAT - discount);
+      // Income calculations
       vatAmount = round((taxableAmount * vatRate) / 100);
       tdsAmount = round((taxableAmount * tdsRate) / 100);
+      // Total Receivable = Taxable + VAT - TDS
+      netAmount = round(taxableAmount + vatAmount - tdsAmount);
+    } else {
+      // Expense calculations
+      vatAmount = round((taxableAmount * vatRate) / 100);
+      tdsAmount = round((taxableAmount * tdsRate) / 100);
+      // Total Payable = Taxable + VAT - TDS
       netAmount = round(taxableAmount + vatAmount - tdsAmount);
     }
 
