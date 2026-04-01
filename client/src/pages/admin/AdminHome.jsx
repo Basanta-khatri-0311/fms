@@ -62,13 +62,21 @@ const AdminDashboard = () => {
     }
   }, [financialYear, fetchStats]);
 
-  const reports = [
-    { id: 'trial-balance', name: 'Trial Balance', icon: <Scale className="w-6 h-6" />, color: 'violet', implemented: true },
-    { id: 'income-statement', name: 'Income Statement', icon: <LineChart className="w-6 h-6" />, color: 'emerald', implemented: true },
-    { id: 'balance-sheet', name: 'Balance Sheet', icon: <AreaChart className="w-6 h-6" />, color: 'blue', implemented: true },
-    { id: 'sales-register', name: 'Sales Register', icon: <ShoppingCart className="w-6 h-6" />, color: 'amber', implemented: true },
-    { id: 'purchase-register', name: 'Purchase Register', icon: <ShoppingBag className="w-6 h-6" />, color: 'amber', implemented: true },
-    { id: 'annex13', name: 'Annex 13', icon: <ClipboardList className="w-6 h-6" />, color: 'amber', implemented: true },
+  const financialReports = [
+    { id: 'income-report', name: 'Income Report', icon: <ShoppingBag className="w-5 h-5" />, color: 'emerald', implemented: true },
+    { id: 'expense-report', name: 'Expense Report', icon: <ShoppingCart className="w-5 h-5" />, color: 'rose', implemented: true },
+    { id: 'daily-cashbook', name: 'Daily Cashbook', icon: <ClipboardList className="w-5 h-5" />, color: 'blue', implemented: true },
+    { id: 'ledger', name: 'Ledger', icon: <Scale className="w-5 h-5" />, color: 'indigo', implemented: true },
+    { id: 'trial-balance', name: 'Trial Balance', icon: <Scale className="w-5 h-5" />, color: 'violet', implemented: true },
+    { id: 'income-statement', name: 'Income Statement', icon: <LineChart className="w-5 h-5" />, color: 'emerald', implemented: true },
+    { id: 'balance-sheet', name: 'Balance Sheet', icon: <AreaChart className="w-5 h-5" />, color: 'blue', implemented: true },
+  ];
+
+  const taxationReports = [
+    { id: 'purchase-register', name: 'Purchase Register', icon: <ShoppingBag className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Khariid Khaataa)' },
+    { id: 'sales-register', name: 'Sales Register', icon: <ShoppingCart className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Bikrii Khaataa)' },
+    { id: 'annex13', name: 'Annex 13', icon: <ClipboardList className="w-5 h-5" />, color: 'amber', implemented: true },
+    { id: 'tds-reports', name: 'TDS Reports', icon: <Scale className="w-5 h-5" />, color: 'indigo', implemented: false },
   ];
 
   if (loading || settingsLoading) {
@@ -265,71 +273,114 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Financial Reports */}
-        <section>
-          <div className="mb-10 flex items-end justify-between">
-            <div className="space-y-1">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Financial Reports</h2>
-              <p className="text-slate-500 font-medium">View and export your financial statements and tax records.</p>
+        {/* Reports Sections */}
+        <div className="space-y-16">
+          {/* Financial Reports */}
+          <section>
+            <div className="mb-8 flex items-center gap-4">
+              <div className="w-2 h-8 bg-indigo-600 rounded-full" />
+              <div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Core Financial Reports</h2>
+                <p className="text-slate-500 font-medium">Accounting statements and operational summaries.</p>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {reports.map((report) => (
-              <button
-                key={report.id}
-                onClick={() => report.implemented && setActiveReport(report.id)}
-                disabled={!report.implemented}
-                className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden
-                  ${report.implemented
-                    ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
-                    : 'opacity-60 cursor-not-allowed grayscale'
-                  }`}
-              >
-                {/* Decorative Elements */}
-                {report.implemented && (
-                  <div className={`absolute -right-12 -top-12 w-48 h-48 rounded-full opacity-[0.03] group-hover:opacity-[0.1] transition-all duration-700 scale-150 rotate-12
-                    ${report.color === 'violet' && 'bg-violet-600'}
-                    ${report.color === 'emerald' && 'bg-emerald-600'}
-                    ${report.color === 'blue' && 'bg-blue-600'}
-                    ${report.color === 'amber' && 'bg-amber-600'}
-                  `} />
-                )}
-
-                {/* Icon Portfolio */}
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50
-                  ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white'}
-                  ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}
-                  ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'}
-                  ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}
-                  ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
-                  {report.icon}
-                </div>
-
-                {/* Report Identity */}
-                <div className="space-y-1">
-                  <h3 className="text-xl font-black text-slate-800 group-hover:text-slate-900 transition-colors">
-                    {report.name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-1 h-1 rounded-full ${report.implemented ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      {report.implemented ? 'Production Ready' : 'Architecture Pending'}
-                    </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {financialReports.map((report) => (
+                <button
+                  key={report.id}
+                  onClick={() => report.implemented && setActiveReport(report.id)}
+                  disabled={!report.implemented}
+                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden
+                    ${report.implemented
+                      ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
+                      : 'opacity-60 cursor-not-allowed grayscale'
+                    }`}
+                >
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50
+                    ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white'}
+                    ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}
+                    ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'}
+                    ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}
+                    ${report.color === 'rose' && 'bg-linear-to-br from-rose-100 to-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}
+                    ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
+                    {report.icon}
                   </div>
-                </div>
 
-                {/* Action CTA */}
-                {report.implemented && (
-                  <div className="flex items-center gap-2 mt-8 text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500">
-                    <span>View Report</span>
-                    <span className="text-lg leading-none">→</span>
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-tight">
+                      {report.name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {report.implemented ? 'Production Ready' : 'Architecture Pending'}
+                      </span>
+                    </div>
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </section>
+
+                  {report.implemented && (
+                    <div className="flex items-center gap-2 mt-8 text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500">
+                      <span>Generate</span>
+                      <span className="text-lg leading-none">→</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Taxation & Compliance */}
+          <section>
+            <div className="mb-8 flex items-center gap-4">
+              <div className="w-2 h-8 bg-amber-500 rounded-full" />
+              <div>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Taxation & Compliance</h2>
+                <p className="text-slate-500 font-medium">Government compliance and tax registry records.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {taxationReports.map((report) => (
+                <button
+                  key={report.id}
+                  onClick={() => report.implemented && setActiveReport(report.id)}
+                  disabled={!report.implemented}
+                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden
+                    ${report.implemented
+                      ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
+                      : 'opacity-60 cursor-not-allowed grayscale'
+                    }`}
+                >
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50
+                    ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}
+                    ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}
+                    ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
+                    {report.icon}
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-tight">
+                      {report.name}
+                    </h3>
+                    <p className="text-xs font-bold text-slate-400 group-hover:text-indigo-400 mb-1 transition-colors">{report.subtitle}</p>
+                    <div className="flex items-center gap-2">
+                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {report.implemented ? 'Production Ready' : 'Architecture Pending'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {report.implemented && (
+                    <div className="flex items-center gap-2 mt-8 text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform duration-500">
+                      <span>Generate</span>
+                      <span className="text-lg leading-none">→</span>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
 
         {/* Help Section */}
         <div className="bg-linear-to-r from-slate-900 to-slate-800 rounded-3xl p-8 lg:p-10 text-white shadow-xl shadow-slate-900/10 relative overflow-hidden">

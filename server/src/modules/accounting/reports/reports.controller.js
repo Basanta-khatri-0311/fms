@@ -15,6 +15,81 @@ exports.getTrialBalance = async (req, res) => {
 };
 
 /**
+ * GET /reports/income-report?financialYear=2081/82&startDate=...&endDate=...&branch=...&serviceType=...
+ */
+exports.getIncomeReport = async (req, res) => {
+  try {
+    const { financialYear, startDate, endDate, branch, serviceType } = req.query;
+    const filters = { startDate, endDate, branch, serviceType };
+    const result = await reportsService.generateIncomeReport(financialYear, filters);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/expense-report?financialYear=2081/82&startDate=...&endDate=...&branch=...&category=...
+ */
+exports.getExpenseReport = async (req, res) => {
+  try {
+    const { financialYear, startDate, endDate, branch, category } = req.query;
+    const filters = { startDate, endDate, branch, category };
+    const result = await reportsService.generateExpenseReport(financialYear, filters);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/ledger?financialYear=2081/82&startDate=...&endDate=...&accountId=...
+ */
+exports.getLedgerReport = async (req, res) => {
+  try {
+    const { financialYear, startDate, endDate, accountId } = req.query;
+    const filters = { startDate, endDate, accountId };
+    const result = await reportsService.generateLedgerReport(financialYear, filters);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/daily-cashbook?financialYear=2081/82&startDate=...&endDate=...&accountId=...
+ */
+exports.getDailyCashbook = async (req, res) => {
+  try {
+    const { financialYear, startDate, endDate, accountId } = req.query;
+    // Default to a known cash code if none selected initially
+    const filters = { startDate, endDate };
+    if (accountId && accountId !== 'All') {
+       filters.accountId = accountId;
+    } else {
+       // Just pick CASH by default if nothing is selected
+       filters.accountCode = 'CASH';
+    }
+    const result = await reportsService.generateLedgerReport(financialYear, filters);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * GET /reports/accounts
+ */
+exports.getAccounts = async (req, res) => {
+  try {
+    const result = await reportsService.getAllAccounts();
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
  * GET /reports/income-statement?financialYear=2081/82
  */
 exports.getIncomeStatement = async (req, res) => {

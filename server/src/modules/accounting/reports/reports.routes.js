@@ -16,6 +16,41 @@ reportsRouter.get(
 );
 
 reportsRouter.get(
+    '/income-report',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getIncomeReport
+);
+
+reportsRouter.get(
+    '/expense-report',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getExpenseReport
+);
+
+reportsRouter.get(
+    '/ledger',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getLedgerReport
+);
+
+reportsRouter.get(
+    '/daily-cashbook',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getDailyCashbook
+);
+
+reportsRouter.get(
+    '/accounts',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getAccounts
+);
+
+reportsRouter.get(
     '/income-statement',
     protect,
     authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),

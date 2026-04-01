@@ -426,6 +426,154 @@ exports.generateAnnex13 = async (financialYear) => {
 };
 
 /**
+ * Generate Income Report
+ * Filters: startDate, endDate, serviceType (Headwise), branch
+ */
+exports.generateIncomeReport = async (financialYear, filters = {}) => {
+  const query = { financialYear, 'approval.status': 'APPROVED' };
+
+  if (filters.startDate && filters.endDate) {
+    query['approval.approvedAt'] = {
+      $gte: new Date(filters.startDate),
+      $lte: new Date(filters.endDate + 'T23:59:59.999Z')
+    };
+  } else if (filters.startDate) {
+    query['approval.approvedAt'] = { $gte: new Date(filters.startDate) };
+  } else if (filters.endDate) {
+    query['approval.approvedAt'] = { $lte: new Date(filters.endDate + 'T23:59:59.999Z') };
+  }
+
+  if (filters.serviceType && filters.serviceType !== 'All') {
+    query.serviceType = filters.serviceType;
+  }
+  if (filters.branch && filters.branch !== 'All') {
+    query.branch = filters.branch;
+  }
+
+  const incomes = await Income.find(query).sort({ 'approval.approvedAt': -1 });
+
+  const reportData = incomes.map(income => ({
+    billNumber: income.invoiceNumber || '-',
+    billDate: income.approval.approvedAt,
+    partyName: income.name,
+    address: income.address || '-',
+    contactNumber: income.contactNumber || '-',
+    branch: income.branch || 'KTM',
+    serviceType: income.serviceType,
+    amountBeforeVAT: income.amountBeforeVAT,
+    vatAmount: income.vatAmount,
+    amountAfterVAT: income.netAmount,
+  }));
+
+  const totals = {
+    amountBeforeVAT: reportData.reduce((sum, item) => sum + item.amountBeforeVAT, 0),
+    vatAmount: reportData.reduce((sum, item) => sum + item.vatAmount, 0),
+    amountAfterVAT: reportData.reduce((sum, item) => sum + item.amountAfterVAT, 0),
+  };
+
+  return { data: reportData, totals };
+};
+
+/**
+ * Generate Expenses Report (Integrated Payment and Payroll)
+ * Filters: startDate, endDate, category (Headwise), branch
+ */
+exports.generateExpenseReport = async (financialYear, filters = {}) => {
+  const expenseQuery = { financialYear, 'approval.status': 'APPROVED' };
+  const payrollQuery = { financialYear, 'approval.status': 'APPROVED' };
+
+  if (filters.startDate && filters.endDate) {
+    const dateQuery = {
+      $gte: new Date(filters.startDate),
+      $lte: new Date(filters.endDate + 'T23:59:59.999Z')
+    };
+    expenseQuery['approval.approvedAt'] = dateQuery;
+    payrollQuery['approval.approvedAt'] = dateQuery;
+  } else if (filters.startDate) {
+    const dateQuery = { $gte: new Date(filters.startDate) };
+    expenseQuery['approval.approvedAt'] = dateQuery;
+    payrollQuery['approval.approvedAt'] = dateQuery;
+  } else if (filters.endDate) {
+    const dateQuery = { $lte: new Date(filters.endDate + 'T23:59:59.999Z') };
+    expenseQuery['approval.approvedAt'] = dateQuery;
+    payrollQuery['approval.approvedAt'] = dateQuery;
+  }
+
+  if (filters.branch && filters.branch !== 'All') {
+    expenseQuery.branch = filters.branch;
+    payrollQuery.branch = filters.branch;
+  }
+
+  let fetchExpenses = true;
+  let fetchPayroll = true;
+  if (filters.category && filters.category !== 'All') {
+    if (filters.category === 'Payroll' || filters.category === 'Salary') {
+      fetchExpenses = false;
+    } else {
+      expenseQuery.expenseCategory = filters.category;
+      fetchPayroll = false;
+    }
+  }
+
+  const [expenses, payrolls] = await Promise.all([
+    fetchExpenses ? Expense.find(expenseQuery).populate('vendor') : Promise.resolve([]),
+    fetchPayroll ? Payroll.find(payrollQuery) : Promise.resolve([])
+  ]);
+
+  let combinedData = [];
+
+  expenses.forEach(exp => {
+    combinedData.push({
+      type: 'EXPENSE',
+      billNumber: exp.billNumber || '-',
+      billDate: exp.approval.approvedAt,
+      purchasedFrom: exp.vendor?.name || 'Unknown',
+      paymentCategory: exp.expenseCategory || 'General Expense',
+      tdsAmount: exp.tdsAmount || 0,
+      totalAmountPaid: exp.amountPaid || exp.netPayable || 0,
+      branch: exp.branch || 'KTM',
+    });
+  });
+
+  payrolls.forEach(pr => {
+    combinedData.push({
+      type: 'PAYROLL',
+      billNumber: `PR-${pr.paymentMonth.replace(/\s+/g, '-')}`,
+      billDate: pr.approval.approvedAt,
+      purchasedFrom: pr.employeeName,
+      paymentCategory: 'Payroll',
+      tdsAmount: pr.taxDeduction || 0,
+      totalAmountPaid: pr.amountPaid || pr.netPayable || 0,
+      branch: pr.branch || 'KTM',
+    });
+  });
+
+  // Sort descending by date
+  combinedData.sort((a, b) => new Date(b.billDate) - new Date(a.billDate));
+
+  const totals = {
+    tdsAmount: combinedData.reduce((sum, item) => sum + item.tdsAmount, 0),
+    totalAmountPaid: combinedData.reduce((sum, item) => sum + item.totalAmountPaid, 0),
+  };
+
+  // Generate Group-wise summary
+  const groupSummary = {};
+  combinedData.forEach(item => {
+    if (!groupSummary[item.paymentCategory]) {
+      groupSummary[item.paymentCategory] = 0;
+    }
+    groupSummary[item.paymentCategory] += item.totalAmountPaid;
+  });
+
+  const summaryArray = Object.keys(groupSummary).map(k => ({
+    category: k,
+    total: groupSummary[k]
+  }));
+
+  return { data: combinedData, totals, groupSummary: summaryArray };
+};
+
+/**
  * Get detailed transaction history for a specific entity
  */
 exports.generateEntityHistory = async (type, id) => {
@@ -461,6 +609,105 @@ exports.generateEntityHistory = async (type, id) => {
   }
 
   return { history, summary };
+};
+
+/**
+ * Generate Ledger Account Report (Daily Cashbook uses this natively)
+ * Given an accountId or accountCode, calculates Opening Balance, all entries, and Closing Balance.
+ */
+exports.generateLedgerReport = async (financialYear, filters = {}) => {
+  const { startDate, endDate, accountId, accountCode } = filters;
+  
+  // 1. Resolve Account
+  let account;
+  if (accountId && accountId !== 'All') {
+    account = await ChartOfAccount.findById(accountId);
+  } else if (accountCode) {
+    account = await ChartOfAccount.findOne({ code: accountCode });
+  }
+
+  if (!account) {
+    return { data: [], account: null, openingBalance: 0, closingBalance: 0 };
+  }
+
+  const isAssetOrExpense = ['ASSET', 'EXPENSE'].includes(account.type);
+
+  // 2. Fetch all ledger entries in FY prior to endDate
+  const query = { financialYear };
+  
+  if (endDate) {
+    query.createdAt = { $lte: new Date(endDate + 'T23:59:59.999Z') };
+  }
+
+  const entries = await Ledger.find(query)
+    .populate('debitLines.account creditLines.account')
+    .sort({ createdAt: 1 });
+
+  let openingBalance = 0; // Negative means credit balance, positive means debit balance
+  let runningBalance = 0;
+  
+  const reportLines = [];
+
+  entries.forEach(entry => {
+    // Check if this entry involves our target account
+    let isDebitLine = false;
+    let isCreditLine = false;
+    let amountDebit = 0;
+    let amountCredit = 0;
+    
+    // Check Debits
+    entry.debitLines.forEach(line => {
+      if (line.account._id.toString() === account._id.toString()) {
+         isDebitLine = true;
+         amountDebit += line.amount;
+      }
+    });
+
+    // Check Credits
+    entry.creditLines.forEach(line => {
+      if (line.account._id.toString() === account._id.toString()) {
+         isCreditLine = true;
+         amountCredit += line.amount;
+      }
+    });
+
+    if (isDebitLine || isCreditLine) {
+       const isPriorTarget = startDate && new Date(entry.createdAt) < new Date(startDate);
+       
+       if (isPriorTarget) {
+          // It's part of Opening Balance
+          if (isAssetOrExpense) openingBalance += amountDebit - amountCredit;
+          else openingBalance += amountCredit - amountDebit;
+       } else {
+          // It's in the reported period
+          if (isAssetOrExpense) runningBalance += amountDebit - amountCredit;
+          else runningBalance += amountCredit - amountDebit;
+
+          reportLines.push({
+            date: entry.createdAt,
+            transactionId: entry.referenceId,
+            particulars: entry.narration || '-',
+            debit: amountDebit,
+            credit: amountCredit,
+            balance: openingBalance + runningBalance,
+          });
+       }
+    }
+  });
+
+  return {
+    account: { name: account.name, code: account.code, type: account.type },
+    openingBalance,
+    data: reportLines,
+    closingBalance: openingBalance + runningBalance,
+  };
+};
+
+/**
+ * Get all CoAs for Dropdowns
+ */
+exports.getAllAccounts = async () => {
+  return await ChartOfAccount.find({ isActive: true }).select('name code type').sort({ name: 1 });
 };
 
 // ============================================================================
