@@ -1,4 +1,5 @@
 import React from 'react';
+import { Settings } from 'lucide-react';
 import { numberToWords } from '../../utils/numberToWords';
 import { useSystemSettings } from '../../context/SystemSettingsContext';
 
@@ -62,22 +63,33 @@ const InvoiceModal = ({ transaction, onClose }) => {
         <div className="p-8 sm:p-12 lg:p-16 bg-white" id="printable-invoice">
           
           <div className="flex justify-between items-start border-b-[3px] border-slate-900 pb-8 mb-10">
-            <div className="space-y-2">
-              <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase">{title}</h1>
-              <div className="bg-slate-100 px-3 py-1 text-slate-600 rounded-md font-bold text-sm inline-block">
-                REF: {transaction._id.substring(0, 10).toUpperCase()}
-              </div>
-              {(transaction.invoiceNumber || transaction.billNumber) && (
-                <div className="ml-3 bg-indigo-50 px-3 py-1 text-indigo-600 rounded-md font-bold text-sm inline-block">
-                  {isIncome ? 'INV #' : 'BILL #'}: {transaction.invoiceNumber || transaction.billNumber}
+            <div className="space-y-4">
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt="Logo" className="h-16 w-auto object-contain mb-4" />
+              ) : (
+                <div className="p-3 bg-indigo-600 text-white rounded-xl inline-block mb-4">
+                   <Settings className="w-8 h-8" />
                 </div>
               )}
+              <div className="space-y-2">
+                <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase">{title}</h1>
+                <div className="flex gap-3">
+                  <div className="bg-slate-100 px-3 py-1 text-slate-600 rounded-md font-bold text-sm inline-block">
+                    REF: {transaction._id.substring(0, 10).toUpperCase()}
+                  </div>
+                  {(transaction.invoiceNumber || transaction.billNumber) && (
+                    <div className="bg-indigo-50 px-3 py-1 text-indigo-600 rounded-md font-bold text-sm inline-block">
+                      {isIncome ? 'INV #' : 'BILL #'}: {transaction.invoiceNumber || transaction.billNumber}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="text-right space-y-1">
               <h2 className="text-2xl font-black text-indigo-700 tracking-tight">{settings.systemName}</h2>
-              <p className="text-sm font-semibold text-slate-500">Authorized Financial Entity</p>
-              <p className="text-sm font-semibold text-slate-500">System Integrated Workflow</p>
-              <p className="text-sm font-bold text-slate-600">PAN / VAT: <span className="text-slate-900">{settings.taxSettings.panNumber || '---'}</span></p>
+              <p className="text-sm font-semibold text-slate-500 max-w-[250px] ml-auto">{settings.orgDetails?.address || 'Authorized Financial Entity'}</p>
+              <p className="text-sm font-semibold text-slate-500">{settings.orgDetails?.phone} {settings.orgDetails?.email && `• ${settings.orgDetails.email}`}</p>
+              <p className="text-sm font-bold text-slate-600">PAN: <span className="text-slate-900">{settings.taxSettings?.panNumber || '---'}</span></p>
             </div>
           </div>
 
