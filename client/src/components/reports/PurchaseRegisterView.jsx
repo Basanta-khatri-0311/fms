@@ -24,30 +24,27 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
         <table className="w-full">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200/80">
-              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Date</th>
-              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Bill No.</th>
-              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Vendor & PAN</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Discount</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-indigo-500">VAT (13%)</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">TDS</th>
-              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100/50">Total</th>
+              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Miti (Date)</th>
+              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Bill/Customs No.</th>
+              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Supplier Name</th>
+              <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Supplier PAN</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Total Purchase</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Exempted Purchase</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Taxable Purchase</th>
+              <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-indigo-500 whitespace-nowrap">VAT (13%)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {data.purchases.map((item, idx) => (
               <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                <td className="px-5 py-4 text-xs font-semibold text-slate-500">{new Date(item.date).toLocaleDateString()}</td>
-                <td className="px-5 py-4 text-xs font-bold text-slate-700">{item.billNumber}</td>
-                <td className="px-5 py-4">
-                  <div className="text-sm font-bold text-slate-800 tracking-wide">{item.vendorName}</div>
-                  <div className="text-[10px] font-bold text-slate-400 mt-0.5 tracking-widest">PAN: <span className="text-slate-600">{item.vendorPan}</span></div>
-                </td>
-                <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono">{item.amountBeforeVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td className="px-5 py-4 text-right text-sm font-semibold text-indigo-500 font-mono">{item.discount > 0 ? `-${item.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '0.00'}</td>
-                <td className="px-5 py-4 text-right text-sm font-bold text-indigo-600 font-mono">{item.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td className="px-5 py-4 text-right text-sm font-semibold text-rose-500 font-mono">{item.tdsAmount > 0 ? `-${item.tdsAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '0.00'}</td>
-                <td className="px-5 py-4 text-right text-sm font-black text-slate-900 font-mono">{item.netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="px-5 py-4 text-xs font-semibold text-slate-500 whitespace-nowrap">{new Date(item.date).toLocaleDateString()}</td>
+                <td className="px-5 py-4 text-xs font-bold text-slate-700 whitespace-nowrap">{item.billNumber}</td>
+                <td className="px-5 py-4 text-sm font-bold text-slate-800 whitespace-nowrap">{item.vendorName}</td>
+                <td className="px-5 py-4 text-xs font-medium text-slate-600 font-mono whitespace-nowrap">{item.vendorPan}</td>
+                <td className="px-5 py-4 text-right text-sm font-black text-slate-900 font-mono whitespace-nowrap">{(item.amountBeforeVAT + item.vatAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.exemptedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="px-5 py-4 text-right text-sm font-bold text-indigo-600 font-mono whitespace-nowrap">{item.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
               </tr>
             ))}
             {data.purchases.length === 0 && (
@@ -61,12 +58,11 @@ const PurchaseRegisterView = ({ data, financialYear }) => (
           </tbody>
           <tfoot>
             <tr className="bg-slate-900 border-t border-slate-800">
-              <td colSpan="3" className="px-5 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">TOTAL FOR FINANCIAL YEAR:</td>
-              <td className="px-5 py-5 text-right text-sm font-black text-white font-mono">{data.totals.amountBeforeVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              <td className="px-5 py-5 text-right text-sm font-black text-white font-mono">{data.totals.discount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              <td className="px-5 py-5 text-right text-sm font-black text-indigo-400 font-mono">{data.totals.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              <td className="px-5 py-5 text-right text-sm font-black text-white font-mono">{data.totals.tdsAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              <td className="px-5 py-5 text-right text-base font-black text-white font-mono">{data.totals.netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td colSpan="4" className="px-5 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">TOTAL FOR FINANCIAL YEAR:</td>
+              <td className="px-5 py-5 text-right text-base font-black text-white font-mono whitespace-nowrap">{(data.totals.amountBeforeVAT + data.totals.vatAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td className="px-5 py-5 text-right text-sm font-black text-white font-mono whitespace-nowrap">{data.totals.exemptedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td className="px-5 py-5 text-right text-sm font-black text-white font-mono whitespace-nowrap">{data.totals.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              <td className="px-5 py-5 text-right text-sm font-black text-indigo-400 font-mono whitespace-nowrap">{data.totals.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
             </tr>
           </tfoot>
         </table>

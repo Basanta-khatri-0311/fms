@@ -76,7 +76,7 @@ const AdminDashboard = () => {
     { id: 'purchase-register', name: 'Purchase Register', icon: <ShoppingBag className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Khariid Khaataa)' },
     { id: 'sales-register', name: 'Sales Register', icon: <ShoppingCart className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Bikrii Khaataa)' },
     { id: 'annex13', name: 'Annex 13', icon: <ClipboardList className="w-5 h-5" />, color: 'amber', implemented: true },
-    { id: 'tds-reports', name: 'TDS Reports', icon: <Scale className="w-5 h-5" />, color: 'indigo', implemented: false },
+    { id: 'tds-report', name: 'TDS Reports', icon: <Scale className="w-5 h-5" />, color: 'indigo', implemented: true },
   ];
 
   if (loading || settingsLoading) {

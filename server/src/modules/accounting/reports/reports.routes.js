@@ -87,6 +87,13 @@ reportsRouter.get(
 );
 
 reportsRouter.get(
+    '/tds-report',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER),
+    reportsController.getTDSReport
+);
+
+reportsRouter.get(
     '/history/:type/:id',
     protect,
     authorize(USER_ROLES.SUPERADMIN, USER_ROLES.AUDITOR, USER_ROLES.APPROVER, USER_ROLES.RECEPTIONIST),

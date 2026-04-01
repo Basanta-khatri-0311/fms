@@ -155,6 +155,19 @@ exports.getAnnex13 = async (req, res) => {
 };
 
 /**
+ * GET /reports/tds-report?financialYear=2081/82&startDate=...&endDate=...
+ */
+exports.getTDSReport = async (req, res) => {
+  try {
+    const { financialYear, startDate, endDate } = req.query;
+    const result = await reportsService.generateTDSReport(financialYear, { startDate, endDate });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
  * GET /reports/history/:type/:id
  */
 exports.getEntityHistory = async (req, res) => {

@@ -342,31 +342,50 @@ exports.generateBalanceSheet = async (financialYear) => {
 };
 
 /**
- * Generate Sales Register (Tax Report)
+ * Generate Sales Register (Tax Report) - Strict IRD Format
  */
 exports.generateSalesRegister = async (financialYear) => {
   const incomes = await Income.find({ 
     financialYear,
     'approval.status': 'APPROVED'
-  }).sort({ 'approval.approvedAt': 1 }); // Sort chronologically
+  }).sort({ 'approval.approvedAt': 1 });
 
-  const salesData = incomes.map(income => ({
-    date: income.approval.approvedAt,
-    invoiceNumber: income.invoiceNumber || '-',
-    buyerName: income.name,
-    buyerPan: income.buyerPan || '-',
-    serviceType: income.serviceType,
-    amountBeforeVAT: income.amountBeforeVAT,
-    vatAmount: income.amountVAT || income.vatAmount,
-    discount: income.discount,
-    tdsAmount: income.tdsAmount,
-    netAmount: income.netAmount,
-  }));
+  const salesData = incomes.map(income => {
+    const vatAmt = income.amountVAT || income.vatAmount || 0;
+    const isTaxable = vatAmt > 0;
+    const amountBeforeVAT = income.amountBeforeVAT || 0;
+    const discount = income.discount || 0;
+    // Calculation: Base value after discount
+    const baseValue = amountBeforeVAT - discount;
+    const taxableAmount = isTaxable ? baseValue : 0;
+    const exemptedAmount = isTaxable ? 0 : baseValue;
+
+    return {
+      date: income.approval?.approvedAt || income.createdAt,
+      invoiceNumber: income.invoiceNumber || '-',
+      buyerName: income.name,
+      buyerPan: income.buyerPan || '-',
+      serviceType: income.serviceType,
+      quantity: income.quantity || 1,
+      unit: income.unit || 'Unit',
+      amountBeforeVAT: amountBeforeVAT,
+      discount: discount,
+      taxableAmount: taxableAmount,
+      exemptedAmount: exemptedAmount,
+      exportSales: 0,
+      vatAmount: vatAmt,
+      tdsAmount: income.tdsAmount || 0,
+      netAmount: income.netAmount || 0,
+    };
+  });
 
   const totals = {
     amountBeforeVAT: salesData.reduce((sum, item) => sum + item.amountBeforeVAT, 0),
-    vatAmount: salesData.reduce((sum, item) => sum + item.vatAmount, 0),
     discount: salesData.reduce((sum, item) => sum + item.discount, 0),
+    taxableAmount: salesData.reduce((sum, item) => sum + item.taxableAmount, 0),
+    exemptedAmount: salesData.reduce((sum, item) => sum + item.exemptedAmount, 0),
+    exportSales: salesData.reduce((sum, item) => sum + item.exportSales, 0),
+    vatAmount: salesData.reduce((sum, item) => sum + item.vatAmount, 0),
     tdsAmount: salesData.reduce((sum, item) => sum + item.tdsAmount, 0),
     netAmount: salesData.reduce((sum, item) => sum + item.netAmount, 0),
   };
@@ -375,7 +394,7 @@ exports.generateSalesRegister = async (financialYear) => {
 };
 
 /**
- * Generate Purchase Register (Tax Report)
+ * Generate Purchase Register (Tax Report) - Strict IRD Format
  */
 exports.generatePurchaseRegister = async (financialYear) => {
   const expenses = await Expense.find({ 
@@ -383,22 +402,40 @@ exports.generatePurchaseRegister = async (financialYear) => {
     'approval.status': 'APPROVED'
   }).populate('vendor').sort({ 'approval.approvedAt': 1 });
 
-  const purchasesData = expenses.map(expense => ({
-    date: expense.approval.approvedAt,
-    billNumber: expense.billNumber || '-',
-    vendorName: expense.vendor?.name || 'Unknown',
-    vendorPan: expense.vendor?.pan || '-',
-    amountBeforeVAT: expense.amountBeforeVAT,
-    vatAmount: expense.vatAmount,
-    discount: expense.discount,
-    tdsAmount: expense.tdsAmount,
-    netPayable: expense.netPayable,
-  }));
+  const purchasesData = expenses.map(expense => {
+    const vatAmt = expense.vatAmount || 0;
+    const isTaxable = vatAmt > 0;
+    const amountBeforeVAT = expense.amountBeforeVAT || 0;
+    const discount = expense.discount || 0;
+    const baseValue = amountBeforeVAT - discount;
+    const taxableAmount = isTaxable ? baseValue : 0;
+    const exemptedAmount = isTaxable ? 0 : baseValue;
+
+    return {
+      date: expense.approval?.approvedAt || expense.createdAt,
+      billNumber: expense.billNumber || '-',
+      vendorName: expense.vendor?.name || 'Unknown',
+      vendorPan: expense.vendor?.pan || '-',
+      amountBeforeVAT: amountBeforeVAT,
+      discount: discount,
+      taxableAmount: taxableAmount,
+      exemptedAmount: exemptedAmount,
+      importAmount: 0,
+      capitalAmount: 0,
+      vatAmount: vatAmt,
+      tdsAmount: expense.tdsAmount || 0,
+      netPayable: expense.netPayable || 0,
+    };
+  });
 
   const totals = {
     amountBeforeVAT: purchasesData.reduce((sum, item) => sum + item.amountBeforeVAT, 0),
-    vatAmount: purchasesData.reduce((sum, item) => sum + item.vatAmount, 0),
     discount: purchasesData.reduce((sum, item) => sum + item.discount, 0),
+    taxableAmount: purchasesData.reduce((sum, item) => sum + item.taxableAmount, 0),
+    exemptedAmount: purchasesData.reduce((sum, item) => sum + item.exemptedAmount, 0),
+    importAmount: purchasesData.reduce((sum, item) => sum + item.importAmount, 0),
+    capitalAmount: purchasesData.reduce((sum, item) => sum + item.capitalAmount, 0),
+    vatAmount: purchasesData.reduce((sum, item) => sum + item.vatAmount, 0),
     tdsAmount: purchasesData.reduce((sum, item) => sum + item.tdsAmount, 0),
     netPayable: purchasesData.reduce((sum, item) => sum + item.netPayable, 0),
   };
@@ -413,10 +450,16 @@ exports.generateAnnex13 = async (financialYear) => {
   const salesResult = await exports.generateSalesRegister(financialYear);
   const purchaseResult = await exports.generatePurchaseRegister(financialYear);
 
+  // Annexure 13 specifically requests details of transactions exceeding 1 Lakh NPR
+  const salesOver1Lakh = salesResult.sales.filter(item => (item.netAmount || 0) >= 100000);
+  const purchasesOver1Lakh = purchaseResult.purchases.filter(item => (item.netPayable || 0) >= 100000);
+
   return {
     period: financialYear,
     sales: salesResult.totals,
     purchases: purchaseResult.totals,
+    salesOver1Lakh,
+    purchasesOver1Lakh,
     summary: {
       totalVatPayable: salesResult.totals.vatAmount, // Tax collected from customers
       totalVatClaimable: purchaseResult.totals.vatAmount, // Tax paid to vendors
@@ -571,6 +614,67 @@ exports.generateExpenseReport = async (financialYear, filters = {}) => {
   }));
 
   return { data: combinedData, totals, groupSummary: summaryArray };
+};
+
+/**
+ * Generate TDS Reports (Tax deducted at source)
+ * Consolidates TDS from both Incomes (TDS we paid/deducted by others) and Expenses (TDS we collected/deducted from vendors)
+ */
+exports.generateTDSReport = async (financialYear, filters = {}) => {
+  const expenseQuery = { financialYear, 'approval.status': 'APPROVED', tdsAmount: { $gt: 0 } };
+  const incomeQuery = { financialYear, 'approval.status': 'APPROVED', tdsAmount: { $gt: 0 } };
+
+  if (filters.startDate && filters.endDate) {
+    const dateQuery = {
+      $gte: new Date(filters.startDate),
+      $lte: new Date(filters.endDate + 'T23:59:59.999Z')
+    };
+    expenseQuery['approval.approvedAt'] = dateQuery;
+    incomeQuery['approval.approvedAt'] = dateQuery;
+  }
+
+  const [expenses, incomes] = await Promise.all([
+    Expense.find(expenseQuery).populate('vendor'),
+    Income.find(incomeQuery)
+  ]);
+
+  let tdsData = [];
+
+  expenses.forEach(exp => {
+    tdsData.push({
+      date: exp.approval.approvedAt,
+      type: 'TDS_PAYABLE', // Tax we deducted from vendors, we owe to government
+      partyName: exp.vendor?.name || 'Unknown',
+      partyPan: exp.vendor?.pan || '-',
+      billNumber: exp.billNumber || '-',
+      baseAmount: exp.amountBeforeVAT || 0,
+      tdsAmount: exp.tdsAmount,
+      source: 'Expense/Purchase'
+    });
+  });
+
+  incomes.forEach(inc => {
+    tdsData.push({
+      date: inc.approval.approvedAt,
+      type: 'TDS_RECEIVABLE', // Tax deducted by customers, we can claim credit
+      partyName: inc.name,
+      partyPan: inc.buyerPan || '-',
+      billNumber: inc.invoiceNumber || '-',
+      baseAmount: inc.amountBeforeVAT || 0,
+      tdsAmount: inc.tdsAmount,
+      source: 'Income/Sales'
+    });
+  });
+
+  // Sort chronologically
+  tdsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const totals = {
+    totalTDSPayable: tdsData.filter(t => t.type === 'TDS_PAYABLE').reduce((sum, item) => sum + item.tdsAmount, 0),
+    totalTDSReceivable: tdsData.filter(t => t.type === 'TDS_RECEIVABLE').reduce((sum, item) => sum + item.tdsAmount, 0),
+  };
+
+  return { tdsData, totals };
 };
 
 /**

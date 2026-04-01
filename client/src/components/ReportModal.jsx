@@ -12,6 +12,7 @@ import Annex13View from './reports/Annex13View';
 import IncomeReportView from './reports/IncomeReportView';
 import ExpenseReportView from './reports/ExpenseReportView';
 import LedgerView from './reports/LedgerView';
+import TDSRegisterView from './reports/TDSRegisterView';
 
 const ReportModal = ({ reportType, financialYear, onClose }) => {
   const [data, setData] = useState(null);
@@ -143,6 +144,15 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
       csvContent += `Total VAT Collected (Sales),${data.summary.totalVatPayable}\n`;
       csvContent += `Total VAT Paid (Purchases),${data.summary.totalVatClaimable}\n`;
       csvContent += `Net VAT Due,${data.summary.netVatDue}\n`;
+    } else if (reportType === 'tds-report') {
+      filename = `tds-report-${financialYear}.csv`;
+      csvContent = 'Date,Source,Party Name,Party PAN,Bill No,Base Amount,Type,TDS Amount\n';
+      data.tdsData.forEach(item => {
+        csvContent += `"${new Date(item.date).toLocaleDateString()}","${item.source}","${item.partyName}","${item.partyPan}","${item.billNumber}",${item.baseAmount},${item.type === 'TDS_PAYABLE' ? 'Payable' : 'Receivable'},${item.tdsAmount}\n`;
+      });
+      csvContent += `\nSUMMARY\n`;
+      csvContent += `Total TDS Payable,${data.totals.totalTDSPayable}\n`;
+      csvContent += `Total TDS Receivable,${data.totals.totalTDSReceivable}\n`;
     } else if (reportType === 'income-report') {
       filename = `income-report-${financialYear}.csv`;
       csvContent = 'Bill Date,Bill No,Party Name,Address,Contact Number,Branch,Service Type,Amount Before VAT,VAT,Amount After VAT\n';
@@ -230,6 +240,8 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
       return <PurchaseRegisterView data={data} financialYear={financialYear} />;
     } else if (reportType === 'annex13') {
       return <Annex13View data={data} financialYear={financialYear} />;
+    } else if (reportType === 'tds-report') {
+      return <TDSRegisterView data={data} financialYear={financialYear} />;
     } else if (reportType === 'income-report') {
       return <IncomeReportView data={data} financialYear={financialYear} filters={filters} setFilters={setFilters} />;
     } else if (reportType === 'expense-report') {
@@ -251,6 +263,7 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
       'sales-register': 'Sales Register',
       'purchase-register': 'Purchase Register',
       'annex13': 'Annex 13 (VAT Return)',
+      'tds-report': 'TDS Register',
       'income-report': 'Income Report',
       'expense-report': 'Expense Report',
       'daily-cashbook': 'Daily Cashbook',

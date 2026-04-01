@@ -80,7 +80,92 @@ const Annex13View = ({ data, financialYear }) => (
         </div>
       </div>
     </div>
+    
+    {/* Transactions Over 1 Lakh */}
+    <div className="pt-8 space-y-8 border-t border-slate-200">
+      <div className="mb-4">
+        <h3 className="text-xl font-black text-rose-600 tracking-tight flex flex-col">
+          <span>Transactions Above 1 Lakh</span>
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-1">Sales (Output)</span>
+        </h3>
+      </div>
+      
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200/80">
+                <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">PAN</th>
+                <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Taxpayer Name</th>
+                <th className="px-5 py-4 text-center text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Name Type</th>
+                <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Taxable Amount</th>
+                <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Exempted Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {data.salesOver1Lakh?.map((item, idx) => (
+                <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-5 py-4 text-sm font-bold text-slate-700 font-mono whitespace-nowrap">{item.buyerPan}</td>
+                  <td className="px-5 py-4 text-sm font-bold text-slate-800 whitespace-nowrap">{item.buyerName}</td>
+                  <td className="px-5 py-4 text-xs font-semibold text-slate-500 text-center whitespace-nowrap">E</td>
+                  <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.exemptedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              {(!data.salesOver1Lakh || data.salesOver1Lakh.length === 0) && (
+                <tr>
+                  <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
+                    <span className="text-sm font-medium">No sales transactions above 1 Lakh for this period.</span>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="mb-4">
+         <h3 className="text-xl font-black text-indigo-600 tracking-tight flex flex-col">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest mt-1">Purchases (Input)</span>
+        </h3>
+      </div>
+      
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200/80">
+                <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">PAN</th>
+                <th className="px-5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Taxpayer Name</th>
+                <th className="px-5 py-4 text-center text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Name Type</th>
+                <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Taxable Amount</th>
+                <th className="px-5 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">Exempted Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {data.purchasesOver1Lakh?.map((item, idx) => (
+                <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-5 py-4 text-sm font-bold text-slate-700 font-mono whitespace-nowrap">{item.vendorPan}</td>
+                  <td className="px-5 py-4 text-sm font-bold text-slate-800 whitespace-nowrap">{item.vendorName}</td>
+                  <td className="px-5 py-4 text-xs font-semibold text-slate-500 text-center whitespace-nowrap">E</td>
+                  <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="px-5 py-4 text-right text-sm font-semibold text-slate-600 font-mono whitespace-nowrap">{item.exemptedAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              {(!data.purchasesOver1Lakh || data.purchasesOver1Lakh.length === 0) && (
+                <tr>
+                  <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
+                    <span className="text-sm font-medium">No purchase transactions above 1 Lakh for this period.</span>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
 export default Annex13View;
+
