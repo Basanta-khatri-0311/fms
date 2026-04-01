@@ -72,3 +72,14 @@ exports.changeVendorStatus = async (req, res) => {
         return res.status(400).json({ message: error.message });
     }
 };
+
+exports.deleteVendor = async (req, res) => {
+    try {
+        await vendorService.deleteVendor(req.params.id);
+        return res.status(200).json({
+            message: 'Vendor deleted successfully',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};

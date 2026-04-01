@@ -1,5 +1,6 @@
 const Vendor = require('./vendor.model')
 const { VENDOR_STATUS } = require('../../constants/vendor')
+const Expense = require('../accounting/expense/expense.model');
 
 exports.createVendor = async (data, user) => {
     const existingVendor = await Vendor.findOne({ pan: data.pan })
@@ -21,9 +22,16 @@ exports.getVendors = async () => {
 }
 
 exports.updateVendor = async (id, data) => {
-    if (data.pan) {
-        throw new Error('Pan cannot be updated')
+    const existing = await Vendor.findById(id);
+    if (!existing) throw new Error('Vendor not found');
+
+    if (data.pan && data.pan !== existing.pan) {
+        throw new Error('PAN cannot be updated. Please create a new vendor record if you have a new business entity.');
     }
+
+    // Ensure PAN is not accidentally changed or re-saved in wrong format if it was intended to stay the same
+    delete data.pan;
+
     return Vendor.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true
@@ -39,4 +47,12 @@ exports.toggleVendorStatus = async (id, status) => {
         { status },
         { new: true }
     );
+};
+
+exports.deleteVendor = async (id) => {
+    const hasTransactions = await Expense.exists({ vendor: id });
+    if (hasTransactions) {
+        throw new Error('Cannot delete vendor as there are existing expense records associated with them. Try deactivating them instead.');
+    }
+    return Vendor.findByIdAndDelete(id);
 };

@@ -30,4 +30,11 @@ vendorRoute.patch('/:id/status',
     vendorController.changeVendorStatus
 )
 
+vendorRoute.delete('/:id',
+    protect,
+    authorize(USER_ROLES.SUPERADMIN, USER_ROLES.APPROVER),
+    vendorController.deleteVendor
+)
+
+
 module.exports = vendorRoute

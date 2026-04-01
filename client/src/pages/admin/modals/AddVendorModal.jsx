@@ -121,7 +121,12 @@ const AddVendorModal = ({ onClose, refreshData, editData = null }) => {
 
             {/* PAN Field */}
             <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">PAN Number *</label>
+                <div className="flex items-center justify-between ml-1">
+                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400">PAN Number *</label>
+                    {isEdit && (
+                        <span className="text-[9px] font-black text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">Identity Locked</span>
+                    )}
+                </div>
                 <div className="relative">
                     <input
                         required
@@ -130,15 +135,19 @@ const AddVendorModal = ({ onClose, refreshData, editData = null }) => {
                         maxLength={9}
                         onKeyDown={handleNumberKeyDown}
                         className={`w-full pl-11 pr-4 py-3.5 bg-white border rounded-2xl outline-none text-sm transition-all focus:ring-4 placeholder:text-slate-300 font-mono font-bold ${
+                            isEdit ? 'opacity-70 cursor-not-allowed bg-slate-50' : ''
+                        } ${
                             errors.pan ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/5' : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/5'
                         }`}
-                        onChange={(e) => setFormData({ ...formData, pan: e.target.value })}
+                        onChange={(e) => !isEdit && setFormData({ ...formData, pan: e.target.value })}
+                        readOnly={isEdit}
                     />
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <Hash size={18} />
                     </div>
                 </div>
                 {errors.pan && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2">{errors.pan}</p>}
+                {isEdit && <p className="text-[9px] text-slate-400 font-medium mt-1 ml-1">PAN cannot be modified once registered for audit integrity.</p>}
             </div>
 
             {/* Phone Field */}

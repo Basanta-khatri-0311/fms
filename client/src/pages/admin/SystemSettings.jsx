@@ -227,8 +227,69 @@ const SystemSettings = () => {
             </div>
           </div>
         </section>
+        
+        {/* Financial Core section */}
+        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="w-2 h-7 bg-indigo-600 rounded-full" />
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Financial Core</h2>
+          </div>
 
-        {/* Financial Year & Dates Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+             <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Currency Symbol</label>
+                <input
+                  type="text"
+                  value={settings.currencySymbol}
+                  onChange={(e) => setSettings({ ...settings, currencySymbol: e.target.value })}
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  placeholder="e.g. NPR"
+                />
+            </div>
+            <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Universal VAT Rate (%)</label>
+                <input
+                  type="number"
+                  value={settings.taxSettings?.vatRate}
+                  onChange={(e) => setSettings({ ...settings, taxSettings: { ...settings.taxSettings, vatRate: Number(e.target.value) } })}
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                />
+            </div>
+
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-slate-50 rounded-[2rem]">
+               <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Rent TDS (%)</label>
+                  <input
+                    type="number"
+                    value={settings.taxSettings?.tdsRates?.rent}
+                    onChange={(e) => setSettings({ ...settings, taxSettings: { ...settings.taxSettings, tdsRates: { ...settings.taxSettings.tdsRates, rent: Number(e.target.value) } } })}
+                    className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none shadow-sm"
+                  />
+               </div>
+               <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Consultancy TDS (%)</label>
+                  <input
+                    type="number"
+                    value={settings.taxSettings?.tdsRates?.consultancy}
+                    onChange={(e) => setSettings({ ...settings, taxSettings: { ...settings.taxSettings, tdsRates: { ...settings.taxSettings.tdsRates, consultancy: Number(e.target.value) } } })}
+                    className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none shadow-sm"
+                  />
+               </div>
+               <div className="space-y-3">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Salary TDS (%)</label>
+                  <input
+                    type="number"
+                    value={settings.taxSettings?.tdsRates?.salary}
+                    onChange={(e) => setSettings({ ...settings, taxSettings: { ...settings.taxSettings, tdsRates: { ...settings.taxSettings.tdsRates, salary: Number(e.target.value) } } })}
+                    className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none shadow-sm"
+                  />
+               </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Fiscal Year & Dates Section */}
+
         <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-2 h-7 bg-emerald-600 rounded-full" />

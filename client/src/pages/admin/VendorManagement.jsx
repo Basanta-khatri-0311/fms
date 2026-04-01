@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Truck, Search, Plus, Filter, CheckCircle2, ShieldAlert, Edit3, Mail, Phone } from 'lucide-react';
+import { Truck, Search, Plus, Filter, CheckCircle2, ShieldAlert, Edit3, Mail, Phone, Trash2, UserCheck, UserX } from 'lucide-react';
 import { useSystemSettings } from '../../context/SystemSettingsContext';
 import API from '../../api/axiosConfig';
 import AddVendorModal from './modals/AddVendorModal';
@@ -18,6 +18,7 @@ const VendorManagement = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [historyEntityId, setHistoryEntityId] = useState(null);
+    const [confirmDeleteData, setConfirmDeleteData] = useState(null);
 
     useEffect(() => { fetchVendors(); }, []);
 
@@ -50,6 +51,19 @@ const VendorManagement = () => {
             triggerToast(err.response?.data?.message || "Status update failed", "error");
         } finally {
             setConfirmStatusData(null);
+        }
+    };
+
+    const handleDeleteVendor = async () => {
+        if (!confirmDeleteData) return;
+        try {
+            await API.delete(`/vendors/${confirmDeleteData._id}`);
+            fetchVendors();
+            triggerToast("Vendor deleted successfully", "success");
+        } catch (err) {
+            triggerToast(err.response?.data?.message || "Deletion failed", "error");
+        } finally {
+            setConfirmDeleteData(null);
         }
     };
 
@@ -203,6 +217,27 @@ const VendorManagement = () => {
                                                 >
                                                     <Edit3 size={18} />
                                                 </button>
+                                                <button 
+                                                    onClick={() => setConfirmDeleteData(vendor)}
+                                                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                                    title="Delete Vendor"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => setConfirmStatusData({ 
+                                                        vendor, 
+                                                        newStatus: vendor.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
+                                                    })}
+                                                    className={`p-2 rounded-xl transition-all ${
+                                                        vendor.status === 'ACTIVE' 
+                                                            ? 'text-slate-400 hover:text-orange-600 hover:bg-orange-50' 
+                                                            : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
+                                                    }`}
+                                                    title={vendor.status === 'ACTIVE' ? "Deactivate Vendor" : "Activate Vendor"}
+                                                >
+                                                    {vendor.status === 'ACTIVE' ? <UserX size={18} /> : <UserCheck size={18} />}
+                                                </button>
                                                 {vendor.contactNumber && (
                                                     <a href={`tel:${vendor.contactNumber}`} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all">
                                                         <Phone size={18} />
@@ -243,11 +278,24 @@ const VendorManagement = () => {
             )}
 
             <ConfirmDialog
+                isOpen={!!confirmDeleteData}
+                title="Delete Vendor"
+                message={`Are you sure you want to permanently delete ${confirmDeleteData?.name}? This action cannot be undone and may affect historical records.`}
+                confirmText="Permanently Delete"
+                confirmColor="rose"
+                onConfirm={handleDeleteVendor}
+                onCancel={() => setConfirmDeleteData(null)}
+            />
+
+            <ConfirmDialog
                 isOpen={!!confirmStatusData}
-                title={confirmStatusData?.newStatus === 'ACTIVE' ? 'Restore Vendor' : 'Suspend Vendor'}
-                message={`Are you sure you want to ${confirmStatusData?.newStatus === 'ACTIVE' ? 'activate' : 'deactivate'} ${confirmStatusData?.vendor?.name}? Internal references will remain intact.`}
-                confirmText={confirmStatusData?.newStatus === 'ACTIVE' ? 'Confirm Activation' : 'Confirm Suspension'}
-                confirmColor={confirmStatusData?.newStatus === 'ACTIVE' ? 'emerald' : 'rose'}
+                title={confirmStatusData?.newStatus === 'ACTIVE' ? 'Activate Vendor' : 'Deactivate Vendor'}
+                message={confirmStatusData?.newStatus === 'ACTIVE' 
+                    ? `Are you sure you want to restore ${confirmStatusData?.vendor?.name}? This vendor will again appear in payment and invoice selection menus.`
+                    : `Are you sure you want to suspend ${confirmStatusData?.vendor?.name}? They will be hidden from new transaction forms, but all historical records will be preserved.`
+                }
+                confirmText={confirmStatusData?.newStatus === 'ACTIVE' ? 'Confirm Activation' : 'Confirm Deactivation'}
+                confirmColor={confirmStatusData?.newStatus === 'ACTIVE' ? 'emerald' : 'orange'}
                 onConfirm={handleToggleStatus}
                 onCancel={() => setConfirmStatusData(null)}
             />
