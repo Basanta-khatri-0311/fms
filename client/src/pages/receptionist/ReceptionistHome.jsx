@@ -18,7 +18,8 @@ const ReceptionistDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-10">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-8">
 
       {/* Header Section */}
       <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800">
@@ -40,7 +41,7 @@ const ReceptionistDashboard = () => {
       </header>
 
       {/* Primary Operations Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto py-4">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-4">
         {ACTIONS.map(action => (
           <button
             key={action.id}
@@ -81,7 +82,7 @@ const ReceptionistDashboard = () => {
       {activeModal === 'EXPENSE' && <ExpenseModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'PAYROLL' && canAccessPayroll && <PayrollModal onClose={() => setActiveModal(null)} />}
       {/* {activeModal === 'ADVANCE' && <AdvanceModal onClose={() => setActiveModal(null)} />} */}
-
+      </div>
     </div>
   );
 };

@@ -72,7 +72,8 @@ const ApproverDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-8">
 
       {/* Decision Center Header */}
       <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800 mb-10">
@@ -156,6 +157,7 @@ const ApproverDashboard = () => {
       {activeModal === 'PAYROLL' && (
         <PayrollModal onClose={() => setActiveModal(null)} refreshData={fetchStats} />
       )}
+      </div>
     </div>
   );
 };
