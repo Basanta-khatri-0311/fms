@@ -72,14 +72,12 @@ const ApproverDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-8">
+    <div className="min-h-screen bg-slate-50/50 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
 
       {/* Decision Center Header */}
-      <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800 mb-10">
-        {/* Mesh Background */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
+      <header className="relative bg-slate-900 rounded-3xl p-10 md:p-12 shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-800 mb-8">
+        <div className="absolute top-0 right-0 w-full h-full bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
           <div className="space-y-3">
@@ -87,7 +85,7 @@ const ApproverDashboard = () => {
               Approver Access
             </div>
             <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-400 tracking-tight leading-tight">
-              Approval <br /> Queue
+              Approval Queue
             </h1>
             <p className="text-slate-400 text-lg font-medium max-w-xl">
               Review and approve pending transactions, expenses, and payroll records.
@@ -128,8 +126,8 @@ const ApproverDashboard = () => {
         {(canAccessPayroll || user?.role === 'SUPERADMIN') && (
           <StatCard label="Awaiting Payroll" value={stats.payrollCount} color="emerald" />
         )}
-        <div className="bg-slate-900 p-8 rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-800 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
+        <div className="bg-slate-900 p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-800 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-full h-full bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4">Total Pending Value</div>
             <div>
@@ -176,8 +174,8 @@ const StatCard = ({ label, value, color }) => {
   };
 
   return (
-    <div className={`relative bg-white p-8 rounded-[2rem] shadow-2xl shadow-slate-100/50 border border-slate-100 overflow-hidden group hover:-translate-y-2 transition-all duration-500`}>
-      <div className={`absolute top-0 right-0 w-48 h-48 ${glowClasses[color]} rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700 pointer-events-none`} />
+    <div className={`relative bg-white p-8 rounded-3xl shadow-sm border border-slate-200 overflow-hidden group hover:shadow-md hover:border-slate-300 transition-all duration-300`}>
+      <div className={`absolute top-0 right-0 w-48 h-48 ${glowClasses[color]} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-8">
           <div className={`p-2.5 rounded-xl ${colorClasses[color]} shadow-sm`}>

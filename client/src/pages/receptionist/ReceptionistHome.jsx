@@ -18,14 +18,12 @@ const ReceptionistDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-8">
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
 
       {/* Header Section */}
-      <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none animate-pulse" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+      <header className="relative bg-slate-900 rounded-3xl p-10 md:p-12 shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-800">
+        <div className="absolute top-0 right-0 w-full h-full bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
         <div className="relative z-10 max-w-3xl">
           <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-indigo-300 text-[11px] font-black uppercase tracking-[0.2em] mb-6">
@@ -46,10 +44,10 @@ const ReceptionistDashboard = () => {
           <button
             key={action.id}
             onClick={() => setActiveModal(action.id)}
-            className="group relative bg-white rounded-[2.5rem] p-10 text-left shadow-2xl shadow-slate-100 border border-slate-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-3xl overflow-hidden"
+            className="group relative bg-white rounded-3xl p-8 text-left shadow-sm border border-slate-200 transition-all duration-300 hover:shadow-md hover:border-slate-300 overflow-hidden"
           >
             {/* Background Accent */}
-            <div className={`absolute top-0 right-0 w-48 h-48 rounded-full bg-linear-to-br ${action.accent} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700 -mr-16 -mt-16 blur-2xl`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 rounded-full bg-linear-to-br ${action.accent} opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500 -mr-10 -mt-10 blur-xl pointer-events-none`} />
 
             {/* Icon Sphere */}
             <div className={`w-20 h-20 rounded-[1.75rem] bg-linear-to-br ${action.accent} flex items-center justify-center text-4xl mb-10 shadow-xl group-hover:scale-110 transition-transform duration-500 group-hover:rotate-6`}>

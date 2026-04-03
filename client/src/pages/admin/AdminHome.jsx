@@ -90,15 +90,12 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
 
         {/* Header Section */}
-        <header className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-14 shadow-2xl shadow-slate-900/10 overflow-hidden border border-slate-800">
-          {/* Animated Background Elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -mr-48 -mt-48 animate-pulse pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+        <header className="relative bg-slate-900 rounded-3xl p-10 md:p-12 shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-800">
+          <div className="absolute top-0 right-0 w-full h-full bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="space-y-3">
@@ -144,9 +141,9 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
           {/* Total Income */}
-          <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700">
+          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+            hover:shadow-md hover:border-indigo-100 transition-all duration-300 h-full flex flex-col justify-between">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500">
               <LineChart className="w-48 h-48 text-emerald-600" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
@@ -173,9 +170,9 @@ const AdminDashboard = () => {
           </div>
 
           {/* Total Expenses */}
-          <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl hover:shadow-rose-500/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700">
+          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+            hover:shadow-md hover:border-rose-100 transition-all duration-300 h-full flex flex-col justify-between">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500">
               <AreaChart className="w-48 h-48 text-rose-600" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
@@ -202,9 +199,9 @@ const AdminDashboard = () => {
           </div>
 
           {/* Net Profit */}
-          <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
-            <div className={`absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
+          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+            hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between">
+            <div className={`absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
               <Scale className="w-48 h-48" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
@@ -294,9 +291,9 @@ const AdminDashboard = () => {
                     key={report.id}
                     onClick={() => report.implemented && setActiveReport(report.id)}
                     disabled={!report.implemented}
-                    className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden h-full flex flex-col
+                    className={`group relative bg-white rounded-3xl p-8 text-left shadow-sm border border-slate-200 transition-all duration-300 overflow-hidden h-full flex flex-col
                       ${report.implemented
-                        ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
+                        ? `hover:shadow-md hover:border-slate-300 cursor-pointer`
                         : 'opacity-60 cursor-not-allowed grayscale'
                       }`}
                   >
@@ -350,9 +347,9 @@ const AdminDashboard = () => {
                     key={report.id}
                     onClick={() => report.implemented && setActiveReport(report.id)}
                     disabled={!report.implemented}
-                    className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden h-full flex flex-col
+                    className={`group relative bg-white rounded-3xl p-8 text-left shadow-sm border border-slate-200 transition-all duration-300 overflow-hidden h-full flex flex-col
                       ${report.implemented
-                        ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
+                        ? `hover:shadow-md hover:border-slate-300 cursor-pointer`
                         : 'opacity-60 cursor-not-allowed grayscale'
                       }`}
                   >

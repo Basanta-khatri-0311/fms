@@ -46,5 +46,8 @@ export const MENU_CONFIG = {
   AUDITOR: [
     { name: 'Dashboard', path: '/dashboard', icon: <ShieldCheck className="w-5 h-5" /> },
     { name: 'Financial Reports', path: '/reports', icon: <LineChart className="w-5 h-5" /> },
-  ]
+  ],
+  STUDENT: [
+    { name: 'Profile', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+    ]
 };
