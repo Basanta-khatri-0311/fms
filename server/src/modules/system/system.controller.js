@@ -22,7 +22,18 @@ exports.getSettings = async (req, res) => {
 
 exports.updateSettings = async (req, res) => {
     try {
-        const settings = await SystemSetting.findOneAndUpdate({}, req.body, { new: true, upsert: true });
+        let updateData = req.body;
+        // If it was submitted via FormData
+        if (typeof req.body.settings === 'string') {
+            updateData = JSON.parse(req.body.settings);
+        }
+
+        // Attach new file path if an image was uploaded
+        if (req.file) {
+            updateData.logoUrl = `/uploads/${req.file.filename}`;
+        }
+
+        const settings = await SystemSetting.findOneAndUpdate({}, updateData, { new: true, upsert: true });
         res.status(200).json(settings);
     } catch (error) {
         res.status(500).json({ message: error.message });

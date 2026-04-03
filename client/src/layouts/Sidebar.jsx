@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU_CONFIG } from '../config/menuConfig';
 import { useSystemSettings } from '../context/SystemSettingsContext';
+import API from '../api/axiosConfig';
 
 const Sidebar = ({ isOpen, onClose, userRole, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
@@ -9,6 +10,7 @@ const Sidebar = ({ isOpen, onClose, userRole, isCollapsed, setIsCollapsed }) => 
   const { settings } = useSystemSettings();
   const sysName = settings?.systemName || 'System';
   const initials = sysName.substring(0, 2).toUpperCase();
+  const SERVER_URL = API.defaults.baseURL.replace('/api', '');
 
   return (
     <>
@@ -45,7 +47,7 @@ const Sidebar = ({ isOpen, onClose, userRole, isCollapsed, setIsCollapsed }) => 
           <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
           <div className="flex items-center gap-4 group overflow-hidden">
             {settings?.logoUrl ? (
-              <img src={settings.logoUrl} alt="Logo" className="shrink-0 w-12 h-12 rounded-xl object-contain bg-white/5 p-1 group-hover:scale-105 transition-transform duration-500" />
+              <img src={`${SERVER_URL}${settings.logoUrl}`} alt="Logo" className="shrink-0 w-12 h-12 rounded-xl object-contain bg-white/5 p-1 group-hover:scale-105 transition-transform duration-500" />
             ) : (
               <div className="shrink-0 w-12 h-12 bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform duration-500">
                 <span className="text-white text-2xl font-black">{initials}</span>

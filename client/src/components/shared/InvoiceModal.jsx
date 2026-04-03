@@ -2,10 +2,13 @@ import React from 'react';
 import { Settings } from 'lucide-react';
 import { numberToWords } from '../../utils/numberToWords';
 import { useSystemSettings } from '../../context/SystemSettingsContext';
+import API from '../../api/axiosConfig';
 
 const InvoiceModal = ({ transaction, onClose }) => {
   const { settings } = useSystemSettings();
   if (!transaction) return null;
+
+  const SERVER_URL = API.defaults.baseURL.replace('/api', '');
 
   const isIncome = transaction.type === 'INCOME';
   const isPayroll = transaction.type === 'PAYROLL';
@@ -65,7 +68,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
           <div className="flex justify-between items-start border-b-[3px] border-slate-900 pb-8 mb-10">
             <div className="space-y-4">
               {settings.logoUrl ? (
-                <img src={settings.logoUrl} alt="Logo" className="h-16 w-auto object-contain mb-4" />
+                <img src={`${SERVER_URL}${settings.logoUrl}`} alt="Logo" className="h-16 w-auto object-contain mb-4" />
               ) : (
                 <div className="p-3 bg-indigo-600 text-white rounded-xl inline-block mb-4">
                    <Settings className="w-8 h-8" />
@@ -89,6 +92,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
               <h2 className="text-2xl font-black text-indigo-700 tracking-tight">{settings.systemName}</h2>
               <p className="text-sm font-semibold text-slate-500 max-w-[250px] ml-auto">{settings.orgDetails?.address || 'Authorized Financial Entity'}</p>
               <p className="text-sm font-semibold text-slate-500">{settings.orgDetails?.phone} {settings.orgDetails?.email && `• ${settings.orgDetails.email}`}</p>
+              {settings.orgDetails?.website && <p className="text-sm font-semibold text-indigo-500">{settings.orgDetails.website}</p>}
               <p className="text-sm font-bold text-slate-600">PAN: <span className="text-slate-900">{settings.taxSettings?.panNumber || '---'}</span></p>
             </div>
           </div>

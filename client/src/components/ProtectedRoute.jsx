@@ -4,7 +4,21 @@ const ProtectedRoute = ({ children, allowedRoles, requiredPermission }) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const token = localStorage.getItem('token');
 
-  if (!token) return <Navigate to="/login" />;
+  // Verify JWT expiration locally
+  const isTokenValid = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch (e) {
+      return false;
+    }
+  };
+
+  if (!token || !isTokenValid(token)) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return <Navigate to="/login" replace />;
+  }
   if (!allowedRoles.includes(user.role)) return <Navigate to="/unauthorized" />;
 
   // Superadmins and Auditors have fundamental access rights

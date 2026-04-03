@@ -19,6 +19,7 @@ const SystemSettings = () => {
   const [settings, setSettings] = useState({
     systemName: '',
     logoUrl: '',
+    logoFile: null,
     currencySymbol: '',
     orgDetails: {
       address: '',
@@ -91,7 +92,20 @@ const SystemSettings = () => {
     try {
       setSaving(true);
       setMessage({ type: '', text: '' });
-      await API.patch('/system', settings);
+      
+      const payload = new FormData();
+      if (settings.logoFile) {
+        payload.append('logo', settings.logoFile);
+      }
+      
+      // Separate out the physical file from the JSON payload
+      const { logoFile, ...jsonSettings } = settings;
+      payload.append('settings', JSON.stringify(jsonSettings));
+
+      await API.patch('/system', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
       refreshSettings();
       setMessage({ type: 'success', text: 'Settings saved and synced system-wide!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -178,14 +192,21 @@ const SystemSettings = () => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Logo URL</label>
-                <input
-                  type="text"
-                  value={settings.logoUrl}
-                  onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
-                  className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
-                  placeholder="https://..."
-                />
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Upload Logo Image</label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setSettings({ ...settings, logoFile: e.target.files[0] })}
+                    className="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl text-sm font-medium outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 hover:file:cursor-pointer transition-all"
+                  />
+                  {settings.logoUrl && !settings.logoFile && (
+                    <p className="mt-2 ml-2 text-xs font-bold text-emerald-600">Active logo: {settings.logoUrl.split('/').pop()}</p>
+                  )}
+                  {settings.logoFile && (
+                    <p className="mt-2 ml-2 text-xs font-bold text-indigo-600">New logo selected: {settings.logoFile.name}</p>
+                  )}
+                </div>
               </div>
             </div>
 
