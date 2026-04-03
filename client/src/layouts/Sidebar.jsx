@@ -1,10 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU_CONFIG } from '../config/menuConfig';
+import { useSystemSettings } from '../context/SystemSettingsContext';
 
 const Sidebar = ({ isOpen, onClose, userRole, isCollapsed, setIsCollapsed }) => {
   const location = useLocation();
   const currentMenus = MENU_CONFIG[userRole] || [];
+  const { settings } = useSystemSettings();
+  const sysName = settings?.systemName || 'System';
+  const initials = sysName.substring(0, 2).toUpperCase();
 
   return (
     <>
@@ -40,15 +44,21 @@ const Sidebar = ({ isOpen, onClose, userRole, isCollapsed, setIsCollapsed }) => 
         <div className={`relative h-28 flex items-center border-b border-white/5 transition-all duration-500 ${isCollapsed ? 'px-6 justify-center' : 'px-10'}`}>
           <div className="absolute inset-0 bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
           <div className="flex items-center gap-4 group overflow-hidden">
-            <div className="shrink-0 w-12 h-12 bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform duration-500">
-              <span className="text-white text-2xl font-black">xy</span>
-            </div>
+            {settings?.logoUrl ? (
+              <img src={settings.logoUrl} alt="Logo" className="shrink-0 w-12 h-12 rounded-xl object-contain bg-white/5 p-1 group-hover:scale-105 transition-transform duration-500" />
+            ) : (
+              <div className="shrink-0 w-12 h-12 bg-linear-to-br from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-12 transition-transform duration-500">
+                <span className="text-white text-2xl font-black">{initials}</span>
+              </div>
+            )}
             {!isCollapsed && (
               <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                <h1 className="text-2xl font-black tracking-tighter text-white">
-                  XYZ<span className="text-indigo-500">EDU</span>
+                <h1 className="text-lg leading-tight font-black tracking-tighter text-white truncate max-w-[160px]">
+                  {sysName.split(' ')[0]} <span className="text-indigo-500">{sysName.split(' ').slice(1).join(' ')}</span>
                 </h1>
-                <p className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em]">Educational Consultency</p>
+                <p className="text-[7px] font-black text-slate-500 uppercase tracking-[0.3em] truncate max-w-[160px] mt-0.5">
+                  {settings?.orgDetails?.slogan || 'Financial Engine'}
+                </p>
               </div>
             )}
           </div>

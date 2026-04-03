@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ConfirmDialog from '../components/shared/ConfirmDialog';
+import { useSystemSettings } from '../context/SystemSettingsContext';
 
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
+  const { settings } = useSystemSettings();
 
   const user = JSON.parse(localStorage.getItem('user')) || {
     name: 'User',
@@ -64,7 +66,7 @@ const MainLayout = () => {
           <div className="hidden lg:block">
             <div className="flex items-center gap-3">
               <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
-              <h2 className="text-xl font-black text-slate-800 tracking-tight">Management Suite</h2>
+              <h2 className="text-xl font-black text-slate-800 tracking-tight">{settings?.systemName || 'Management Suite'}</h2>
             </div>
           </div>
 

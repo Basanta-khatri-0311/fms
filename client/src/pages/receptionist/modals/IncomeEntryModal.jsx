@@ -26,7 +26,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     quantity: '1',
     unit: 'Unit',
     amountBeforeVAT: '',
-    vatRate: '13',
+    vatRate: settings?.taxSettings?.vatRate?.toString() || '13',
     discountRate: '',
     tdsRate: '',
     amountReceived: '',

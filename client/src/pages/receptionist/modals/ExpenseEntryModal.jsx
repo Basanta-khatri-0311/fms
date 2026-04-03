@@ -18,7 +18,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
     billNumber: '',
     billDate: new Date().toISOString().split('T')[0],
     amountBeforeVAT: '',
-    vatRate: '13',
+    vatRate: settings?.taxSettings?.vatRate?.toString() || '13',
     discountRate: '',
     tdsRate: '',
     amountPaid: '',
