@@ -25,13 +25,13 @@ const ReceptionistDashboard = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl -mr-48 -mt-48 pointer-events-none animate-pulse" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
         <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="relative z-10 max-w-3xl">
           <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-indigo-300 text-[11px] font-black uppercase tracking-[0.2em] mb-6">
             Staff Dashboard
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-400 mb-6 tracking-tight leading-tight">
-            Daily <br /> Transactions
+            Daily Transactions
           </h1>
           <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed max-w-2xl">
             Record and manage daily payments, expenses, and payroll. Select a category below to get started.

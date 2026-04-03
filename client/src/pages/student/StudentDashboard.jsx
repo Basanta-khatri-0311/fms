@@ -72,7 +72,7 @@ const StudentDashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Current Due Balance</h3>
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Total Due</h3>
               <p className="text-4xl font-black text-slate-800 tabular-nums">{settings.currencySymbol} {data.totalDue.toLocaleString()}</p>
             </div>
             <p className="mt-6 text-xs font-bold text-slate-400 italic">This amount will be added to your next service fee.</p>
@@ -86,7 +86,7 @@ const StudentDashboard = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Advance Payment</h3>
+              <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Total Advance</h3>
               <p className="text-4xl font-black text-slate-800 tabular-nums">{settings.currencySymbol} {data.totalAdvance.toLocaleString()}</p>
             </div>
             <p className="mt-6 text-xs font-bold text-slate-400 italic">This will be deducted from your next service payment.</p>

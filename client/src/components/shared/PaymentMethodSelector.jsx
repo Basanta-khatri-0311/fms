@@ -93,7 +93,7 @@ const PaymentMethodSelector = ({ formData, handleInputChange, setFormData, theme
           <input
             type="file"
             onChange={(e) => setFormData(prev => ({ ...prev, [fileKey]: e.target.files[0] }))}
-            accept="image/*,.pdf"
+            accept="image/*"
             className={getFileButtonClass()}
           />
         </div>

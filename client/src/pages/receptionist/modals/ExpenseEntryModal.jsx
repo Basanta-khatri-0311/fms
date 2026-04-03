@@ -237,13 +237,13 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                       {parseFloat(formData.previousDue) > 0.01 && (
                         <div className="px-3 sm:px-4 py-2 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                          <span className="text-[9px] sm:text-[10px] font-black text-rose-600 uppercase tracking-widest">Amount Due: {settings.currencySymbol} {parseFloat(formData.previousDue).toLocaleString()}</span>
+                          <span className="text-[9px] sm:text-[10px] font-black text-rose-600 uppercase tracking-widest">Due: {settings.currencySymbol} {parseFloat(formData.previousDue).toLocaleString()}</span>
                         </div>
                       )}
                       {parseFloat(formData.previousAdvance) > 0.01 && (
                         <div className="px-3 sm:px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Advance Credit: {settings.currencySymbol} {parseFloat(formData.previousAdvance).toLocaleString()}</span>
+                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">Advance: {settings.currencySymbol} {parseFloat(formData.previousAdvance).toLocaleString()}</span>
                         </div>
                       )}
                     </div>

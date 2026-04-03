@@ -57,8 +57,13 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                       item.displayName || (isInc ? item.name : item.vendorName)
                     )}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
-                    {new Date(item.createdAt).toLocaleDateString()}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 flex items-center flex-wrap gap-2">
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                    {(item.invoiceNumber || item.billNumber) && (
+                      <span className="px-1.5 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded text-[9px] tracking-widest font-black">
+                        #{item.invoiceNumber || item.billNumber}
+                      </span>
+                    )}
                   </p>
                   {user?.role !== 'AUDITOR' && attachmentUrl && (
                     <button
@@ -107,14 +112,13 @@ const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, o
                   </div>
                 )}
               </div>
-              <div className="border-t border-slate-200 pt-2 flex justify-between">
-                <span className="text-xs font-black text-slate-600">Total Amount</span>
-                <span
-                  className={`text-base font-black ${isInc ? 'text-emerald-600' : 'text-rose-600'
-                    }`}
-                >
-                  {settings.currencySymbol} {net.toLocaleString()}
-                </span>
+              <div className="border-t border-slate-200 pt-2 flex flex-col gap-1">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-xs font-black text-slate-600">Paid Amount</span>
+                  <span className={`text-lg font-black ${isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {settings.currencySymbol} {paid.toLocaleString()}
+                  </span>
+                </div>
               </div>
               {Math.abs(balance) > 0.01 && (
                 <div className="pt-1">

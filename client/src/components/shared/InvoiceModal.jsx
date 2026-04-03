@@ -219,7 +219,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
               {/* 6. Remaining Balance (if any) */}
               {(transaction.pendingAmount > 0) && (
                 <div className="flex justify-between items-center pt-5 mt-5 border-t border-slate-700/50 print:border-slate-200">
-                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Remaining Balance</span>
+                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Total Due</span>
                   <span className="text-sm font-black text-rose-500 font-mono tracking-wide">
                     {settings.currencySymbol} {transaction.pendingAmount?.toFixed(2)}
                   </span>

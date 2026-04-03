@@ -4,6 +4,7 @@ const Expense = require('../accounting/expense/expense.model');
 const Payroll = require('../accounting/payroll/payroll.model');
 const { ACCOUNTING_STATUS, ENTRY_TYPE } = require('../../constants/accounting');
 const postingService = require('../accounting/posting.service');
+const { generateInvoiceNumber } = require('../../utils/generateInvoice');
 
 exports.processApproval = async ({
   type,
@@ -48,6 +49,10 @@ exports.processApproval = async ({
     entry.approval.approvedAt = new Date();
     entry.approval.reason =
       action === ACCOUNTING_STATUS.REJECTED ? rejectionReason : null;
+
+    if (action === ACCOUNTING_STATUS.APPROVED && type === ENTRY_TYPE.INCOME && !entry.invoiceNumber) {
+        entry.invoiceNumber = await generateInvoiceNumber(entry.branch || 'KTM', entry.financialYear || '80/81');
+    }
 
     await entry.save();
 

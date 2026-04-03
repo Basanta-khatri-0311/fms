@@ -159,7 +159,7 @@ const VendorManagement = () => {
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
                                     <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Vendor Identity</th>
                                     <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Status</th>
-                                    <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Outstanding Balance</th>
+                                    <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Total Due / Advance</th>
                                     <th className="px-8 py-6 text-right text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Actions</th>
                                 </tr>
                             </thead>

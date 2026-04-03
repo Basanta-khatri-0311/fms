@@ -143,7 +143,7 @@ const AdminDashboard = () => {
 
           {/* Total Income */}
           <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-2">
+            hover:shadow-3xl hover:shadow-emerald-500/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700">
               <LineChart className="w-48 h-48 text-emerald-600" />
             </div>
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
 
           {/* Total Expenses */}
           <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl hover:shadow-rose-500/10 transition-all duration-500 hover:-translate-y-2">
+            hover:shadow-3xl hover:shadow-rose-500/10 transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700">
               <AreaChart className="w-48 h-48 text-rose-600" />
             </div>
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
 
           {/* Net Profit */}
           <div className="relative overflow-hidden group bg-white rounded-[2rem] p-10 shadow-2xl shadow-slate-100/50 border border-slate-100 
-            hover:shadow-3xl transition-all duration-500 hover:-translate-y-2">
+            hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col justify-between">
             <div className={`absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transform group-hover:scale-125 transition-all duration-700 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
               <Scale className="w-48 h-48" />
             </div>
@@ -291,13 +291,13 @@ const AdminDashboard = () => {
                   key={report.id}
                   onClick={() => report.implemented && setActiveReport(report.id)}
                   disabled={!report.implemented}
-                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden
+                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden h-full flex flex-col
                     ${report.implemented
                       ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
                       : 'opacity-60 cursor-not-allowed grayscale'
                     }`}
                 >
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50 shrink-0
                     ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white'}
                     ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}
                     ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'}
@@ -307,7 +307,7 @@ const AdminDashboard = () => {
                     {report.icon}
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 mb-auto">
                     <h3 className="text-xl font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-tight">
                       {report.name}
                     </h3>
@@ -345,20 +345,20 @@ const AdminDashboard = () => {
                   key={report.id}
                   onClick={() => report.implemented && setActiveReport(report.id)}
                   disabled={!report.implemented}
-                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden
+                  className={`group relative bg-white rounded-4xl p-8 text-left shadow-2xl shadow-slate-100/50 border border-slate-100 transition-all duration-500 overflow-hidden h-full flex flex-col
                     ${report.implemented
                       ? `hover:shadow-3xl hover:-translate-y-2 cursor-pointer`
                       : 'opacity-60 cursor-not-allowed grayscale'
                     }`}
                 >
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50 shrink-0
                     ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}
                     ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}
                     ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
                     {report.icon}
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 mb-auto">
                     <h3 className="text-xl font-black text-slate-800 group-hover:text-slate-900 transition-colors leading-tight">
                       {report.name}
                     </h3>

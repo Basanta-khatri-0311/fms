@@ -108,7 +108,12 @@ const useTransactions = ({ mode = 'ALL', onRefresh }) => {
       if (searchTerm) {
         const search = searchTerm.toLowerCase();
         const name = item.displayName?.toLowerCase() || '';
-        if (!name.includes(search)) return false;
+        const invoiceNumber = item.invoiceNumber?.toLowerCase() || '';
+        const billNumber = item.billNumber?.toLowerCase() || '';
+
+        if (!name.includes(search) && !invoiceNumber.includes(search) && !billNumber.includes(search)) {
+          return false;
+        }
       }
 
       if (dateRange.start || dateRange.end) {

@@ -116,12 +116,12 @@ const EntityHistoryModal = ({ type, entityId, onClose }) => {
             {/* Main Stats */}
             <div className="flex gap-4">
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 min-w-[160px]">
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Outstanding</p>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Due / Advance</p>
                  <p className={`text-xl font-black ${summary.balance > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
                     {settings.currencySymbol} {Math.abs(summary.balance).toLocaleString()}
                  </p>
                  <p className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">
-                    {summary.balance > 0 ? (type === 'vendor' ? 'We Owe Them' : 'Owes Us') : 'Settled Balance'}
+                    {summary.balance > 0 ? (type === 'vendor' ? 'We Owe Them' : 'Owes Us') : 'Settled'}
                  </p>
               </div>
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 min-w-[160px]">

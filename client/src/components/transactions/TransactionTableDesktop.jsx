@@ -26,10 +26,11 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200/80">
             <th className="px-6 py-5 text-[10px] font-black uppercase text-slate-400">Transaction Details</th>
+            <th className="px-4 py-5 text-left text-[10px] font-black uppercase text-slate-400">Invoice No.</th>
             <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">Base Amount</th>
             <th className="px-4 py-5 text-right text-[10px] font-black uppercase text-slate-400">Tax/Disc</th>
             <th className="px-6 py-5 text-right text-[10px] font-black uppercase text-slate-900 bg-slate-100/30">
-              Total Amount
+              Paid Amount
             </th>
             <th className="px-6 py-5 text-center text-[10px] font-black uppercase text-slate-400">Status</th>
             <th className="px-6 py-5 text-center text-[10px] font-black uppercase text-slate-400">
@@ -88,6 +89,11 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                       </div>
                     </div>
                   </td>
+                  <td className="px-4 py-4 text-left">
+                    <span className="text-[11px] font-bold text-indigo-600 tracking-wider">
+                       {item.invoiceNumber || item.billNumber || '-'}
+                    </span>
+                  </td>
                   <td className="px-4 py-4 text-right text-sm font-bold text-slate-600">
                     {settings.currencySymbol} {(item.amountBeforeVAT || item.grossSalary)?.toLocaleString() || '0'}
                   </td>
@@ -113,8 +119,8 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
                     )}
                   </td>
                   <td className="px-6 py-4 text-right bg-slate-50/30">
-                    <p className={`text-sm font-black font-mono ${isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {settings.currencySymbol} {net.toLocaleString()}
+                    <p className={`text-sm font-black font-mono ${isInc ? 'text-emerald-600' : 'text-rose-600'}`} title="Amount Actually Exchanged">
+                      {settings.currencySymbol} {(isInc ? item.amountReceived || 0 : item.amountPaid || 0).toLocaleString()}
                     </p>
                     {advanceAmount > 0.01 && (
                       <div className="mt-1">
@@ -202,7 +208,7 @@ const TransactionTableDesktop = ({ rows, user, onAction, onEdit, actionLoading, 
             })
           ) : (
             <tr>
-              <td colSpan="6" className="px-6 py-20 text-center text-slate-400 italic font-medium">
+              <td colSpan="7" className="px-6 py-20 text-center text-slate-400 italic font-medium">
                 No records found for this category.
               </td>
             </tr>
