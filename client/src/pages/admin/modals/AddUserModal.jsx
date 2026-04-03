@@ -15,6 +15,8 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
     permissions: {
       canAccessPayroll: false,
       canViewReports: false,
+      canViewFinancialReports: false,
+      canViewTaxationReports: false,
       canExportReports: false,
     }
   });
@@ -31,7 +33,9 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
         password: '',
         permissions: {
           canAccessPayroll: editData.permissions?.canAccessPayroll || false,
-          canViewReports: editData.permissions?.canViewReports || false,
+          canViewReports: editData.permissions?.canViewReports || editData.permissions?.canViewFinancialReports || editData.permissions?.canViewTaxationReports || false,
+          canViewFinancialReports: editData.permissions?.canViewFinancialReports || false,
+          canViewTaxationReports: editData.permissions?.canViewTaxationReports || false,
           canExportReports: editData.permissions?.canExportReports || false,
         }
       });
@@ -214,46 +218,86 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
           </div>
 
           {/* Permissions Section */}
-          {(formData.role === 'RECEPTIONIST' || formData.role === 'APPROVER') && (
+          {(formData.role === 'RECEPTIONIST' || formData.role === 'APPROVER' || formData.role === 'AUDITOR') && (
             <div className="space-y-3 pt-2">
               <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Extended Permissions</label>
               <div className="grid grid-cols-1 gap-3 p-5 bg-slate-50 border border-slate-100 rounded-3xl">
-                <label className="flex items-center gap-4 cursor-pointer group">
-                  <div className="relative flex items-center">
-                    <input 
-                      type="checkbox" 
-                      className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
-                      checked={formData.permissions.canAccessPayroll}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        permissions: { ...prev.permissions, canAccessPayroll: e.target.checked }
-                      }))}
-                    />
-                    <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-indigo-400 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 flex items-center justify-center">
-                      <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                  <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Form Access: Payroll & Salary Records</span>
-                </label>
-                
-                {(formData.role === 'APPROVER') && (
+                {(formData.role !== 'AUDITOR') && (
                   <label className="flex items-center gap-4 cursor-pointer group">
                     <div className="relative flex items-center">
                       <input 
                         type="checkbox" 
                         className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
-                        checked={formData.permissions.canViewReports}
+                        checked={formData.permissions.canAccessPayroll}
                         onChange={(e) => setFormData(prev => ({
                           ...prev,
-                          permissions: { ...prev.permissions, canViewReports: e.target.checked }
+                          permissions: { ...prev.permissions, canAccessPayroll: e.target.checked }
                         }))}
                       />
                       <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-indigo-400 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 flex items-center justify-center">
                         <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                     </div>
-                    <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Analytics: View & Export Strategic Reports</span>
+                    <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Form Access: Payroll & Salary Records</span>
                   </label>
+                )}
+                
+                {(formData.role === 'APPROVER' || formData.role === 'AUDITOR') && (
+                  <>
+                    <label className="flex items-center gap-4 cursor-pointer group">
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox" 
+                          className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
+                          checked={formData.permissions.canViewReports}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            permissions: { ...prev.permissions, canViewReports: e.target.checked }
+                          }))}
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-indigo-400 transition-all peer-checked:bg-indigo-600 peer-checked:border-indigo-600 flex items-center justify-center">
+                          <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Access Dashboard: Overall Analytical Core</span>
+                    </label>
+
+                    <label className="flex items-center gap-4 cursor-pointer group">
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox" 
+                          className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
+                          checked={formData.permissions.canViewFinancialReports}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            permissions: { ...prev.permissions, canViewFinancialReports: e.target.checked }
+                          }))}
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-amber-400 transition-all peer-checked:bg-amber-500 peer-checked:border-amber-500 flex items-center justify-center pl-[2px]">
+                          <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-slate-600 group-hover:text-amber-600 transition-colors">Analytics: View Financial Reports (Income Statment, Balance Sheet)</span>
+                    </label>
+
+                    <label className="flex items-center gap-4 cursor-pointer group">
+                      <div className="relative flex items-center">
+                        <input 
+                          type="checkbox" 
+                          className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
+                          checked={formData.permissions.canViewTaxationReports}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            permissions: { ...prev.permissions, canViewTaxationReports: e.target.checked }
+                          }))}
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-300 rounded-lg group-hover:border-rose-400 transition-all peer-checked:bg-rose-600 peer-checked:border-rose-600 flex items-center justify-center pl-[2px]">
+                          <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-1 opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-slate-600 group-hover:text-rose-600 transition-colors">Analytics: View Taxation & Compliance (Annex 13, Registers)</span>
+                    </label>
+                  </>
                 )}
               </div>
             </div>

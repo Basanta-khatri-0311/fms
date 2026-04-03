@@ -40,6 +40,8 @@ const userSchema = new mongoose.Schema({
     permissions: {
         canAccessPayroll: { type: Boolean, default: false },
         canViewReports: { type: Boolean, default: false },
+        canViewFinancialReports: { type: Boolean, default: false },
+        canViewTaxationReports: { type: Boolean, default: false },
         canExportReports: { type: Boolean, default: false },
     },
     totalDue: { type: Number, default: 0 },
