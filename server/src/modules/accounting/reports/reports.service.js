@@ -7,16 +7,20 @@ const { ACCOUNT_TYPES } = require('../../../constants/accounting');
 /**
  * Get ledger entries for a financial year
  */
-const getLedgerEntries = async (financialYear) => {
-  return Ledger.find({ financialYear }).populate('debitLines.account creditLines.account');
+const getLedgerEntries = async (financialYear, branch = null) => {
+  const query = { financialYear };
+  if (branch && branch !== 'All') {
+    query.branch = branch;
+  }
+  return Ledger.find(query).populate('debitLines.account creditLines.account');
 };
 
 /**
  * Generate Trial Balance with Account Type Grouping
  * Returns hierarchical structure grouped by account type
  */
-exports.generateTrialBalance = async (financialYear) => {
-  const entries = await getLedgerEntries(financialYear);
+exports.generateTrialBalance = async (financialYear, branch = null) => {
+  const entries = await getLedgerEntries(financialYear, branch);
   
   // Collect all account balances
   const accountBalances = {};
@@ -110,8 +114,8 @@ exports.generateTrialBalance = async (financialYear) => {
  * Generate Detailed Income Statement
  * Shows revenue breakdown, expense categories, and intermediate calculations
  */
-exports.generateIncomeStatement = async (financialYear) => {
-  const entries = await getLedgerEntries(financialYear);
+exports.generateIncomeStatement = async (financialYear, branch = null) => {
+  const entries = await getLedgerEntries(financialYear, branch);
   
   // Collect account-level details
   const incomeAccounts = {};
@@ -190,11 +194,11 @@ exports.generateIncomeStatement = async (financialYear) => {
  * Generate Detailed Balance Sheet - FIXED VERSION
  * Shows assets, liabilities, and equity with proper classification
  */
-exports.generateBalanceSheet = async (financialYear) => {
-  const entries = await getLedgerEntries(financialYear);
+exports.generateBalanceSheet = async (financialYear, branch = null) => {
+  const entries = await getLedgerEntries(financialYear, branch);
   
   // Get net profit from income statement
-  const incomeStmt = await exports.generateIncomeStatement(financialYear);
+  const incomeStmt = await exports.generateIncomeStatement(financialYear, branch);
   const netProfit = incomeStmt.netProfit;
 
   // Collect account balances by type
@@ -344,11 +348,12 @@ exports.generateBalanceSheet = async (financialYear) => {
 /**
  * Generate Sales Register (Tax Report) - Strict IRD Format
  */
-exports.generateSalesRegister = async (financialYear) => {
-  const incomes = await Income.find({ 
-    financialYear,
-    'approval.status': 'APPROVED'
-  }).sort({ 'approval.approvedAt': 1 });
+exports.generateSalesRegister = async (financialYear, branch = null) => {
+  const query = { financialYear, 'approval.status': 'APPROVED' };
+  if (branch && branch !== 'All') {
+    query.branch = branch;
+  }
+  const incomes = await Income.find(query).sort({ 'approval.approvedAt': 1 });
 
   const salesData = incomes.map(income => {
     const vatAmt = income.amountVAT || income.vatAmount || 0;
@@ -396,11 +401,12 @@ exports.generateSalesRegister = async (financialYear) => {
 /**
  * Generate Purchase Register (Tax Report) - Strict IRD Format
  */
-exports.generatePurchaseRegister = async (financialYear) => {
-  const expenses = await Expense.find({ 
-    financialYear,
-    'approval.status': 'APPROVED'
-  }).populate('vendor').sort({ 'approval.approvedAt': 1 });
+exports.generatePurchaseRegister = async (financialYear, branch = null) => {
+  const query = { financialYear, 'approval.status': 'APPROVED' };
+  if (branch && branch !== 'All') {
+    query.branch = branch;
+  }
+  const expenses = await Expense.find(query).populate('vendor').sort({ 'approval.approvedAt': 1 });
 
   const purchasesData = expenses.map(expense => {
     const vatAmt = expense.vatAmount || 0;
@@ -446,9 +452,9 @@ exports.generatePurchaseRegister = async (financialYear) => {
 /**
  * Generate Annex 13 (Tax Return Format)
  */
-exports.generateAnnex13 = async (financialYear) => {
-  const salesResult = await exports.generateSalesRegister(financialYear);
-  const purchaseResult = await exports.generatePurchaseRegister(financialYear);
+exports.generateAnnex13 = async (financialYear, branch = null) => {
+  const salesResult = await exports.generateSalesRegister(financialYear, branch);
+  const purchaseResult = await exports.generatePurchaseRegister(financialYear, branch);
 
   // Annexure 13 specifically requests details of transactions exceeding 1 Lakh NPR
   const salesOver1Lakh = salesResult.sales.filter(item => (item.netAmount || 0) >= 100000);

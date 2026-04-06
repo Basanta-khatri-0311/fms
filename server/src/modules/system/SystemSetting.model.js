@@ -49,6 +49,17 @@ const SystemSettingSchema = new mongoose.Schema({
         auditLockDate: { type: Date }, // No edits before this date
         autoApprovalLimit: { type: Number, default: 0 }, // Transactions below this amount auto-approve
         timezone: { type: String, default: "Asia/Kathmandu" }
+    },
+
+    // Branch Management
+    branches: {
+        type: [{
+            name: { type: String, required: true },
+            code: { type: String, required: true }, 
+            address: { type: String },
+            active: { type: Boolean, default: true }
+        }],
+        default: []
     }
 }, { timestamps: true });
 

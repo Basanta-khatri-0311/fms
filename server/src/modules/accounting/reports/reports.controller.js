@@ -6,8 +6,8 @@ const reportsService = require('./reports.service');
  */
 exports.getTrialBalance = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generateTrialBalance(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generateTrialBalance(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -94,8 +94,8 @@ exports.getAccounts = async (req, res) => {
  */
 exports.getIncomeStatement = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generateIncomeStatement(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generateIncomeStatement(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -107,8 +107,8 @@ exports.getIncomeStatement = async (req, res) => {
  */
 exports.getBalanceSheet = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generateBalanceSheet(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generateBalanceSheet(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -120,8 +120,8 @@ exports.getBalanceSheet = async (req, res) => {
  */
 exports.getSalesRegister = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generateSalesRegister(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generateSalesRegister(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -133,8 +133,8 @@ exports.getSalesRegister = async (req, res) => {
  */
 exports.getPurchaseRegister = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generatePurchaseRegister(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generatePurchaseRegister(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -146,8 +146,8 @@ exports.getPurchaseRegister = async (req, res) => {
  */
 exports.getAnnex13 = async (req, res) => {
   try {
-    const { financialYear } = req.query;
-    const result = await reportsService.generateAnnex13(financialYear);
+    const { financialYear, branch } = req.query;
+    const result = await reportsService.generateAnnex13(financialYear, branch);
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -159,8 +159,8 @@ exports.getAnnex13 = async (req, res) => {
  */
 exports.getTDSReport = async (req, res) => {
   try {
-    const { financialYear, startDate, endDate } = req.query;
-    const result = await reportsService.generateTDSReport(financialYear, { startDate, endDate });
+    const { financialYear, startDate, endDate, branch } = req.query;
+    const result = await reportsService.generateTDSReport(financialYear, { startDate, endDate, branch });
     res.json({ success: true, data: result });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

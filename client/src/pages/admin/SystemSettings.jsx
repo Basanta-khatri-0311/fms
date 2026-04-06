@@ -41,19 +41,16 @@ const SystemSettings = () => {
         salary: 1
       }
     },
-    documentSettings: {
-      invoicePrefix: 'INV',
-      billPrefix: 'EXP',
-      nextInvoiceNum: 1,
-      nextBillNum: 1
-    },
     controls: {
       allowBackdatedEntries: true,
       auditLockDate: '',
       autoApprovalLimit: 0,
       timezone: 'Asia/Kathmandu'
-    }
+    },
+    branches: []
   });
+
+  const [newBranch, setNewBranch] = useState({ name: '', code: '', address: '' });
 
   const [newYear, setNewYear] = useState('');
   const [loading, setLoading] = useState(true);
@@ -77,7 +74,8 @@ const SystemSettings = () => {
         controls: {
           ...data.controls,
           auditLockDate: data.controls?.auditLockDate ? new Date(data.controls.auditLockDate).toISOString().split('T')[0] : '',
-        }
+        },
+        branches: data.branches || []
       });
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -101,6 +99,13 @@ const SystemSettings = () => {
       // Separate out the physical file from the JSON payload
       const { logoFile, ...jsonSettings } = settings;
       payload.append('settings', JSON.stringify(jsonSettings));
+
+      // Validation: Start Date < End Date
+      if (new Date(settings.startDateAD) >= new Date(settings.endDateAD)) {
+        setMessage({ type: 'error', text: 'Start Date must be before End Date' });
+        setSaving(false);
+        return;
+      }
 
       await API.patch('/system', payload, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -135,6 +140,38 @@ const SystemSettings = () => {
     setSettings({
       ...settings,
       availableFiscalYears: settings.availableFiscalYears.filter(y => y !== year)
+    });
+  };
+
+  const addBranch = () => {
+    if (newBranch.name && newBranch.code) {
+      if (settings.branches.some(b => b.code === newBranch.code)) {
+        setMessage({ type: 'error', text: 'Branch with this code already exists' });
+        return;
+      }
+      setSettings({
+        ...settings,
+        branches: [...settings.branches, { ...newBranch, active: true }]
+      });
+      setNewBranch({ name: '', code: '', address: '' });
+      setMessage({ type: 'success', text: 'Branch added to list. Click SAVE below to sync.' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+    }
+  };
+
+  const toggleBranch = (code) => {
+    setSettings({
+      ...settings,
+      branches: settings.branches.map(b => 
+        b.code === code ? { ...b, active: !b.active } : b
+      )
+    });
+  };
+
+  const removeBranch = (code) => {
+    setSettings({
+      ...settings,
+      branches: settings.branches.filter(b => b.code !== code)
     });
   };
 
@@ -411,54 +448,110 @@ const SystemSettings = () => {
           </div>
         </section>
 
-        {/* Operational Flow & Documents */}
+        {/* Branch Management Section */}
         <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-orange-500 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Document Configuration</h2>
+            <div className="w-2 h-7 bg-blue-600 rounded-full" />
+            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Organization Branches</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="space-y-8 p-8 bg-slate-50 rounded-[2rem]">
-              <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Invoice Prefix</label>
-                <input
-                  type="text"
-                  value={settings.documentSettings?.invoicePrefix}
-                  onChange={(e) => setSettings({ ...settings, documentSettings: { ...settings.documentSettings, invoicePrefix: e.target.value } })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 shadow-sm outline-none transition-all"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Next Invoice Number</label>
-                <input
-                  type="number"
-                  value={settings.documentSettings?.nextInvoiceNum}
-                  onChange={(e) => setSettings({ ...settings, documentSettings: { ...settings.documentSettings, nextInvoiceNum: Number(e.target.value) } })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 shadow-sm outline-none transition-all"
-                />
+          <div className="space-y-12">
+            <div className="p-8 bg-blue-50/50 rounded-[2rem] border border-blue-100">
+              <h3 className="text-sm font-black text-blue-700 uppercase tracking-widest mb-6">Add New Branch</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Branch Name</label>
+                  <input
+                    type="text"
+                    value={newBranch.name}
+                    onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+                    className="w-full px-5 py-3.5 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-blue-500 shadow-sm outline-none transition-all"
+                    placeholder="e.g. Kathmandu Branch"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Branch Code</label>
+                  <input
+                    type="text"
+                    value={newBranch.code}
+                    onChange={(e) => setNewBranch({ ...newBranch, code: e.target.value.toUpperCase() })}
+                    className="w-full px-5 py-3.5 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-blue-500 shadow-sm outline-none transition-all"
+                    placeholder="e.g. KTM"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address (Optional)</label>
+                  <div className="flex gap-4">
+                    <input
+                      type="text"
+                      value={newBranch.address}
+                      onChange={(e) => setNewBranch({ ...newBranch, address: e.target.value })}
+                      className="flex-1 px-5 py-3.5 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-blue-500 shadow-sm outline-none transition-all text-sm"
+                      placeholder="e.g. Putalisadak, Kathmandu"
+                    />
+                    <button
+                      type="button"
+                      onClick={addBranch}
+                      className="px-6 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+                    >
+                      ADD
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-8 p-8 bg-slate-50 rounded-[2rem]">
-              <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Bill/Expense Prefix</label>
-                <input
-                  type="text"
-                  value={settings.documentSettings?.billPrefix}
-                  onChange={(e) => setSettings({ ...settings, documentSettings: { ...settings.documentSettings, billPrefix: e.target.value } })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 shadow-sm outline-none transition-all"
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Next Bill Number</label>
-                <input
-                  type="number"
-                  value={settings.documentSettings?.nextBillNum}
-                  onChange={(e) => setSettings({ ...settings, documentSettings: { ...settings.documentSettings, nextBillNum: Number(e.target.value) } })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/5 shadow-sm outline-none transition-all"
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {settings.branches?.map((branch) => (
+                <div 
+                  key={branch.code}
+                  className={`relative p-6 rounded-3xl border-2 transition-all flex flex-col gap-4
+                    ${branch.active 
+                      ? 'bg-white border-blue-100 shadow-xl shadow-blue-100/20' 
+                      : 'bg-slate-50 border-transparent opacity-60'}`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="text-lg font-black text-slate-800 tracking-tight">{branch.name}</h4>
+                      <p className="text-xs font-black text-blue-600 tracking-widest uppercase">{branch.code}</p>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest
+                      ${branch.active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}>
+                      {branch.active ? 'Active' : 'Deactivated'}
+                    </div>
+                  </div>
+                  
+                  {branch.address && (
+                    <p className="text-xs text-slate-500 font-medium">{branch.address}</p>
+                  )}
+
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleBranch(branch.code)}
+                      className={`flex-1 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all
+                        ${branch.active 
+                          ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' 
+                          : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'}`}
+                    >
+                      {branch.active ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeBranch(branch.code)}
+                      className="p-2 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {(!settings.branches || settings.branches.length === 0) && (
+                <div className="md:col-span-3 py-12 text-center text-slate-400 border-2 border-dashed border-slate-200 rounded-[2rem]">
+                  <p className="font-bold">No branches configured yet.</p>
+                  <p className="text-xs mt-1">Add your first branch above to start tracking location-based finances.</p>
+                </div>
+              )}
             </div>
           </div>
         </section>

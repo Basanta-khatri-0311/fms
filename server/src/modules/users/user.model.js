@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema({
     },
     totalDue: { type: Number, default: 0 },
     totalAdvance: { type: Number, default: 0 },
+    branch: { type: String }, // Code of the assigned branch (e.g., 'KTM')
 }, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

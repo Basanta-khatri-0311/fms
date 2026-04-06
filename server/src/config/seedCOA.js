@@ -5,10 +5,7 @@ const { ACCOUNT_TYPES } = require('../constants/accounting');
 const seedCOA = async () => {
     try {
         const admin = await User.findOne({ role: 'SUPERADMIN' });
-        if (!admin) {
-            console.log('⚠️ No Superadmin found. Skipping COA seeding. Create an admin first.');
-            return;
-        }
+        // Proceed even if no admin is found (core system accounts)
 
         const coreAccounts = [
             // === ASSETS ===
@@ -103,7 +100,10 @@ const seedCOA = async () => {
         for (const acc of coreAccounts) {
             const exists = await ChartOfAccount.findOne({ code: acc.code });
             if (!exists) {
-                await ChartOfAccount.create({ ...acc, createdBy: admin._id });
+                await ChartOfAccount.create({ 
+                    ...acc, 
+                    createdBy: admin ? admin._id : null 
+                });
                 console.log(`Seeded COA Account: ${acc.code}`);
             }
         }

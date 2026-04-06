@@ -31,7 +31,7 @@ const incomeSchema = new mongoose.Schema({
     advanceAmount: { type: Number, default: 0 }, //For overpayment tracking
     // INVOICE COMPLIANCE
     invoiceNumber: { type: String, unique: true, sparse: true },
-    branch: { type: String, required: true, default: 'KTM' }, // Branch-wise unique sequence
+    branch: { type: String, required: true }, // Branch-wise unique sequence
 
     paymentMode: {
         type: String,

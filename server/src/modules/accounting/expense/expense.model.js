@@ -49,6 +49,7 @@ const expenseSchema = new mongoose.Schema({
         approvedAt: Date,
     },
 
+    branch: { type: String, required: true },
     financialYear: { type: String, required: true },
 }, { timestamps: true });
 

@@ -11,7 +11,8 @@ exports.getSettings = async (req, res) => {
                 fiscalYearBS: "2081/82",
                 availableFiscalYears: ["2081/82", "2082/83", "2083/84"],
                 startDateAD: new Date("2024-07-16"),
-                endDateAD: new Date("2025-07-15")
+                endDateAD: new Date("2025-07-15"),
+                branches: []
             });
         }
         res.status(200).json(settings);

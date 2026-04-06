@@ -118,6 +118,12 @@ exports.updateIncome = async (id, data, user) => {
 //get all incomes
 exports.getIncomes = async (user) => {
   let query = {};
-  if (user.role === 'RECEPTIONIST') query = { createdBy: user._id };
+  
+  // If user is a receptionist, restricted to their branch unless they have no branch assigned
+  if (user.role === 'RECEPTIONIST') {
+    if (user.branch) query.branch = user.branch;
+    else query.createdBy = user._id; // Fallback
+  }
+  
   return await Income.find(query).populate('createdBy', 'name').sort({ createdAt: -1 });
 };

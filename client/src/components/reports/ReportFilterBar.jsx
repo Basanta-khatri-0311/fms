@@ -1,6 +1,10 @@
 import React from 'react';
+import { useSystemSettings } from '../../context/SystemSettingsContext';
 
-const ReportFilterBar = ({ filters, setFilters, reportType, accounts = [] }) => (
+const ReportFilterBar = ({ filters, setFilters, reportType, accounts = [] }) => {
+  const { settings } = useSystemSettings();
+  
+  return (
   <div className="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap gap-4 items-end">
     <div>
       <label className="block text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1.5">Start Date</label>
@@ -17,9 +21,9 @@ const ReportFilterBar = ({ filters, setFilters, reportType, accounts = [] }) => 
           <label className="block text-[10px] font-black uppercase text-slate-500 tracking-widest mb-1.5">Branch</label>
           <select value={filters.branch} onChange={(e) => setFilters(f => ({...f, branch: e.target.value}))} className="px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold outline-hidden focus:border-indigo-500 transition-colors">
             <option value="All">All Branches</option>
-            <option value="KTM">Kathmandu</option>
-            <option value="PKR">Pokhara</option>
-            <option value="BTL">Butwal</option>
+            {settings?.branches?.filter(b => b.active).map(b => (
+              <option key={b.code} value={b.code}>{b.name}</option>
+            ))}
           </select>
         </div>
         <div>
@@ -62,6 +66,7 @@ const ReportFilterBar = ({ filters, setFilters, reportType, accounts = [] }) => 
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default ReportFilterBar;

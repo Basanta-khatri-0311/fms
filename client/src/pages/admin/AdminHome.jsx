@@ -25,6 +25,7 @@ const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState(null);
   const { settings, loading: settingsLoading } = useSystemSettings();
   const [financialYear, setFinancialYear] = useState(settings.fiscalYearBS || '');
+  const [branch, setBranch] = useState('All');
   const [activeReport, setActiveReport] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +37,7 @@ const AdminDashboard = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await API.get(`/reports/income-statement?financialYear=${financialYear}`);
+      const response = await API.get(`/reports/income-statement?financialYear=${financialYear}&branch=${branch}`);
       const result = response.data?.data || {};
 
       setSummary({
@@ -50,7 +51,7 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [financialYear]);
+  }, [financialYear, branch]);
 
   useEffect(() => {
     if (settings.fiscalYearBS) {
@@ -109,8 +110,7 @@ const AdminDashboard = () => {
                 Overview of your financial performance and verified records.
               </p>
             </div>
-
-            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-xl px-5 py-4 rounded-3xl border border-white/10 shadow-2xl min-w-[250px]">
+            <div className="flex flex-col sm:flex-row items-center gap-6 bg-white/5 backdrop-blur-xl px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-indigo-300 uppercase tracking-widest block">Active Fiscal Period</label>
                 <div className="relative group">
@@ -127,6 +127,28 @@ const AdminDashboard = () => {
                     ) : (
                       <option className="bg-slate-900 text-white" value={financialYear}>{financialYear}</option>
                     )}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-indigo-400 group-hover:text-white transition-colors">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-px h-10 bg-white/10 hidden sm:block" />
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-indigo-300 uppercase tracking-widest block">Branch Location</label>
+                <div className="relative group">
+                  <select
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                    className="appearance-none bg-transparent border-none pr-10 pl-0 py-1 text-xl font-black 
+                      text-white cursor-pointer focus:outline-none transition-all hover:text-indigo-200"
+                  >
+                    <option className="bg-slate-900 text-white" value="All">All Branches</option>
+                    {settings?.branches?.filter(b => b.active).map(b => (
+                      <option key={b.code} className="bg-slate-900 text-white" value={b.code}>{b.name}</option>
+                    ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-indigo-400 group-hover:text-white transition-colors">
                     <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
@@ -408,6 +430,7 @@ const AdminDashboard = () => {
         <ReportModal
           reportType={activeReport}
           financialYear={financialYear}
+          branch={branch}
           onClose={() => setActiveReport(null)}
         />
       )}

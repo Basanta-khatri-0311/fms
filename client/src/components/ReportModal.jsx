@@ -14,7 +14,7 @@ import ExpenseReportView from './reports/ExpenseReportView';
 import LedgerView from './reports/LedgerView';
 import TDSRegisterView from './reports/TDSRegisterView';
 
-const ReportModal = ({ reportType, financialYear, onClose }) => {
+const ReportModal = ({ reportType, financialYear, branch: initialBranch = 'All', onClose }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +22,7 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
-    branch: 'All',
+    branch: initialBranch,
     category: 'All',
     accountId: 'All',
   });
@@ -44,6 +44,10 @@ const ReportModal = ({ reportType, financialYear, onClose }) => {
          if (filters.startDate) params.append('startDate', filters.startDate);
          if (filters.endDate) params.append('endDate', filters.endDate);
          if (filters.accountId && filters.accountId !== 'All') params.append('accountId', filters.accountId);
+         if (filters.branch && filters.branch !== 'All') params.append('branch', filters.branch);
+      } else {
+        // Global Reports (Trial Balance, Income Stmt, etc.)
+        if (filters.branch && filters.branch !== 'All') params.append('branch', filters.branch);
       }
       const endpoint = `/reports/${reportType}?${params.toString()}`;
       const response = await API.get(endpoint);

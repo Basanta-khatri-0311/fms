@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, X, Users, ShieldCheck, Mail, Lock, Key, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, X, Users, ShieldCheck, Mail, Lock, Key, ChevronDown, MapPin } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import { validateField } from '../../../utils/validation';
+import { useSystemSettings } from '../../../context/SystemSettingsContext';
 
 const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee' }) => {
   const isEdit = !!editData;
   const initialRole = type === 'student' ? 'STUDENT' : 'RECEPTIONIST';
+  const { settings } = useSystemSettings();
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
     password: '', 
     role: initialRole,
+    branch: settings?.branches?.find(b => b.active)?.code || '',
     permissions: {
       canAccessPayroll: false,
       canViewReports: false,
@@ -30,6 +33,7 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
         name: editData.name || '',
         email: editData.email || '',
         role: editData.role || 'RECEPTIONIST',
+        branch: editData.branch || '',
         password: '',
         permissions: {
           canAccessPayroll: editData.permissions?.canAccessPayroll || false,
@@ -215,6 +219,35 @@ const AddUserModal = ({ onClose, refreshData, editData = null, type = 'employee'
               </div>
               {errors.password && <p className="text-rose-500 text-[10px] font-bold mt-1 ml-1 animate-in fade-in slide-in-from-left-2 leading-tight">{errors.password}</p>}
             </div>
+          </div>
+
+          {/* Branch Assignment */}
+          <div className="space-y-1.5 pt-2">
+            <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Branch Assignment *</label>
+            <div className="relative">
+              <select
+                required
+                value={formData.branch}
+                className="w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-2xl outline-none text-sm appearance-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 text-slate-700 font-bold"
+                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              >
+                <option value="">-- Assign a Branch --</option>
+                {settings?.branches?.filter(b => b.active).map(branch => (
+                  <option key={branch.code} value={branch.code}>
+                    {branch.name} ({branch.code})
+                  </option>
+                ))}
+              </select>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <MapPin size={18} />
+              </div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <ChevronDown size={18} />
+              </div>
+            </div>
+            {!settings?.branches?.some(b => b.active) && (
+              <p className="text-amber-600 text-[10px] font-bold mt-1 ml-1">No active branches found. Please configure branches in settings.</p>
+            )}
           </div>
 
           {/* Permissions Section */}

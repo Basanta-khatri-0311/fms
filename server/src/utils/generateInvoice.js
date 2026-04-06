@@ -3,19 +3,44 @@ const SystemSetting = require('../modules/system/SystemSetting.model')
 
 exports.generateInvoiceNumber = async (branch, financialYear) => {
     const settings = await SystemSetting.findOne();
-    const prefix = settings?.documentSettings?.invoicePrefix || branch || 'INV';
-    const fiscalYear = financialYear || settings?.fiscalYearBS || '81/82';
+    const branchCode = branch || 'GEN';
+    const fiscalYear = financialYear || settings?.fiscalYearBS || 'FY';
 
-    // Find the last approved invoice that matches this prefix and year
+    // Find the last income record for this branch and year
     const lastInvoice = await Income.findOne({ 
-        invoiceNumber: new RegExp(`^${prefix}-${fiscalYear}-`) 
-    }).sort({ invoiceNumber: -1 });
+        branch: branchCode,
+        financialYear: fiscalYear
+    }).sort({ createdAt: -1 });
 
     let sequence = 1;
     if (lastInvoice && lastInvoice.invoiceNumber) {
         const parts = lastInvoice.invoiceNumber.split('-');
-        sequence = parseInt(parts[parts.length - 1]) + 1;
+        const lastSeqStr = parts[parts.length - 1]; // e.g. "00001"
+        const lastSeq = parseInt(lastSeqStr);
+        if (!isNaN(lastSeq)) sequence = lastSeq + 1;
     }
 
-    return `${prefix}-${fiscalYear}-${sequence.toString().padStart(5, '0')}`;
+    return `${branchCode}-INV-${fiscalYear}-${sequence.toString().padStart(5, '0')}`;
+};
+
+exports.generateBillNumber = async (branch, financialYear) => {
+    const Expense = require('../modules/accounting/expense/expense.model');
+    const settings = await SystemSetting.findOne();
+    const branchCode = branch || 'GEN';
+    const fiscalYear = financialYear || settings?.fiscalYearBS || 'FY';
+
+    const lastExpense = await Expense.findOne({ 
+        branch: branchCode,
+        financialYear: fiscalYear
+    }).sort({ createdAt: -1 });
+
+    let sequence = 1;
+    if (lastExpense && lastExpense.billNumber) {
+        const parts = lastExpense.billNumber.split('-');
+        const lastSeqStr = parts[parts.length - 1];
+        const lastSeq = parseInt(lastSeqStr);
+        if (!isNaN(lastSeq)) sequence = lastSeq + 1;
+    }
+
+    return `${branchCode}-EXP-${fiscalYear}-${sequence.toString().padStart(5, '0')}`;
 };

@@ -77,7 +77,8 @@ exports.getExpenses = async (user) => {
   let query = {};
   
   if (user.role === USER_ROLES.RECEPTIONIST) {
-    query = { createdBy: user._id };
+    if (user.branch) query.branch = user.branch;
+    else query.createdBy = user._id; // Fallback
   }
   
   return await Expense.find(query)
@@ -94,6 +95,9 @@ exports.getExpenseById = async (id) => {
   return Expense.findById(id).populate('vendor');
 };
 
+const { generateBillNumber } = require('../../../utils/generateInvoice');
+const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
+
 /**
  * Update expense status (approve/reject)
  */
@@ -105,6 +109,10 @@ exports.updateExpenseStatus = async (id, status, user) => {
     expense.approval.status = status;
     expense.approval.approvedBy = user._id;
     expense.approval.approvedAt = new Date();
+
+    if (status === ACCOUNTING_STATUS.APPROVED && !expense.billNumber) {
+        expense.billNumber = await generateBillNumber(expense.branch, expense.financialYear);
+    }
 
     return await expense.save();
 };

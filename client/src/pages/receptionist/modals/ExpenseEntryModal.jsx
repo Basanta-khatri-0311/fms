@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Receipt, CreditCard, Truck, Hash, Calendar, ChevronDown } from 'lucide-react';
+import { X, Receipt, CreditCard, Truck, Hash, Calendar, ChevronDown, Filter } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
@@ -10,7 +10,13 @@ import { handleNumberKeyDown, validateField } from '../../../utils/validation';
 
 const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create' }) => {
   const { settings } = useSystemSettings();
+  
+  // Logic to determine initial branch
+  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const creatorBranch = storedUser.branch || settings?.branches?.find(b => b.active)?.code || 'KTM';
+
   const [formData, setFormData] = useState({
+    branch: creatorBranch,
     vendorName: '',
     vendorId: '',
     previousDue: 0,
@@ -66,6 +72,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
         return {
           ...base,
+          branch: initialData.branch || prev.branch,
           vendorName: initialData.vendor?.name || initialData.vendorName || '',
           vendorId: initialData.vendor?._id || initialData.vendor || '',
           previousDue: initialData.previousDue || 0,
@@ -117,6 +124,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.branch) return showNotification('error', 'Please select a branch');
     if (!formData.vendorName) return showNotification('error', 'Please select a vendor');
 
     const amtVal = validateField('amount', formData.amountBeforeVAT);
@@ -203,6 +211,30 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 {/* Branch Selection */}
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Transacting Branch *</label>
+                  <div className="relative">
+                    <select
+                      name="branch"
+                      required
+                      value={formData.branch}
+                      onChange={handleInputChange}
+                      className="w-full pl-11 pr-10 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/5 appearance-none cursor-pointer transition-all"
+                    >
+                      {settings?.branches?.filter(b => b.active).map(b => (
+                        <option key={b.code} value={b.code}>{b.name} ({b.code})</option>
+                      ))}
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Filter size={18} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                      <ChevronDown size={18} />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Vendor Selection */}
                 <div className="lg:col-span-2 space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Choose Vendor *</label>

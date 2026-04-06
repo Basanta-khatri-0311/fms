@@ -45,6 +45,7 @@ exports.createUser = async (data, creator = null) => {
             email: email.trim().toLowerCase(),
             password: hashedPassword,
             role,
+            branch: data.branch,
             ...(data.permissions && { permissions: data.permissions })
         }], {  });
 
@@ -111,6 +112,7 @@ exports.updateUser = async (id, data, performedBy) => {
     if (name) user.name = name.trim();
     if (email) user.email = email.trim().toLowerCase();
     if (role) user.role = role;
+    if (data.branch !== undefined) user.branch = data.branch;
     
     if (data.permissions !== undefined) {
         user.permissions = {
@@ -129,7 +131,7 @@ exports.updateUser = async (id, data, performedBy) => {
 };
 
 exports.getUsersByRole = async (role) => {
-    return await User.find({ role }).select('name email totalDue totalAdvance');
+    return await User.find({ role }).select('name email totalDue totalAdvance branch');
 };
 
 exports.getUserById = async (id) => {

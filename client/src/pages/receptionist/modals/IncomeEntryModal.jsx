@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, TrendingUp, Wallet, User, Mail, Phone, MapPin, Hash, Package, Layers, ChevronDown, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { X, TrendingUp, Wallet, User, Mail, Phone, MapPin, Hash, Package, Layers, ChevronDown, CheckCircle2, ShieldAlert, Filter } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
@@ -13,7 +13,13 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
   const { settings } = useSystemSettings();
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState('');
+  
+  // Logic to determine initial branch
+  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const creatorBranch = storedUser.branch || settings?.branches?.find(b => b.active)?.code || 'KTM';
+
   const [formData, setFormData] = useState({
+    branch: creatorBranch,
     studentId: '',
     name: '',
     contactNumber: '',
@@ -77,6 +83,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
         studentId: student._id,
         name: student.name,
         email: student.email,
+        branch: student.branch || prev.branch, // Inherit student branch if available
         previousDue: Math.round((student.totalDue || 0) * 100) / 100,
         previousAdvance: Math.round((student.totalAdvance || 0) * 100) / 100
       }));
@@ -96,6 +103,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
         return {
           ...base,
+          branch: initialData.branch || prev.branch,
           studentId: initialData.studentId || '',
           previousDue: initialData.previousDue || 0,
           previousAdvance: initialData.previousAdvance || 0,
@@ -138,6 +146,9 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.branch) return showNotification('error', 'Please select a branch');
+
     const nameVal = validateField('name', formData.name);
     if (!nameVal.isValid) return showNotification('error', nameVal.message);
 
@@ -168,7 +179,6 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
       data.append('netAmount', netAmount);
       data.append('pendingAmount', pendingAmount);
       data.append('advanceAmount', advanceAmount);
-      data.append('branch', 'KTM');
       data.append('status', 'PENDING');
 
       if (mode === 'edit' && initialData?._id) {
@@ -233,6 +243,30 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 {/* Branch Selection */}
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Transacting Branch *</label>
+                  <div className="relative">
+                    <select
+                      name="branch"
+                      required
+                      value={formData.branch}
+                      onChange={handleInputChange}
+                      className="w-full pl-11 pr-10 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/5 appearance-none cursor-pointer transition-all"
+                    >
+                      {settings?.branches?.filter(b => b.active).map(b => (
+                        <option key={b.code} value={b.code}>{b.name} ({b.code})</option>
+                      ))}
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Filter size={18} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                      <ChevronDown size={18} />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Registered Student Select */}
                 <div className="lg:col-span-2 space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Student (Optional)</label>
@@ -354,7 +388,7 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
                 <div className="w-1.5 h-6 bg-indigo-600 rounded-full" />
                 <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Income Category</h3>
               </div>
-
+              
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="lg:col-span-2 space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Service *</label>
