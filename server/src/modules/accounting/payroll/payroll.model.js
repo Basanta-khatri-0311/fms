@@ -18,6 +18,9 @@ const payrollSchema = new mongoose.Schema({
     
     amountPaid: { type: Number, default: 0 },
     pendingAmount: { type: Number, default: 0 },
+    advanceAmount: { type: Number, default: 0 },
+    previousDue: { type: Number, default: 0 },
+    previousAdvance: { type: Number, default: 0 },
 
     paymentMode: {
         type: String,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Banknote, User, Calendar, ChevronDown, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react';
+import { X, Banknote, User, Calendar, ChevronDown, CheckCircle2, AlertTriangle, AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 import API from '../../../api/axiosConfig';
 import { showNotification } from '../../../utils/toast';
 import PaymentMethodSelector from '../../../components/shared/PaymentMethodSelector';
@@ -22,6 +22,8 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
     transactionId: '',
     bankName: '',
     paymentScreenshot: null,
+    previousDue: 0,
+    previousAdvance: 0,
   });
 
   const [employees, setEmployees] = useState([]);
@@ -62,6 +64,8 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
         paymentMode: initialData.paymentMode || 'CASH',
         transactionId: initialData.transactionId || '',
         bankName: initialData.bankName || '',
+        previousDue: initialData.previousDue || 0,
+        previousAdvance: initialData.previousAdvance || 0,
         paymentScreenshot: null, // Don't pre-populate file
       });
     }
@@ -104,7 +108,9 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
             ...prev, 
             employeeName: value,
             employeeId: emp?._id || '',
-            employeeRole: emp?.role || prev.employeeRole
+            employeeRole: emp?.role || prev.employeeRole,
+            previousDue: emp?.totalDue || 0,
+            previousAdvance: emp?.totalAdvance || 0
         }));
         return;
     }
@@ -121,9 +127,14 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
 
   const grossSalary = basicSalary + allowances;
   const deductions = taxDeduction + providentFund;
-  const netPayable = grossSalary - deductions;
+  const currentNetBalance = grossSalary - deductions;
+
+  // Final Carryforward Logic: (Current Month) + (Last month's unpaid) - (Last month's overpaid)
+  const netPayable = currentNetBalance + formData.previousDue - formData.previousAdvance;
+
   const amountPaid = parseFloat(formData.amountPaid) || 0;
   const pendingAmount = netPayable > amountPaid ? netPayable - amountPaid : 0;
+  const advanceAmount = amountPaid > netPayable ? amountPaid - netPayable : 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -144,11 +155,6 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
       }
     }
 
-    if (amountPaid > netPayable) {
-      showNotification('error', 'Amount paid cannot exceed net payable!');
-      return;
-    }
-
     if (mode === 'create' && existingPayrollStatus === 'APPROVED') {
         showNotification('error', `Salary for ${formData.employeeName} for ${formData.paymentMonth} is already approved and cannot be duplicated!`);
         return;
@@ -165,6 +171,7 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
       data.append('grossSalary', grossSalary);
       data.append('netPayable', netPayable);
       data.append('pendingAmount', pendingAmount);
+      data.append('advanceAmount', advanceAmount);
       data.append('narration', `Staff Salary Payment - ${formData.employeeName} (${formData.paymentMonth})`);
 
       if (mode === 'edit') {
@@ -213,28 +220,57 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
           </div>
         </div>
 
-        {/* Duplicate Warning UI */}
-        {existingPayrollStatus && (
-          <div className={`mx-10 mt-2 p-4 rounded-2xl flex items-center gap-4 border animate-in slide-in-from-top duration-300 ${
-            existingPayrollStatus === 'APPROVED' 
-              ? 'bg-rose-50 border-rose-100 text-rose-700' 
-              : 'bg-amber-50 border-amber-100 text-amber-700'
-          }`}>
-            <div className={`p-2 rounded-xl ${existingPayrollStatus === 'APPROVED' ? 'bg-rose-100' : 'bg-amber-100'}`}>
-              {existingPayrollStatus === 'APPROVED' ? <AlertCircle size={20} /> : <AlertTriangle size={20} />}
+        {/* Duplicate and Balance Warning UI */}
+        <div className="px-10 mt-2 space-y-3">
+            {existingPayrollStatus && (
+            <div className={`p-4 rounded-2xl flex items-center gap-4 border animate-in slide-in-from-top duration-300 ${
+                existingPayrollStatus === 'APPROVED' 
+                ? 'bg-rose-50 border-rose-100 text-rose-700' 
+                : 'bg-amber-50 border-amber-100 text-amber-700'
+            }`}>
+                <div className={`p-2 rounded-xl ${existingPayrollStatus === 'APPROVED' ? 'bg-rose-100' : 'bg-amber-100'}`}>
+                {existingPayrollStatus === 'APPROVED' ? <AlertCircle size={20} /> : <AlertTriangle size={20} />}
+                </div>
+                <div className="flex-1">
+                <p className="text-sm font-black uppercase tracking-tight">
+                    {existingPayrollStatus === 'APPROVED' ? 'Salary Already Provided' : 'Existing Record Pending'}
+                </p>
+                <p className="text-xs font-bold opacity-80 mt-0.5">
+                    {existingPayrollStatus === 'APPROVED' 
+                    ? `Salary for ${formData.employeeName} for ${formData.paymentMonth} has already been approved.` 
+                    : `A salary record for ${formData.employeeName} for ${formData.paymentMonth} is currently awaiting approval.`}
+                </p>
+                </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-black uppercase tracking-tight">
-                {existingPayrollStatus === 'APPROVED' ? 'Salary Already Provided' : 'Existing Record Pending'}
-              </p>
-              <p className="text-xs font-bold opacity-80 mt-0.5">
-                {existingPayrollStatus === 'APPROVED' 
-                  ? `Salary for ${formData.employeeName} for ${formData.paymentMonth} has already been approved.` 
-                  : `A salary record for ${formData.employeeName} for ${formData.paymentMonth} is currently awaiting approval. Do you want to submit another entry?`}
-              </p>
-            </div>
-          </div>
-        )}
+            )}
+
+            {(formData.previousDue > 0 || formData.previousAdvance > 0) && (
+              <div className="flex gap-4">
+                {formData.previousDue > 0 && (
+                  <div className="flex-1 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3">
+                    <div className="bg-rose-100 p-2 rounded-xl text-rose-600">
+                      <TrendingUp size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase text-rose-400 tracking-widest">Outstanding Salary (+)</p>
+                      <p className="text-xs font-black text-rose-700">{settings.currencySymbol} {formData.previousDue.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+                {formData.previousAdvance > 0 && (
+                  <div className="flex-1 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-center gap-3">
+                    <div className="bg-emerald-100 p-2 rounded-xl text-emerald-600">
+                      <TrendingDown size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase text-emerald-400 tracking-widest">Previous Advance (-)</p>
+                      <p className="text-xs font-black text-emerald-700">{settings.currencySymbol} {formData.previousAdvance.toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+        </div>
 
         {/* Form Body */}
         <div className="flex-1 overflow-y-auto px-10 py-8 scrollbar-hide">
@@ -344,10 +380,32 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
                   </div>
                 </div>
 
+                <div className="flex justify-between items-center p-6 bg-slate-900 border border-slate-800 text-white rounded-[1.5rem] shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 bg-slate-800 rounded-xl text-slate-400">
+                            <CheckCircle2 size={18} />
+                        </div>
+                        <div>
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">Base Monthly Net</span>
+                            <p className="text-xs font-bold text-slate-300">{settings.currencySymbol} {currentNetBalance.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    { (formData.previousDue > 0 || formData.previousAdvance > 0) && (
+                        <div className="text-right">
+                           <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">Adjustments</span>
+                           <p className="text-xs font-bold text-indigo-400">
+                             {formData.previousDue > 0 && `+${formData.previousDue.toLocaleString()} Due`}
+                             {formData.previousDue > 0 && formData.previousAdvance > 0 && ' | '}
+                             {formData.previousAdvance > 0 && `-${formData.previousAdvance.toLocaleString()} Adv.`}
+                           </p>
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex justify-between items-center p-6 bg-emerald-600 text-white rounded-[1.5rem] shadow-xl shadow-emerald-100">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Final Salary (Net)</span>
-                    <p className="text-sm font-medium opacity-90 mt-0.5">Automatically Calculated</p>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 uppercase">Total Payout Required</span>
+                    <p className="text-sm font-medium opacity-90 mt-0.5">Includes carryover balances</p>
                   </div>
                   <span className="text-3xl font-black tracking-tighter">{settings.currencySymbol} {netPayable.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                 </div>
@@ -363,7 +421,16 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Amount Paid *</label>
+                  <div className="flex justify-between items-end mb-1">
+                    <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Amount Paid *</label>
+                    <button 
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, amountPaid: netPayable }))}
+                        className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:text-emerald-700"
+                    >
+                        Auto-fill Full Amount
+                    </button>
+                  </div>
                   <div className="relative">
                     <input required type="number" name="amountPaid" value={formData.amountPaid} onChange={handleInputChange} onKeyDown={handleNumberKeyDown} onFocus={handleFocus} className="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-emerald-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all text-right" />
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold">
@@ -410,4 +477,3 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
 };
 
 export default PayrollEntryModal;
-

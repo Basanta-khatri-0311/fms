@@ -77,8 +77,10 @@ exports.getExpenses = async (user) => {
   let query = {};
   
   if (user.role === USER_ROLES.RECEPTIONIST) {
-    if (user.branch) query.branch = user.branch;
-    else query.createdBy = user._id; // Fallback
+    query.$or = [
+      { branch: user.branch },
+      { createdBy: user._id }
+    ];
   }
   
   return await Expense.find(query)

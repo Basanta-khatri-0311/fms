@@ -22,7 +22,8 @@ exports.createLedgerEntry = async ({
   narration,
   createdBy,
   approvedBy,
-  financialYear
+  financialYear,
+  branch
 }) => {
   validateBalance(debitLines, creditLines);
 
@@ -35,5 +36,6 @@ exports.createLedgerEntry = async ({
     createdBy,
     approvedBy,
     financialYear,
+    branch
   }]);
 };

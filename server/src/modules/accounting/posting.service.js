@@ -123,9 +123,6 @@ if (entryType === ENTRY_TYPE.INCOME) {
     // --- STUDENT BALANCE UPDATE ---
     if (entry.studentId) {
       // Net change to student's position
-      // increase totalDue if they didn't pay in full
-      // increase totalAdvance if they overpaid
-      // We also subtract previous dues if this invoice settled them
       const dueDelta = round((entry.pendingAmount || 0) - (entry.previousDue || 0));
       const advanceDelta = round((entry.advanceAmount || 0) - (entry.previousAdvance || 0));
 
@@ -134,6 +131,17 @@ if (entryType === ENTRY_TYPE.INCOME) {
           totalDue: dueDelta,
           totalAdvance: advanceDelta
         }
+      });
+    }
+
+    // --- LEVERAGE INTERNAL TDS ADJUSTMENT IF FULL PAYMENT RECEIVED ---
+    // Since netReceivable (and thus Cash/AR) now includes the TDS amount,
+    // we must credit an adjustment account to keep the ledger balanced.
+    if (entry.tdsAmount > 0) {
+      const tdsPayableAcc = await getAccount(COA_CODES.TDS_PAYABLE);
+      creditLines.push({ 
+        account: tdsPayableAcc._id, 
+        amount: round(entry.tdsAmount)
       });
     }
   }
@@ -271,11 +279,23 @@ if (entryType === ENTRY_TYPE.INCOME) {
       ? await getAccount(COA_CODES.BANK) 
       : await getAccount(COA_CODES.CASH);
 
-    // DEBIT SIDE: Expense
+    // DEBIT SIDE: Expense and Assets
+    // Salary expense is always the gross amount for the current period
     debitLines.push({
       account: expenseAcc._id,
       amount: round(entry.grossSalary)
     });
+
+    // If we overpaid (Advance), it's a DEBIT (Asset)
+    if (entry.advanceAmount > 0) {
+      // For payroll we can use standard VENDOR_ADVANCES or a specific PREPAYMENT account
+      // Let's use ACCOUNTS_RECEIVABLE or similar for staff advances
+      const arAcc = await getAccount(COA_CODES.ACCOUNTS_RECEIVABLE);
+      debitLines.push({
+        account: arAcc._id,
+        amount: round(entry.advanceAmount)
+      });
+    }
 
     // CREDIT SIDE: Liabilities and Cash Out
     
@@ -305,12 +325,25 @@ if (entryType === ENTRY_TYPE.INCOME) {
       });
     }
 
-    // Accounts Payable (Unpaid portion of salary)
+    // Salary Payable (Unpaid portion of salary)
     if (entry.pendingAmount > 0) {
       const apAcc = await getAccount(COA_CODES.ACCOUNTS_PAYABLE);
       creditLines.push({
         account: apAcc._id,
         amount: round(entry.pendingAmount)
+      });
+    }
+
+    // --- EMPLOYEE BALANCE UPDATE ---
+    if (entry.employeeId) {
+      const dueDelta = round((entry.pendingAmount || 0) - (entry.previousDue || 0));
+      const advanceDelta = round((entry.advanceAmount || 0) - (entry.previousAdvance || 0));
+
+      await User.findByIdAndUpdate(entry.employeeId, {
+        $inc: {
+          totalDue: dueDelta,
+          totalAdvance: advanceDelta
+        }
       });
     }
   }
@@ -362,6 +395,7 @@ if (entryType === ENTRY_TYPE.INCOME) {
     narration: `${entryType} - ${entry.name || entry.vendor?.name || entry.employeeName || 'Transaction'} - ${entry.approval.status}`,
     createdBy: entry.createdBy._id || entry.createdBy, 
     approvedBy: approvedBy._id || approvedBy,
-    financialYear: entry.financialYear
+    financialYear: entry.financialYear,
+    branch: entry.branch
   });
 };

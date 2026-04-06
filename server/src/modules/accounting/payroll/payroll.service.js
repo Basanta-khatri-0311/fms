@@ -1,31 +1,69 @@
+const mongoose = require('mongoose');
 const Payroll = require('./payroll.model');
+const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const SystemSetting = require('../../system/SystemSetting.model');
 
-//create payroll
-exports.createPayroll = async (payrollData, user) => {
-    const grossSalary = Number(payrollData.basicSalary) + Number(payrollData.allowances || 0);
-    const deductions = Number(payrollData.taxDeduction || 0) + Number(payrollData.providentFund || 0);
-    const netPayable = grossSalary - deductions;
+const round = (num) => Math.round(num * 100) / 100;
 
-    const amountPaid = Number(payrollData.amountPaid || 0);
-    const pendingAmount = netPayable - amountPaid;
+const buildPayrollPayload = async (data, user, existing = null) => {
+    // 1. Core Monthly Calculation
+    const basicSalary = parseFloat(data.basicSalary) || 0;
+    const allowances = parseFloat(data.allowances) || 0;
+    const grossSalary = round(basicSalary + allowances);
 
-    if (amountPaid > netPayable) {
-        throw new Error('Amount paid cannot exceed net payable for payroll');
+    const taxDeduction = parseFloat(data.taxDeduction) || 0;
+    const providentFund = parseFloat(data.providentFund) || 0;
+    const netPayable = round(grossSalary - (taxDeduction + providentFund));
+
+    const amountPaid = parseFloat(data.amountPaid) || 0;
+
+    // 2. Persistent Balance Handling
+    let previousDue = 0;
+    let previousAdvance = 0;
+
+    if (data.employeeId && mongoose.Types.ObjectId.isValid(data.employeeId)) {
+        const employee = await User.findById(data.employeeId);
+        if (employee) {
+            previousDue = employee.totalDue || 0;
+            previousAdvance = employee.totalAdvance || 0;
+        }
     }
 
-    const payload = {
-        ...payrollData,
+    // 3. Adjusted Requirement
+    // What we owe this month + what we owed before - what we overpaid before
+    const adjustedNetPayable = round(netPayable + previousDue - previousAdvance);
+
+    let pendingAmount = 0;
+    let advanceAmount = 0;
+
+    if (amountPaid > adjustedNetPayable) {
+        advanceAmount = round(amountPaid - adjustedNetPayable);
+    } else {
+        pendingAmount = round(adjustedNetPayable - amountPaid);
+    }
+
+    const base = existing ? existing.toObject() : {};
+
+    return {
+        ...base,
+        ...data,
         grossSalary,
         netPayable,
         amountPaid,
         pendingAmount,
-        createdBy: user._id,
-        createdByRole: user.role,
-        financialYear: (await SystemSetting.findOne()).fiscalYearBS,
+        advanceAmount,
+        previousDue,
+        previousAdvance,
+        createdBy: base.createdBy || user._id,
+        createdByRole: base.createdByRole || user.role,
+        financialYear: base.financialYear || (await SystemSetting.findOne()).fiscalYearBS,
     };
+};
 
+//create payroll
+exports.createPayroll = async (payrollData, user) => {
+    const payload = await buildPayrollPayload(payrollData, user);
     return await Payroll.create(payload);
 };
 
@@ -36,14 +74,12 @@ exports.checkExistingPayroll = async (employeeName, paymentMonth) => {
 
 //get payroll
 exports.getPayrolls = async (user) => {
-    // Receptionist/other basic roles can only see own payroll entries
+    let query = {};
     if (['RECEPTIONIST', 'STUDENT'].includes(user.role)) {
-        return await Payroll.find({ createdBy: user._id })
-            .populate('createdBy', 'name')
-            .sort({ createdAt: -1 });
+        query.createdBy = user._id;
     }
-    // Approver/Superadmin sees all
-    return await Payroll.find()
+    
+    return await Payroll.find(query)
         .populate('createdBy', 'name')
         .populate('approval.approvedBy', 'name')
         .sort({ createdAt: -1 });
@@ -52,46 +88,13 @@ exports.getPayrolls = async (user) => {
 //update the payroll
 exports.updatePayroll = async (id, updateData, user) => {
     const payroll = await Payroll.findById(id);
-
-    if (!payroll) {
-        throw new Error('Payroll entry not found');
-    }
+    if (!payroll) throw new Error('Payroll entry not found');
 
     if (payroll.approval.status === ACCOUNTING_STATUS.APPROVED) {
         throw new Error('Approved payroll cannot be modified');
     }
 
-    // Only creator or admin/approver can update
-    if (payroll.createdBy.toString() !== user._id.toString() && !['SUPERADMIN', 'APPROVER'].includes(user.role)) {
-        throw new Error('Not authorized to update this payroll');
-    }
-
-    const basicSalary = updateData.basicSalary !== undefined ? Number(updateData.basicSalary) : payroll.basicSalary;
-    const allowances = updateData.allowances !== undefined ? Number(updateData.allowances) : payroll.allowances;
-    
-    const grossSalary = basicSalary + allowances;
-
-    const taxDeduction = updateData.taxDeduction !== undefined ? Number(updateData.taxDeduction) : payroll.taxDeduction;
-    const providentFund = updateData.providentFund !== undefined ? Number(updateData.providentFund) : payroll.providentFund;
-    
-    const deductions = taxDeduction + providentFund;
-    
-    const netPayable = grossSalary - deductions;
-
-    const amountPaid = updateData.amountPaid !== undefined ? Number(updateData.amountPaid) : payroll.amountPaid;
-    const pendingAmount = netPayable - amountPaid;
-
-    if (amountPaid > netPayable) {
-        throw new Error('Amount paid cannot exceed net payable for payroll');
-    }
-
-    const payload = {
-        ...updateData,
-        grossSalary,
-        netPayable,
-        amountPaid,
-        pendingAmount,
-    };
-
-    return await Payroll.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
+    const payload = await buildPayrollPayload(updateData, user, payroll);
+    Object.assign(payroll, payload);
+    return await payroll.save();
 };

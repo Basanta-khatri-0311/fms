@@ -21,8 +21,9 @@ const buildIncomePayload = async (data, user, existing = null) => {
   const totalInvoiceValue = round(taxableAmount + calculatedVat);
   const calculatedTds = round(taxableAmount * (tdsRate / 100));
 
-  // client owes the Net Amount (Total minus TDS withheld)
-  const netReceivable = round(totalInvoiceValue - calculatedTds);
+  // client owes the full invoice value (Taxable + VAT). 
+  // TDS is tracked as an internal cost of sales for the institution.
+  const netReceivable = totalInvoiceValue;
 
   let previousDue = 0;
   let previousAdvance = 0;
@@ -119,10 +120,12 @@ exports.updateIncome = async (id, data, user) => {
 exports.getIncomes = async (user) => {
   let query = {};
   
-  // If user is a receptionist, restricted to their branch unless they have no branch assigned
+  // If user is a receptionist, they see their branch or their own creations
   if (user.role === 'RECEPTIONIST') {
-    if (user.branch) query.branch = user.branch;
-    else query.createdBy = user._id; // Fallback
+    query.$or = [
+      { branch: user.branch },
+      { createdBy: user._id }
+    ];
   }
   
   return await Income.find(query).populate('createdBy', 'name').sort({ createdAt: -1 });

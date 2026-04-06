@@ -86,6 +86,10 @@ const IncomeStatementView = ({ data, financialYear }) => {
               className="text-right text-sm font-semibold text-slate-800 font-mono px-3 py-1.5 rounded-lg border border-slate-300 w-40 outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
             />
           </div>
+          <p className="px-4 text-[10px] font-bold text-slate-400 mt-2 italic leading-relaxed uppercase tracking-widest">
+            * Note: Depreciation handles non-cash value loss of your fixed assets (Furniture, PCs, etc.) over time. 
+            Enter your manual yearly estimate here to adjust your Profit Before Interest & Tax (PBIT).
+          </p>
         </div>
 
         <div className={`p-8 rounded-2xl border bg-slate-900 ${

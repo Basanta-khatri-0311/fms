@@ -283,6 +283,16 @@ const SystemSettings = () => {
                   className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
                 />
             </div>
+            <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Org PAN / VAT Number</label>
+                <input
+                  type="text"
+                  value={settings.taxSettings?.panNumber}
+                  onChange={(e) => setSettings({ ...settings, taxSettings: { ...settings.taxSettings, panNumber: e.target.value } })}
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5 transition-all outline-none"
+                  placeholder="9-digit PAN Number"
+                />
+            </div>
           </div>
         </section>
         

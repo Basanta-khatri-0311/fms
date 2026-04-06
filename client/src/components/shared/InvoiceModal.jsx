@@ -151,7 +151,7 @@ const InvoiceModal = ({ transaction, onClose }) => {
                   <td className="py-3 px-6 text-right text-sm font-bold text-indigo-600 font-mono">+ {transaction.vatAmount?.toFixed(2)}</td>
                 </tr>
               )}
-              {transaction.tdsAmount > 0 && (
+              {transaction.tdsAmount > 0 && !isIncome && (
                 <tr className="bg-rose-50/30">
                   <td className="py-3 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest pl-10 border-l-[3px] border-rose-400">Less: TDS Deducted {transaction.tdsRate > 0 && `(${transaction.tdsRate}%)`}</td>
                   <td className="py-3 px-6 text-right text-sm font-bold text-rose-600 font-mono">- {transaction.tdsAmount?.toFixed(2)}</td>
@@ -223,7 +223,9 @@ const InvoiceModal = ({ transaction, onClose }) => {
               {/* 6. Remaining Balance (if any) */}
               {(transaction.pendingAmount > 0) && (
                 <div className="flex justify-between items-center pt-5 mt-5 border-t border-slate-700/50 print:border-slate-200">
-                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Total Due</span>
+                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">
+                    {isIncome ? 'Total Due (Unpaid)' : (isPayroll ? 'Outstanding Salary' : 'Remaining Balance')}
+                  </span>
                   <span className="text-sm font-black text-rose-500 font-mono tracking-wide">
                     {settings.currencySymbol} {transaction.pendingAmount?.toFixed(2)}
                   </span>
@@ -231,7 +233,9 @@ const InvoiceModal = ({ transaction, onClose }) => {
               )}
               {(transaction.advanceAmount > 0) && (
                 <div className="flex justify-between items-center pt-5 mt-5 border-t border-slate-700/50 print:border-slate-200">
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Excess Credit</span>
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                    {isIncome ? 'Excess Credit' : (isPayroll ? 'Advance Provided' : 'Prepayment')}
+                  </span>
                   <span className="text-sm font-black text-emerald-500 font-mono tracking-wide">
                     {settings.currencySymbol} {transaction.advanceAmount?.toFixed(2)}
                   </span>

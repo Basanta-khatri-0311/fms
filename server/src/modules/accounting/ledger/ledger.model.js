@@ -28,6 +28,7 @@ const ledgerSchema = new mongoose.Schema(
     narration: String,
 
     financialYear: String,
+    branch: String,
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -38,7 +38,9 @@ exports.getEmployees = catchAsync(async (req, res) => {
     const employees = result.users.map(u => ({
         _id: u._id,
         name: u.name,
-        role: u.role
+        role: u.role,
+        totalDue: u.totalDue || 0,
+        totalAdvance: u.totalAdvance || 0
     }));
     res.status(200).json({ users: employees });
 });
