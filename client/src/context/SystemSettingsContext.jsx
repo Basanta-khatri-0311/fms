@@ -34,7 +34,16 @@ export const SystemSettingsProvider = ({ children }) => {
       setLoading(true);
       const response = await API.get('/system');
       if (response.data) {
-        setSettings(response.data);
+        const data = response.data;
+        const normalized = {
+          ...data,
+          availableFiscalYears: (data.availableFiscalYears || []).map(fy => 
+            typeof fy === 'string' 
+              ? { year: fy, startDateAD: fy === data.fiscalYearBS ? data.startDateAD : '', endDateAD: fy === data.fiscalYearBS ? data.endDateAD : '' } 
+              : fy
+          )
+        };
+        setSettings(normalized);
       }
     } catch (error) {
       console.error('Error fetching global system settings:', error);

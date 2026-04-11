@@ -9,7 +9,11 @@ exports.getSettings = async (req, res) => {
                 systemName: "Finance Management System",
                 currencySymbol: "NPR.",
                 fiscalYearBS: "2081/82",
-                availableFiscalYears: ["2081/82", "2082/83", "2083/84"],
+                availableFiscalYears: [
+                    { year: "2081/82", startDateAD: new Date("2024-07-16"), endDateAD: new Date("2025-07-15") },
+                    { year: "2082/83", startDateAD: new Date("2025-07-16"), endDateAD: new Date("2026-07-15") },
+                    { year: "2083/84", startDateAD: new Date("2026-07-16"), endDateAD: new Date("2027-07-15") }
+                ],
                 startDateAD: new Date("2024-07-16"),
                 endDateAD: new Date("2025-07-15"),
                 branches: []

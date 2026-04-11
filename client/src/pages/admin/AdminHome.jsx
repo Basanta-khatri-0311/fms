@@ -121,9 +121,10 @@ const AdminDashboard = () => {
                       text-white cursor-pointer focus:outline-none transition-all hover:text-indigo-200"
                   >
                     {settings?.availableFiscalYears?.length > 0 ? (
-                      settings.availableFiscalYears.map(year => (
-                        <option key={year} className="bg-slate-900 text-white" value={year}>{year}</option>
-                      ))
+                      settings.availableFiscalYears.map(fy => {
+                        const year = typeof fy === 'string' ? fy : fy.year;
+                        return <option key={year} className="bg-slate-900 text-white" value={year}>{year}</option>
+                      })
                     ) : (
                       <option className="bg-slate-900 text-white" value={financialYear}>{financialYear}</option>
                     )}

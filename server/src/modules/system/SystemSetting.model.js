@@ -17,10 +17,14 @@ const SystemSettingSchema = new mongoose.Schema({
     // Store as "2081/82" for display
     fiscalYearBS: { type: String, required: true },
     
-    // List of all valid fiscal years for the system
-    availableFiscalYears: [{ type: String }],
+    // List of all valid fiscal years for the system with their date ranges
+    availableFiscalYears: [{
+        year: { type: String, required: true },
+        startDateAD: { type: Date },
+        endDateAD: { type: Date }
+    }],
     
-    // Exact AD range for the CURRENT period
+    // CURRENT active period dates (synced with the active fiscalYearBS)
     startDateAD: { type: Date, required: true }, 
     endDateAD: { type: Date, required: true },
 

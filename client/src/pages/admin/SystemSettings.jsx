@@ -69,6 +69,11 @@ const SystemSettings = () => {
       
       setSettings({
         ...data,
+        availableFiscalYears: (data.availableFiscalYears || []).map(fy => 
+          typeof fy === 'string' 
+            ? { year: fy, startDateAD: fy === data.fiscalYearBS ? data.startDateAD : '', endDateAD: fy === data.fiscalYearBS ? data.endDateAD : '' } 
+            : fy
+        ),
         startDateAD: data.startDateAD ? new Date(data.startDateAD).toISOString().split('T')[0] : '',
         endDateAD: data.endDateAD ? new Date(data.endDateAD).toISOString().split('T')[0] : '',
         controls: {
@@ -123,10 +128,14 @@ const SystemSettings = () => {
   };
 
   const addFiscalYear = () => {
-    if (newYear && !settings.availableFiscalYears.includes(newYear)) {
+    if (newYear && !settings.availableFiscalYears.some(fy => fy.year === newYear)) {
       setSettings({
         ...settings,
-        availableFiscalYears: [...settings.availableFiscalYears, newYear].sort()
+        availableFiscalYears: [...settings.availableFiscalYears, { 
+          year: newYear, 
+          startDateAD: '', 
+          endDateAD: '' 
+        }].sort((a, b) => a.year.localeCompare(b.year))
       });
       setNewYear('');
     }
@@ -139,7 +148,26 @@ const SystemSettings = () => {
     }
     setSettings({
       ...settings,
-      availableFiscalYears: settings.availableFiscalYears.filter(y => y !== year)
+      availableFiscalYears: settings.availableFiscalYears.filter(fy => fy.year !== year)
+    });
+  };
+
+  const handleDateChange = (field, value) => {
+    setSettings(prev => ({
+      ...prev,
+      [field]: value,
+      availableFiscalYears: prev.availableFiscalYears.map(fy => 
+        fy.year === prev.fiscalYearBS ? { ...fy, [field]: value } : fy
+      )
+    }));
+  };
+
+  const activateYear = (fy) => {
+    setSettings({
+      ...settings,
+      fiscalYearBS: fy.year,
+      startDateAD: fy.startDateAD ? new Date(fy.startDateAD).toISOString().split('T')[0] : '',
+      endDateAD: fy.endDateAD ? new Date(fy.endDateAD).toISOString().split('T')[0] : ''
     });
   };
 
@@ -371,8 +399,8 @@ const SystemSettings = () => {
                 <input
                   type="date"
                   value={settings.startDateAD}
-                  onChange={(e) => setSettings({ ...settings, startDateAD: e.target.value })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none shadow-sm"
+                  onChange={(e) => handleDateChange('startDateAD', e.target.value)}
+                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-black text-slate-900 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none shadow-sm"
                 />
               </div>
               <div className="space-y-3">
@@ -380,8 +408,8 @@ const SystemSettings = () => {
                 <input
                   type="date"
                   value={settings.endDateAD}
-                  onChange={(e) => setSettings({ ...settings, endDateAD: e.target.value })}
-                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none shadow-sm"
+                  onChange={(e) => handleDateChange('endDateAD', e.target.value)}
+                  className="w-full px-6 py-4 bg-white border-2 border-transparent rounded-2xl font-black text-slate-900 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 transition-all outline-none shadow-sm"
                 />
               </div>
               <div className="md:col-span-2 flex items-center gap-3 text-emerald-600">
@@ -419,40 +447,44 @@ const SystemSettings = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                {settings.availableFiscalYears?.map((year) => (
-                  <div 
-                    key={year}
-                    className={`relative p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-4
-                      ${year === settings.fiscalYearBS 
-                        ? 'bg-white border-indigo-600 shadow-2xl shadow-indigo-100 ring-4 ring-indigo-500/5' 
-                        : 'bg-slate-50 border-transparent hover:border-slate-300 shadow-inner'}`}
-                  >
-                    <span className={`text-base font-black tracking-widest ${year === settings.fiscalYearBS ? 'text-indigo-700' : 'text-slate-600'}`}>
-                      {year}
-                    </span>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setSettings({ ...settings, fiscalYearBS: year })}
-                      className={`text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-xl transition-all
-                        ${year === settings.fiscalYearBS 
-                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
-                          : 'bg-white text-slate-400 border border-slate-200 hover:text-indigo-600 hover:border-indigo-100 shadow-sm'}`}
+                {settings.availableFiscalYears?.map((fy) => {
+                  const year = typeof fy === 'string' ? fy : fy.year;
+                  const isActive = year === settings.fiscalYearBS;
+                  return (
+                    <div 
+                      key={year}
+                      className={`relative p-6 rounded-3xl border-2 transition-all flex flex-col items-center gap-4
+                        ${isActive 
+                          ? 'bg-white border-indigo-600 shadow-2xl shadow-indigo-100 ring-4 ring-indigo-500/5' 
+                          : 'bg-slate-50 border-transparent hover:border-slate-300 shadow-inner'}`}
                     >
-                      {year === settings.fiscalYearBS ? 'Current' : 'Activate'}
-                    </button>
-
-                    {year !== settings.fiscalYearBS && (
+                      <span className={`text-base font-black tracking-widest ${isActive ? 'text-indigo-700' : 'text-slate-600'}`}>
+                        {year}
+                      </span>
+                      
                       <button
                         type="button"
-                        onClick={() => removeFiscalYear(year)}
-                        className="absolute -top-3 -right-3 p-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition-all shadow-lg active:scale-90"
+                        onClick={() => activateYear(fy)}
+                        className={`text-[9px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-xl transition-all
+                          ${isActive 
+                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' 
+                            : 'bg-white text-slate-400 border border-slate-200 hover:text-indigo-600 hover:border-indigo-100 shadow-sm'}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {isActive ? 'Current' : 'Activate'}
                       </button>
-                    )}
-                  </div>
-                ))}
+
+                      {!isActive && (
+                        <button
+                          type="button"
+                          onClick={() => removeFiscalYear(year)}
+                          className="absolute -top-3 -right-3 p-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 transition-all shadow-lg active:scale-90"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -468,7 +500,7 @@ const SystemSettings = () => {
           <div className="space-y-12">
             <div className="p-8 bg-blue-50/50 rounded-[2rem] border border-blue-100">
               <h3 className="text-sm font-black text-blue-700 uppercase tracking-widest mb-6">Add New Branch</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Branch Name</label>
                   <input
@@ -476,7 +508,7 @@ const SystemSettings = () => {
                     value={newBranch.name}
                     onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
                     className="w-full px-5 py-3.5 bg-white border-2 border-transparent rounded-2xl font-bold text-slate-900 focus:border-blue-500 shadow-sm outline-none transition-all"
-                    placeholder="e.g. Kathmandu Branch"
+                    placeholder="e.g. Kathmandu"
                   />
                 </div>
                 <div className="space-y-2">
@@ -489,8 +521,8 @@ const SystemSettings = () => {
                     placeholder="e.g. KTM"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address (Optional)</label>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address & Save</label>
                   <div className="flex gap-4">
                     <input
                       type="text"
@@ -502,9 +534,9 @@ const SystemSettings = () => {
                     <button
                       type="button"
                       onClick={addBranch}
-                      className="px-6 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20"
+                      className="px-8 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20 whitespace-nowrap"
                     >
-                      ADD
+                      ADD BRANCH
                     </button>
                   </div>
                 </div>
@@ -621,22 +653,21 @@ const SystemSettings = () => {
           </div>
         </section>
 
-        {/* Global Save Button */}
+        {/* Global Floating Save Button */}
         <div className="fixed bottom-10 right-10 z-[100]">
           <button
             type="submit"
             disabled={saving}
-            className="group px-10 py-6 bg-indigo-600 text-white rounded-[2.5rem] font-black shadow-2xl shadow-indigo-600/30
-              hover:bg-indigo-500 hover:-translate-y-2 hover:scale-105 active:scale-95 transition-all duration-300
-              flex items-center gap-4 disabled:opacity-50"
+            className="group w-20 h-20 bg-indigo-600 text-white rounded-full shadow-[0_20px_50px_rgba(79,70,229,0.3)]
+              hover:bg-indigo-500 hover:-translate-y-3 hover:scale-110 active:scale-90 transition-all duration-500
+              flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Save System Settings"
           >
-            <div className="bg-white/20 p-2 rounded-xl group-hover:bg-white/30 transition-colors">
-              <Save className="w-6 h-6" />
-            </div>
-            <div className="flex flex-col items-start leading-tight">
-              <span className="text-[10px] opacity-70 uppercase tracking-widest">Commit Changes</span>
-              <span className="text-lg">{saving ? 'SYNCHRONIZING...' : 'SAVE SETTINGS'}</span>
-            </div>
+            {saving ? (
+              <RefreshCw className="w-8 h-8 animate-spin" />
+            ) : (
+              <Save className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
+            )}
           </button>
         </div>
       </form>
