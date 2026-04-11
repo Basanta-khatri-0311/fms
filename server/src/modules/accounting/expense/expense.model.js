@@ -7,6 +7,7 @@ const expenseSchema = new mongoose.Schema({
     vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor', required: true },
     billNumber: String,
     billDate: Date,
+    expenseCategory: { type: String, required: true },
 
     amountBeforeVAT: { type: Number, required: true },
     vatRate: { type: Number, default: 0 },

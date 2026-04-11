@@ -133,17 +133,6 @@ if (entryType === ENTRY_TYPE.INCOME) {
         }
       });
     }
-
-    // --- LEVERAGE INTERNAL TDS ADJUSTMENT IF FULL PAYMENT RECEIVED ---
-    // Since netReceivable (and thus Cash/AR) now includes the TDS amount,
-    // we must credit an adjustment account to keep the ledger balanced.
-    if (entry.tdsAmount > 0) {
-      const tdsPayableAcc = await getAccount(COA_CODES.TDS_PAYABLE);
-      creditLines.push({ 
-        account: tdsPayableAcc._id, 
-        amount: round(entry.tdsAmount)
-      });
-    }
   }
 
   /* ============================================================================

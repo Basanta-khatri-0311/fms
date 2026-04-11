@@ -10,7 +10,8 @@ import {
   Trash2,
   RefreshCw,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { useSystemSettings } from '../../context/SystemSettingsContext';
 
@@ -105,9 +106,46 @@ const SystemSettings = () => {
       const { logoFile, ...jsonSettings } = settings;
       payload.append('settings', JSON.stringify(jsonSettings));
 
-      // Validation: Start Date < End Date
-      if (new Date(settings.startDateAD) >= new Date(settings.endDateAD)) {
-        setMessage({ type: 'error', text: 'Start Date must be before End Date' });
+      // Comprehensive Validation
+      const { systemName, orgDetails, taxSettings, startDateAD, endDateAD } = settings;
+      
+      if (!systemName?.trim()) {
+        setMessage({ type: 'error', text: 'System Name is required' });
+        setSaving(false);
+        return;
+      }
+
+      if (!orgDetails?.address?.trim()) {
+        setMessage({ type: 'error', text: 'Address is required' });
+        setSaving(false);
+        return;
+      }
+
+      // Centralized Validation
+      const emailVal = validateField('email', orgDetails.email);
+      if (orgDetails.email && !emailVal.isValid) {
+        setMessage({ type: 'error', text: `Org Email: ${emailVal.message}` });
+        setSaving(false);
+        return;
+      }
+
+      const phoneVal = validateField('phone', orgDetails.phone?.replace(/[-\s]/g, ''));
+      if (!phoneVal.isValid) {
+        setMessage({ type: 'error', text: `Org Phone: ${phoneVal.message}` });
+        setSaving(false);
+        return;
+      }
+
+      const panVal = validateField('pan', taxSettings?.panNumber);
+      if (taxSettings?.panNumber && !panVal.isValid) {
+        setMessage({ type: 'error', text: `Org PAN: ${panVal.message}` });
+        setSaving(false);
+        return;
+      }
+
+      // Date Validation: Start Date < End Date
+      if (new Date(startDateAD) >= new Date(endDateAD)) {
+        setMessage({ type: 'error', text: 'Reporting Start Date must be before End Date' });
         setSaving(false);
         return;
       }
@@ -536,7 +574,7 @@ const SystemSettings = () => {
                       onClick={addBranch}
                       className="px-8 bg-blue-600 text-white rounded-2xl font-black text-sm hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/20 whitespace-nowrap"
                     >
-                      ADD BRANCH
+                      ADD
                     </button>
                   </div>
                 </div>

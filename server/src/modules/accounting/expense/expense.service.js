@@ -10,8 +10,8 @@ const buildExpensePayload = async (data, user, existing = null) => {
   const previousAdvance = parseFloat(data.previousAdvance) || 0;
   const discountRate = parseFloat(data.discountRate) || 0;
   const discountAmount = parseFloat(data.discount) || 0;
-  const vatRate = parseFloat(data.vatRate) || 13;
-  const tdsRate = parseFloat(data.tdsRate) || 0;
+  const vatRate = data.vatRate !== undefined ? parseFloat(data.vatRate) : 13;
+  const tdsRate = data.tdsRate !== undefined ? parseFloat(data.tdsRate) : 0;
 
   const round = (num) => Math.round(num * 100) / 100;
 
@@ -21,7 +21,7 @@ const buildExpensePayload = async (data, user, existing = null) => {
   const totalBillAmount = round(taxableAmount + calculatedVat); // Total amount on vendor's bill
   const calculatedTds = round(taxableAmount * (tdsRate / 100)); // TDS we withhold
 
-  // Net Payable is what we actually owe the vendor for this bill
+  // Net Payable is what we actually owe the vendor for this bill (Taxable + VAT - TDS withholding)
   const currentNetBalance = round(totalBillAmount - calculatedTds);
 
   // Adjusted Net incorporates previous due/advance
@@ -48,7 +48,7 @@ const buildExpensePayload = async (data, user, existing = null) => {
     discount: discountAmount,
     tdsRate,
     tdsAmount: calculatedTds,
-    netPayable: totalBillAmount, // The full bill value for documentation
+    netPayable: currentNetBalance, // The actual amount owed to the vendor after TDS deduction
     amountPaid,
     previousDue,
     previousAdvance,

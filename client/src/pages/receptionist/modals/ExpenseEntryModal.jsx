@@ -23,6 +23,7 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
     previousAdvance: 0,
     billNumber: '',
     billDate: new Date().toISOString().split('T')[0],
+    expenseCategory: '',
     amountBeforeVAT: '',
     vatRate: settings?.taxSettings?.vatRate?.toString() || '13',
     discountRate: '',
@@ -112,6 +113,19 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
             }));
             return;
         }
+    }
+
+    if (name === 'expenseCategory') {
+      let tdsRate = '';
+      if (value === 'Rent') tdsRate = settings?.taxSettings?.tdsRates?.rent?.toString() || '';
+      if (value === 'Consultancy') tdsRate = settings?.taxSettings?.tdsRates?.consultancy?.toString() || '';
+      
+      setFormData(prev => ({ 
+        ...prev, 
+        expenseCategory: value,
+        tdsRate: tdsRate
+      }));
+      return;
     }
     
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -280,6 +294,34 @@ const ExpenseModal = ({ onClose, refreshData, initialData = null, mode = 'create
                       )}
                     </div>
                   )}
+                </div>
+
+                {/* Payment Category Selection */}
+                <div className="lg:col-span-2 space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 ml-1">Payment Category *</label>
+                  <div className="relative">
+                    <select
+                      name="expenseCategory"
+                      required
+                      className="w-full pl-11 pr-10 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-500/5 appearance-none cursor-pointer transition-all"
+                      onChange={handleInputChange}
+                      value={formData.expenseCategory}
+                    >
+                      <option value="">-- Select Expense Category --</option>
+                      <option value="Rent">Office Rent (TDS Applicable)</option>
+                      <option value="Consultancy">Consultancy Fees (TDS Applicable)</option>
+                      <option value="Procurement">Equipment / Procurement</option>
+                      <option value="Utilities">Utilities (Water/Elec)</option>
+                      <option value="Marketing">Marketing / ADS</option>
+                      <option value="Other">Other Expenses</option>
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                      <Hash size={18} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                      <ChevronDown size={18} />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bill Number */}

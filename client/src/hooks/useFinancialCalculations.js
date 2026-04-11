@@ -21,10 +21,10 @@ const useFinancialCalculations = (formData, mode = 'income') => {
     const taxableAmount = round(amountBeforeVAT - discount);
 
     if (mode === 'income') {
-      // Income: User pays the full amount (Taxable + VAT). TDS is an internal ledger expense.
+      // Income: Customer deducts TDS from us. Actual amount to receive is (Taxable + VAT - TDS).
       vatAmount = round((taxableAmount * vatRate) / 100);
       tdsAmount = round((taxableAmount * tdsRate) / 100);
-      netAmount = round(taxableAmount + vatAmount);
+      netAmount = round(taxableAmount + vatAmount - tdsAmount);
     } else {
       // Expense/Payroll: We DEDUCT TDS from the vendor/staff payment.
       vatAmount = round((taxableAmount * vatRate) / 100);

@@ -114,6 +114,18 @@ const PayrollEntryModal = ({ onClose, refreshData, initialData, mode = 'create' 
         }));
         return;
     }
+
+    if (name === 'basicSalary') {
+        const salary = parseFloat(value) || 0;
+        const tdsRate = settings?.taxSettings?.tdsRates?.salary || 0;
+        const tdsAmount = Math.round(salary * (tdsRate / 100));
+        setFormData(prev => ({ 
+            ...prev, 
+            basicSalary: value,
+            taxDeduction: tdsAmount > 0 ? tdsAmount.toString() : ''
+        }));
+        return;
+    }
     
     setFormData(prev => ({ ...prev, [name]: value }));
   };

@@ -43,6 +43,20 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     paymentScreenshot: null,
   });
 
+  // Auto-fill TDS based on System Settings
+  useEffect(() => {
+    if (mode === 'create' && !initialData) {
+      if (formData.serviceType === 'Consultancy') {
+        const rate = settings?.taxSettings?.tdsRates?.consultancy;
+        if (rate !== undefined) {
+          setFormData(prev => ({ ...prev, tdsRate: rate.toString() }));
+        }
+      } else {
+        setFormData(prev => ({ ...prev, tdsRate: '' }));
+      }
+    }
+  }, [formData.serviceType, settings, mode, initialData]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -155,6 +169,11 @@ const IncomeModal = ({ onClose, refreshData, initialData = null, mode = 'create'
     if (formData.contactNumber) {
       const phoneVal = validateField('phone', formData.contactNumber);
       if (!phoneVal.isValid) return showNotification('error', phoneVal.message);
+    }
+
+    if (formData.buyerPan) {
+      const panVal = validateField('pan', formData.buyerPan);
+      if (!panVal.isValid) return showNotification('error', `Student/Buyer PAN: ${panVal.message}`);
     }
 
     const amtVal = validateField('amount', formData.amountBeforeVAT);

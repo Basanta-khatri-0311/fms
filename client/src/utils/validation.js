@@ -10,8 +10,8 @@ export const VALIDATION_PATTERNS = {
     EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     // Password: At least 8 chars, 1 upper, 1 lower, 1 number, 1 special char
     PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    // Phone: Start with 9, exactly 10 digits
-    PHONE: /^9\d{9}$/,
+    // Phone: Exactly 10 digits (allowing various regional formats)
+    PHONE: /^\d{10}$/,
     // PAN: Exactly 9-digit number
     PAN: /^\d{9}$/,
     // Financial: Positive numbers only, up to 2 decimal places, no 'e' notation
@@ -40,7 +40,7 @@ export const validateField = (type, value) => {
         case 'phone':
             return {
                 isValid: VALIDATION_PATTERNS.PHONE.test(value),
-                message: 'Phone number must start with 9 and be exactly 10 digits'
+                message: 'Phone number must be exactly 10 digits'
             };
         case 'pan':
             return {

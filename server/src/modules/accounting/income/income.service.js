@@ -11,8 +11,8 @@ const buildIncomePayload = async (data, user, existing = null) => {
   const amountReceived = parseFloat(data.amountReceived) || 0;
   const discountRate = parseFloat(data.discountRate) || 0;
   const discountAmount = parseFloat(data.discount) || 0;
-  const vatRate = parseFloat(data.vatRate) || 13;
-  const tdsRate = parseFloat(data.tdsRate) || 0;
+  const vatRate = data.vatRate !== undefined ? parseFloat(data.vatRate) : 13;
+  const tdsRate = data.tdsRate !== undefined ? parseFloat(data.tdsRate) : 0;
 
   const round = (num) => Math.round(num * 100) / 100;
 
@@ -21,9 +21,8 @@ const buildIncomePayload = async (data, user, existing = null) => {
   const totalInvoiceValue = round(taxableAmount + calculatedVat);
   const calculatedTds = round(taxableAmount * (tdsRate / 100));
 
-  // client owes the full invoice value (Taxable + VAT). 
-  // TDS is tracked as an internal cost of sales for the institution.
-  const netReceivable = totalInvoiceValue;
+  // client pays the net amount after TDS deduction (Taxable + VAT - TDS).
+  const netReceivable = round(totalInvoiceValue - calculatedTds);
 
   let previousDue = 0;
   let previousAdvance = 0;
@@ -61,7 +60,7 @@ const buildIncomePayload = async (data, user, existing = null) => {
     discount: discountAmount,
     tdsRate,
     tdsAmount: calculatedTds,
-    netAmount: totalInvoiceValue,
+    netAmount: netReceivable,
     amountReceived,
     pendingAmount,
     advanceAmount: excessAmount,

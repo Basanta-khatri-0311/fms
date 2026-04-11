@@ -629,6 +629,7 @@ exports.generateExpenseReport = async (financialYear, filters = {}) => {
 exports.generateTDSReport = async (financialYear, filters = {}) => {
   const expenseQuery = { financialYear, 'approval.status': 'APPROVED', tdsAmount: { $gt: 0 } };
   const incomeQuery = { financialYear, 'approval.status': 'APPROVED', tdsAmount: { $gt: 0 } };
+  const payrollQuery = { financialYear, 'approval.status': 'APPROVED', taxDeduction: { $gt: 0 } };
 
   if (filters.startDate && filters.endDate) {
     const dateQuery = {
@@ -637,11 +638,13 @@ exports.generateTDSReport = async (financialYear, filters = {}) => {
     };
     expenseQuery['approval.approvedAt'] = dateQuery;
     incomeQuery['approval.approvedAt'] = dateQuery;
+    payrollQuery['approval.approvedAt'] = dateQuery;
   }
 
-  const [expenses, incomes] = await Promise.all([
+  const [expenses, incomes, payrolls] = await Promise.all([
     Expense.find(expenseQuery).populate('vendor'),
-    Income.find(incomeQuery)
+    Income.find(incomeQuery),
+    Payroll.find(payrollQuery)
   ]);
 
   let tdsData = [];
@@ -669,6 +672,19 @@ exports.generateTDSReport = async (financialYear, filters = {}) => {
       baseAmount: inc.amountBeforeVAT || 0,
       tdsAmount: inc.tdsAmount,
       source: 'Income/Sales'
+    });
+  });
+
+  payrolls.forEach(pr => {
+    tdsData.push({
+      date: pr.approval.approvedAt,
+      type: 'TDS_PAYABLE', // This is SST/TDS we deducted from staff
+      partyName: pr.employeeName,
+      partyPan: '-',
+      billNumber: `PR-${pr.paymentMonth.replace(/\s+/g, '-')}`,
+      baseAmount: pr.basicSalary || 0,
+      tdsAmount: pr.taxDeduction,
+      source: 'Payroll'
     });
   });
 
