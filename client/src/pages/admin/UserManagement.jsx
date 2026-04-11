@@ -142,57 +142,56 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                         <table className="w-full text-left border-separate border-spacing-0">
                             <thead>
                                 <tr className="bg-slate-50/50">
-                                    <th className="px-10 py-7 text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Identity Information</th>
-                                    <th className="px-10 py-7 text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Branch</th>
-                                    <th className="px-10 py-7 text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Account Status</th>
-                                    <th className="px-10 py-7 text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">System Role</th>
-                                    <th className="px-10 py-7 text-right text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Operations</th>
+                                    <th className="px-4 lg:px-10 py-7 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Identity Info</th>
+                                    <th className="px-4 lg:px-10 py-7 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Branch</th>
+                                    <th className="px-4 lg:px-10 py-7 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Account Status</th>
+                                    <th className="px-4 lg:px-10 py-7 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">System Role</th>
+                                    <th className="px-4 lg:px-10 py-7 text-right text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] leading-none">Operations</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-slate-50/50 transition-all group">
-                                        <td className="px-10 py-6">
+                                        <td className="px-4 lg:px-10 py-6">
                                             <button 
                                                 onClick={() => setHistoryEntityId(user._id)}
-                                                className="flex items-center gap-5 group/item text-left hover:scale-[1.01] transition-all"
+                                                className="flex items-center gap-3 lg:gap-5 group/item text-left hover:scale-[1.01] transition-all"
                                             >
-                                                <div className="w-12 h-12 rounded-[1.25rem] bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-base shadow-sm ring-1 ring-indigo-100 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
+                                                <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-[1rem] lg:rounded-[1.25rem] bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm lg:text-base shadow-sm ring-1 ring-indigo-100 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
                                                     {user.name.charAt(0)}
                                                 </div>
-                                                <div>
-                                                    <p className="text-base font-black text-slate-900 tracking-tight leading-tight group-hover/item:text-indigo-600 transition-colors">{user.name}</p>
-                                                    <div className="flex items-center gap-2 mt-1.5 capitalize text-slate-400 text-xs font-semibold">
-                                                        <Mail size={14} className="text-slate-300" />
+                                                <div className="min-w-0">
+                                                    <p className="text-sm lg:text-base font-black text-slate-900 tracking-tight leading-tight group-hover/item:text-indigo-600 transition-colors truncate">
+                                                        {user.name}
+                                                    </p>
+                                                    <div className="flex items-center gap-2 mt-1.5 capitalize text-slate-400 text-[10px] lg:text-xs font-semibold truncate">
+                                                        <Mail size={12} className="text-slate-300" />
                                                         {user.email}
                                                     </div>
                                                 </div>
                                             </button>
                                         </td>
-                                        <td className="px-10 py-6">
+                                        <td className="px-4 lg:px-10 py-6">
                                             <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-slate-100 text-slate-500 rounded-lg group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                                                    <Filter size={12} />
-                                                </div>
-                                                <span className="text-[10px] font-black text-slate-700 tracking-widest uppercase">
+                                                <span className="text-[9px] lg:text-[10px] font-black text-slate-700 tracking-widest uppercase whitespace-nowrap">
                                                     {user.branch || 'None'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-[10px] font-black tracking-widest uppercase ${
+                                        <td className="px-4 lg:px-10 py-6">
+                                            <div className={`inline-flex items-center gap-2 px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-xl lg:rounded-2xl text-[8px] lg:text-[10px] font-black tracking-widest uppercase whitespace-nowrap ${
                                                 user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100' : 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
                                             }`}>
-                                                <div className={`w-2 h-2 rounded-full ${user.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                                                <div className={`w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${user.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
                                                 {user.status}
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            <span className="text-[10px] font-black text-slate-500 tracking-[0.1em] uppercase bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                                        <td className="px-4 lg:px-10 py-6">
+                                            <span className="text-[8px] lg:text-[10px] font-black text-slate-500 tracking-[0.1em] uppercase bg-slate-100 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg border border-slate-200 whitespace-nowrap">
                                                 {user.role}
                                             </span>
                                         </td>
-                                        <td className="px-10 py-6 text-right">
+                                        <td className="px-4 lg:px-10 py-6 text-right">
                                             <div className="flex justify-end items-center gap-2  transition-opacity">
                                                 <button
                                                     onClick={() => { setActiveUser(user); setIsModalOpen(true); }}

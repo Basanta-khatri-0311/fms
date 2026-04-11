@@ -108,7 +108,7 @@ const MainLayout = () => {
 
         {/* Main Operational Surface */}
         <main className="flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100/50 scrollbar-hide">
-          <div className="max-w-7xl mx-auto p-8 lg:p-12">
+          <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-12">
             <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
               <Outlet />
             </div>

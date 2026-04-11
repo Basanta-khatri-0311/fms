@@ -143,59 +143,59 @@ const COAManagement = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100">
-                    <th className="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Master Account</th>
-                    <th className="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">System Identifier</th>
-                    <th className="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Classification</th>
-                    <th className="px-10 py-5 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Administrative</th>
+                    <th className="px-4 lg:px-10 py-5 text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Master Account</th>
+                    <th className="px-4 lg:px-10 py-5 text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Identifier</th>
+                    <th className="px-4 lg:px-10 py-5 text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Classification</th>
+                    <th className="px-4 lg:px-10 py-5 text-[9px] lg:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] text-right whitespace-nowrap">Admin</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {filteredAccounts.map((account) => (
                     <tr key={account._id} className="group hover:bg-slate-50/30 transition-all duration-200">
-                      <td className="px-10 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs ${
+                      <td className="px-4 lg:px-10 py-6">
+                        <div className="flex items-center gap-3 lg:gap-4">
+                          <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-[10px] lg:text-xs shrink-0 ${
                             account.type === 'INCOME' ? 'bg-emerald-50 text-emerald-600' :
                             account.type === 'EXPENSE' ? 'bg-rose-50 text-rose-600' :
                             'bg-slate-50 text-slate-600'
                           }`}>
                             {account.name[0]}
                           </div>
-                          <span className="text-sm font-bold text-slate-800">{account.name}</span>
+                          <span className="text-[13px] lg:text-sm font-bold text-slate-800 truncate max-w-[120px] lg:max-w-none">{account.name}</span>
                         </div>
                       </td>
-                      <td className="px-10 py-6">
-                        <span className="px-3 py-1.5 bg-slate-50 text-slate-500 text-xs font-mono font-bold rounded-lg border border-slate-100 uppercase tracking-tighter">
+                      <td className="px-4 lg:px-10 py-6">
+                        <span className="px-2 lg:px-3 py-1 lg:py-1.5 bg-slate-50 text-slate-500 text-[10px] lg:text-xs font-mono font-bold rounded-lg border border-slate-100 uppercase tracking-tighter whitespace-nowrap">
                           {account.code}
                         </span>
                       </td>
-                      <td className="px-10 py-6">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                      <td className="px-4 lg:px-10 py-6">
+                        <span className={`inline-flex items-center gap-1.5 px-2 lg:px-3 py-1 rounded-full text-[8px] lg:text-[10px] font-black uppercase tracking-widest border whitespace-nowrap ${
                           account.type === 'INCOME' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
                           account.type === 'EXPENSE' ? 'bg-rose-50 text-rose-700 border-rose-100' :
                           account.type === 'ASSET' ? 'bg-blue-50 text-blue-700 border-blue-100' :
                           account.type === 'LIABILITY' ? 'bg-orange-50 text-orange-700 border-orange-100' :
                           'bg-indigo-50 text-indigo-700 border-indigo-100'
                         }`}>
-                          <Layers size={10} />
+                          <Layers size={10} className="hidden sm:inline" />
                           {account.type}
                         </span>
                       </td>
-                      <td className="px-10 py-6 relative">
-                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                      <td className="px-4 lg:px-10 py-6 relative">
+                        <div className="flex items-center justify-end gap-1 lg:gap-2">
                           <button 
                             onClick={() => { setActiveAccount(account); setShowModal(true); }}
                             className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                             title="Edit Account"
                           >
-                            <Edit3 size={18} />
+                            <Edit3 size={16} />
                           </button>
                           <button 
                             onClick={() => setConfirmDeleteId(account._id)}
                             className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                             title="Delete Account"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>

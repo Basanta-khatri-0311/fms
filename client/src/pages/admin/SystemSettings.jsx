@@ -251,17 +251,17 @@ const SystemSettings = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto pb-20 space-y-12">
+    <div className="max-w-4xl mx-auto pb-20 space-y-8 sm:y-12">
       {/* Header */}
-      <div className="flex items-center justify-between sticky top-0 bg-slate-50/80 backdrop-blur-md pt-8 pb-4 z-20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between sticky top-0 bg-slate-50/80 backdrop-blur-md pt-4 sm:pt-8 pb-4 z-20 gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-slate-900 text-white rounded-xl shadow-lg">
-              <Settings className="w-6 h-6" />
+            <div className="p-2 bg-slate-900 text-white rounded-xl shadow-lg shrink-0">
+              <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Control Center</h1>
+            <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Control Center</h1>
           </div>
-          <p className="text-slate-500 font-medium ml-12">Manage your institution's configuration and operational rules.</p>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium ml-10 sm:ml-12">Manage institution rules and config.</p>
         </div>
         
         {message.text && (
@@ -277,10 +277,10 @@ const SystemSettings = () => {
 
       <form onSubmit={handleSave} className="space-y-12">
         {/* Core Identity Section */}
-        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-indigo-600 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Institutional Identity</h2>
+        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-8 sm:mb-10">
+            <div className="w-1.5 h-6 sm:w-2 sm:h-7 bg-indigo-600 rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Institutional Identity</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -364,10 +364,10 @@ const SystemSettings = () => {
         </section>
         
         {/* Financial Core section */}
-        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-indigo-600 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Financial Core</h2>
+        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-8 sm:mb-10">
+            <div className="w-1.5 h-6 sm:w-2 sm:h-7 bg-indigo-600 rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Financial Core</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -391,7 +391,7 @@ const SystemSettings = () => {
                 />
             </div>
 
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-slate-50 rounded-[2rem]">
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 p-6 sm:p-8 bg-slate-50 rounded-[1.5rem] sm:rounded-[2rem]">
                <div className="space-y-3">
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Rent TDS (%)</label>
                   <input
@@ -425,14 +425,14 @@ const SystemSettings = () => {
         
         {/* Fiscal Year & Dates Section */}
 
-        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-emerald-600 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Fiscal Intelligence</h2>
+        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-8 sm:mb-10">
+            <div className="w-1.5 h-6 sm:w-2 sm:h-7 bg-emerald-600 rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Fiscal Intelligence</h2>
           </div>
 
-          <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 p-8 bg-emerald-50/50 rounded-[2rem] border border-emerald-100">
+          <div className="space-y-8 sm:space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 p-6 sm:p-8 bg-emerald-50/50 rounded-[1.5rem] sm:rounded-[2rem] border border-emerald-100">
               <div className="space-y-3">
                 <label className="text-[11px] font-black text-emerald-700 uppercase tracking-[0.2em] ml-1">Reporting Period Start (AD)</label>
                 <input
@@ -460,19 +460,19 @@ const SystemSettings = () => {
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-center justify-between">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-black text-slate-800 tracking-tight">Managed Fiscal Cycles</h3>
-                  <p className="text-sm text-slate-400 font-medium mt-1">Add or switch between business years.</p>
+                  <h3 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">Managed Fiscal Cycles</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-medium mt-1">Add or switch between business years.</p>
                 </div>
                 <div className="flex gap-3">
-                   <div className="relative">
+                   <div className="relative w-full sm:w-44">
                     <input
                       type="text"
                       value={newYear}
                       onChange={(e) => setNewYear(e.target.value)}
                       placeholder="BS Format"
-                      className="pl-5 pr-14 py-3.5 bg-slate-100 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-indigo-500 w-44 outline-none"
+                      className="w-full pl-5 pr-14 py-3.5 bg-slate-100 border-none rounded-2xl font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                     <button
                       type="button"
@@ -530,10 +530,10 @@ const SystemSettings = () => {
         </section>
 
         {/* Branch Management Section */}
-        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-blue-600 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Organization Branches</h2>
+        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-8 sm:mb-10">
+            <div className="w-1.5 h-6 sm:w-2 sm:h-7 bg-blue-600 rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Organization Branches</h2>
           </div>
 
           <div className="space-y-12">
@@ -638,10 +638,10 @@ const SystemSettings = () => {
         </section>
 
         {/* Global Controls */}
-        <section className="bg-white rounded-[2.5rem] p-10 shadow-2xl shadow-slate-100 border border-slate-100">
-          <div className="flex items-center gap-4 mb-10">
-            <div className="w-2 h-7 bg-slate-800 rounded-full" />
-            <h2 className="text-2xl font-black text-slate-800 tracking-tight">Audit & Security Controls</h2>
+        <section className="bg-white rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-slate-100 border border-slate-100">
+          <div className="flex items-center gap-4 mb-8 sm:mb-10">
+            <div className="w-1.5 h-6 sm:w-2 sm:h-7 bg-slate-800 rounded-full" />
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Audit & Security Controls</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -693,19 +693,19 @@ const SystemSettings = () => {
         </section>
 
         {/* Global Floating Save Button */}
-        <div className="fixed bottom-10 right-10 z-[100]">
+        <div className="fixed bottom-6 right-6 sm:bottom-10 sm:right-10 z-[100]">
           <button
             type="submit"
             disabled={saving}
-            className="group w-20 h-20 bg-indigo-600 text-white rounded-full shadow-[0_20px_50px_rgba(79,70,229,0.3)]
-              hover:bg-indigo-500 hover:-translate-y-3 hover:scale-110 active:scale-90 transition-all duration-500
+            className="group w-16 h-16 sm:w-20 sm:h-20 bg-indigo-600 text-white rounded-full shadow-[0_20px_50px_rgba(79,70,229,0.3)]
+              hover:bg-indigo-500 hover:-translate-y-2 sm:hover:-translate-y-3 hover:scale-105 sm:hover:scale-110 active:scale-90 transition-all duration-500
               flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             title="Save System Settings"
           >
             {saving ? (
-              <RefreshCw className="w-8 h-8 animate-spin" />
+              <RefreshCw className="w-6 h-6 sm:w-8 sm:h-8 animate-spin" />
             ) : (
-              <Save className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
+              <Save className="w-6 h-6 sm:w-8 sm:h-8 group-hover:rotate-12 transition-transform duration-300" />
             )}
           </button>
         </div>

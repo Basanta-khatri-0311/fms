@@ -95,18 +95,18 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-8">
 
         {/* Header Section */}
-        <header className="relative bg-slate-900 rounded-3xl p-10 md:p-12 shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-800">
+        <header className="relative bg-slate-900 rounded-3xl p-6 sm:p-10 md:p-12 shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-800">
           <div className="absolute top-0 right-0 w-full h-full bg-linear-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div className="space-y-3">
-              <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-indigo-300 text-[11px] font-black uppercase tracking-[0.2em] mb-2">
+              <div className="inline-block px-4 py-1.5 bg-white/5 backdrop-blur-md rounded-full border border-white/10 text-indigo-300 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] mb-2">
                 Admin Dashboard
               </div>
-              <h1 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-400 tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-indigo-100 to-slate-400 tracking-tight leading-tight">
                 {settings.systemName}
               </h1>
-              <p className="text-slate-400 text-lg font-medium max-w-xl">
+              <p className="text-slate-400 text-sm sm:text-lg font-medium max-w-xl">
                 Overview of your financial performance and verified records.
               </p>
             </div>
@@ -161,89 +161,89 @@ const AdminDashboard = () => {
         </header>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
 
           {/* Total Income */}
-          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+          <div className="relative overflow-hidden group bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 
             hover:shadow-md hover:border-indigo-100 transition-all duration-300 h-full flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500">
               <LineChart className="w-48 h-48 text-emerald-600" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl shadow-emerald-50">
-                  <LineChart className="w-6 h-6" />
+              <div className="flex items-center gap-4 mb-8 sm:mb-10">
+                <div className="p-2.5 sm:p-3 bg-emerald-50 text-emerald-600 rounded-2xl shadow-emerald-50">
+                  <LineChart className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                <div className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">
                   Total Income
                 </div>
               </div>
 
               <div>
-                <div className="text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Total Revenue</div>
-                <div className="text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter mb-4">
+                <div className="text-[11px] sm:text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Total Revenue</div>
+                <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter mb-4">
                   {summary.totalIncome.toLocaleString()}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-xs font-black text-emerald-600 uppercase tracking-widest">Confirmed Records</span>
+                  <span className="text-[9px] sm:text-xs font-black text-emerald-600 uppercase tracking-widest">Confirmed Records</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Total Expenses */}
-          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+          <div className="relative overflow-hidden group bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 
             hover:shadow-md hover:border-rose-100 transition-all duration-300 h-full flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500">
               <AreaChart className="w-48 h-48 text-rose-600" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl shadow-rose-50">
-                  <AreaChart className="w-6 h-6" />
+              <div className="flex items-center gap-4 mb-8 sm:mb-10">
+                <div className="p-2.5 sm:p-3 bg-rose-50 text-rose-600 rounded-2xl shadow-rose-50">
+                  <AreaChart className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                <div className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">
                   Total Expenses
                 </div>
               </div>
 
               <div>
-                <div className="text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Total Spent</div>
-                <div className="text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter mb-4">
+                <div className="text-[11px] sm:text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Total Spent</div>
+                <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tighter mb-4">
                   {summary.totalExpense.toLocaleString()}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                  <span className="text-xs font-black text-rose-600 uppercase tracking-widest">Confirmed Payments</span>
+                  <span className="text-[9px] sm:text-xs font-black text-rose-600 uppercase tracking-widest">Confirmed Payments</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Net Profit */}
-          <div className="relative overflow-hidden group bg-white rounded-3xl p-8 shadow-sm border border-slate-200 
+          <div className="sm:col-span-2 lg:col-span-1 relative overflow-hidden group bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 
             hover:shadow-md transition-all duration-300 h-full flex flex-col justify-between">
             <div className={`absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-all duration-500 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
               <Scale className="w-48 h-48" />
             </div>
             <div className="relative z-10 flex flex-col h-full justify-between">
-              <div className="flex items-center gap-4 mb-10">
-                <div className={`p-3 rounded-2xl ${summary.netProfit >= 0 ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>
-                  <Scale className="w-6 h-6" />
+              <div className="flex items-center gap-4 mb-8 sm:mb-10">
+                <div className={`p-2.5 sm:p-3 rounded-2xl ${summary.netProfit >= 0 ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}`}>
+                  <Scale className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="text-[11px] font-black uppercase tracking-widest text-slate-400">
+                <div className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">
                    {summary.netProfit >= 0 ? 'Total Profit' : 'Total Loss'}
                 </div>
               </div>
 
               <div>
-                <div className="text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Final Balance</div>
-                <div className={`text-5xl lg:text-6xl font-black tracking-tighter mb-4 text-slate-900`}>
+                <div className="text-[11px] sm:text-sm font-bold text-slate-400 mb-1">{settings.currencySymbol} Final Balance</div>
+                <div className={`text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter mb-4 text-slate-900`}>
                   {Math.abs(summary.netProfit).toLocaleString()}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] border ${summary.netProfit >= 0
+                  <span className={`text-[9px] sm:text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em] border ${summary.netProfit >= 0
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                     : 'bg-rose-50 text-rose-700 border-rose-100'
                     }`}>
@@ -257,16 +257,16 @@ const AdminDashboard = () => {
 
         {/* Action Buttons */}
         {!isAuditor && (
-          <div className="flex flex-wrap justify-end gap-4 pb-8 border-b border-slate-200/60">
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pb-8 border-b border-slate-200/60">
             <button
               onClick={() => setActiveModal('INCOME')}
               className="group px-7 py-3.5 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-500/25
                 hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-300 
-                active:scale-95 flex items-center gap-3 relative overflow-hidden"
+                active:scale-95 flex items-center justify-center sm:justify-start gap-3 relative overflow-hidden text-sm"
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
               <span className="relative z-10 flex items-center gap-2">
-                <span className="text-xl leading-none font-light mb-1">+</span> New Income
+                <span className="text-lg leading-none font-light mb-1">+</span> Income Entry
               </span>
             </button>
 
@@ -274,22 +274,22 @@ const AdminDashboard = () => {
               onClick={() => setActiveModal('EXPENSE')}
               className="group px-7 py-3.5 bg-rose-600 text-white rounded-2xl font-bold shadow-lg shadow-rose-500/25
                 hover:bg-rose-500 hover:shadow-xl hover:shadow-rose-500/40 hover:-translate-y-0.5 transition-all duration-300 
-                active:scale-95 flex items-center gap-3 relative overflow-hidden"
+                active:scale-95 flex items-center justify-center sm:justify-start gap-3 relative overflow-hidden text-sm"
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
               <span className="relative z-10 flex items-center gap-2">
-                <span className="text-xl leading-none font-light mb-1">+</span> New Expense
+                <span className="text-lg leading-none font-light mb-1">+</span> Expense Entry
               </span>
             </button>
             {(user?.role === 'SUPERADMIN' || user?.permissions?.canAccessPayroll) && <button
               onClick={() => setActiveModal('PAYROLL')}
               className="group px-7 py-3.5 bg-teal-600 text-white rounded-2xl font-bold shadow-lg shadow-teal-500/25
                 hover:bg-teal-500 hover:shadow-xl hover:shadow-teal-500/40 hover:-translate-y-0.5 transition-all duration-300 
-                active:scale-95 flex items-center gap-3 relative overflow-hidden"
+                active:scale-95 flex items-center justify-center sm:justify-start gap-3 relative overflow-hidden text-sm"
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
               <span className="relative z-10 flex items-center gap-2">
-                <span className="text-xl leading-none font-light mb-1">+</span> New Payroll
+                <span className="text-lg leading-none font-light mb-1">+</span> Payroll Entry
               </span>
             </button>}
           </div>
@@ -301,10 +301,10 @@ const AdminDashboard = () => {
           {hasFinancialAccess && (
             <section>
               <div className="mb-8 flex items-center gap-4">
-                <div className="w-2 h-8 bg-indigo-600 rounded-full" />
+                <div className="w-1.5 h-6 sm:w-2 sm:h-8 bg-indigo-600 rounded-full" />
                 <div>
-                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">Core Financial Reports</h2>
-                  <p className="text-slate-500 font-medium">Accounting statements and operational summaries.</p>
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Core Financial Reports</h2>
+                  <p className="text-[13px] sm:text-base text-slate-500 font-medium">Accounting statements and operational summaries.</p>
                 </div>
               </div>
 

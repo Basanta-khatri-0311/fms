@@ -157,58 +157,58 @@ const VendorManagement = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Vendor Identity</th>
-                                    <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Status</th>
-                                    <th className="px-8 py-6 text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Total Due / Advance</th>
-                                    <th className="px-8 py-6 text-right text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Actions</th>
+                                    <th className="px-4 lg:px-8 py-6 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Vendor Identity</th>
+                                    <th className="px-4 lg:px-8 py-6 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Status</th>
+                                    <th className="px-4 lg:px-8 py-6 text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Due / Advance</th>
+                                    <th className="px-4 lg:px-8 py-6 text-right text-[9px] lg:text-[11px] font-black uppercase text-slate-400 tracking-widest leading-none">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredVendors.map((vendor) => (
                                     <tr key={vendor._id} className="hover:bg-slate-50/50 transition-all group">
-                                        <td className="px-8 py-5">
+                                        <td className="px-4 lg:px-8 py-5">
                                             <button 
                                                 onClick={() => setHistoryEntityId(vendor._id)}
-                                                className="flex items-center gap-4 group/item text-left transition-all hover:scale-[1.01]"
+                                                className="flex items-center gap-3 lg:gap-4 group/item text-left transition-all hover:scale-[1.01]"
                                             >
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-sm uppercase group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
+                                                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-[12px] lg:text-sm uppercase group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all">
                                                     {vendor.name.substring(0, 2)}
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-black text-slate-900 leading-tight group-hover/item:text-indigo-600 transition-colors">{vendor.name}</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded uppercase tracking-tighter">PAN: {vendor.pan}</span>
-                                                        <span className="text-[10px] text-slate-300">|</span>
-                                                        <span className="text-[10px] font-medium text-slate-400 group-hover/item:text-slate-500">{vendor.email || 'No Email'}</span>
+                                                <div className="min-w-0">
+                                                    <p className="text-[13px] lg:text-sm font-black text-slate-900 leading-tight group-hover/item:text-indigo-600 transition-colors truncate">{vendor.name}</p>
+                                                    <div className="flex items-center gap-2 mt-1 truncate">
+                                                        <span className="text-[9px] lg:text-[10px] font-bold px-1 py-0.5 bg-slate-100 text-slate-500 rounded uppercase tracking-tighter whitespace-nowrap">PAN: {vendor.pan}</span>
+                                                        <span className="text-[9px] lg:text-[10px] text-slate-300">|</span>
+                                                        <span className="text-[9px] lg:text-[10px] font-medium text-slate-400 group-hover/item:text-slate-500 truncate">{vendor.email || 'No Email'}</span>
                                                     </div>
                                                 </div>
                                             </button>
                                         </td>
-                                        <td className="px-8 py-5">
+                                        <td className="px-4 lg:px-8 py-5">
                                             <button 
                                                 onClick={() => setConfirmStatusData({ 
                                                     vendor, 
                                                     newStatus: vendor.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
                                                 })}
-                                                className={`px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all flex items-center gap-2 ${
+                                                className={`px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-[8px] lg:text-[10px] font-black tracking-widest uppercase transition-all flex items-center gap-1.5 whitespace-nowrap ${
                                                     vendor.status === 'ACTIVE' 
                                                         ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' 
                                                         : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
                                                 }`}
                                             >
-                                                <div className={`w-1.5 h-1.5 rounded-full ${vendor.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                                                <div className={`w-1 lg:w-1.5 h-1 lg:h-1.5 rounded-full ${vendor.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
                                                 {vendor.status}
                                             </button>
                                         </td>
-                                        <td className="px-8 py-5">
-                                            <p className={`text-sm font-black ${vendor.balance < 0 ? 'text-rose-600' : vendor.balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                        <td className="px-4 lg:px-8 py-5">
+                                            <p className={`text-[12px] lg:text-sm font-black whitespace-nowrap ${vendor.balance < 0 ? 'text-rose-600' : vendor.balance > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
                                                 {settings.currencySymbol} {Math.abs(vendor.balance || 0).toLocaleString()}
-                                                <span className="text-[10px] ml-1 font-bold uppercase opacity-60">
+                                                <span className="hidden lg:inline text-[10px] ml-1 font-bold uppercase opacity-60">
                                                     {vendor.balance < 0 ? '(Payable)' : vendor.balance > 0 ? '(Credit)' : ''}
                                                 </span>
                                             </p>
                                         </td>
-                                        <td className="px-8 py-5 text-right">
+                                        <td className="px-4 lg:px-8 py-5 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button
                                                     onClick={() => { setActiveVendor(vendor); setIsModalOpen(true); }}
