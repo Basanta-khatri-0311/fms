@@ -20,7 +20,7 @@ const buildAttachmentUrl = (path) => {
 const TransactionCardsMobile = ({ rows, user, onAction, onEdit, actionLoading, onInvoice, onViewHistory }) => {
   const { settings } = useSystemSettings();
   return (
-    <div className="lg:hidden space-y-4">
+    <div className="md:hidden space-y-4">
     {rows.length > 0 ? (
       rows.map((item) => {
         const isInc = item.type === 'INCOME';

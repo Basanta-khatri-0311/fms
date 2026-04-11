@@ -79,7 +79,7 @@ const AdminDashboard = () => {
     { id: 'purchase-register', name: 'Purchase Register', icon: <ShoppingBag className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Khariid Khaataa)' },
     { id: 'sales-register', name: 'Sales Register', icon: <ShoppingCart className="w-5 h-5" />, color: 'amber', implemented: true, subtitle: '(Bikrii Khaataa)' },
     { id: 'annex13', name: 'Annex 13', icon: <ClipboardList className="w-5 h-5" />, color: 'amber', implemented: true },
-    { id: 'tds-report', name: 'TDS Reports', icon: <Scale className="w-5 h-5" />, color: 'indigo', implemented: true },
+    { id: 'tds-report', name: 'TDS Reports', icon: <Scale className="w-5 h-5" />, color: 'amber', implemented: true },
   ];
 
   if (loading || settingsLoading) {
@@ -321,11 +321,11 @@ const AdminDashboard = () => {
                       }`}
                   >
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50 shrink-0
-                      ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white'}
-                      ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}
-                      ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'}
-                      ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}
-                      ${report.color === 'rose' && 'bg-linear-to-br from-rose-100 to-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}
+                      ${report.color === 'violet' && 'bg-linear-to-br from-violet-100 to-violet-50 text-violet-600'}
+                      ${report.color === 'emerald' && 'bg-linear-to-br from-emerald-100 to-emerald-50 text-emerald-600'}
+                      ${report.color === 'blue' && 'bg-linear-to-br from-blue-100 to-blue-50 text-blue-600'}
+                      ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600'}
+                      ${report.color === 'rose' && 'bg-linear-to-br from-rose-100 to-rose-50 text-rose-600'}
                       ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
                       {report.icon}
                     </div>
@@ -377,8 +377,8 @@ const AdminDashboard = () => {
                       }`}
                   >
                     <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm border border-white/50 shrink-0
-                      ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white'}
-                      ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}
+                      ${report.color === 'amber' && 'bg-linear-to-br from-amber-100 to-amber-50 text-amber-600'}
+                      ${report.color === 'indigo' && 'bg-linear-to-br from-indigo-100 to-indigo-50 text-indigo-600'}
                       ${report.implemented ? 'transition-all duration-500 group-hover:shadow-lg shadow-slate-200' : ''}`}>
                       {report.icon}
                     </div>
