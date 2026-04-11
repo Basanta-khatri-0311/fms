@@ -3,6 +3,7 @@ const Payroll = require('./payroll.model');
 const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const SystemSetting = require('../../system/SystemSetting.model');
+const { validateAuditControls } = require('../../../utils/auditControls');
 
 const round = (num) => Math.round(num * 100) / 100;
 
@@ -63,6 +64,10 @@ const buildPayrollPayload = async (data, user, existing = null) => {
 
 //create payroll
 exports.createPayroll = async (payrollData, user) => {
+    const settings = await SystemSetting.findOne();
+    // paymentMonth is YYYY-MM if from HTML input, which Date() handles fine
+    validateAuditControls(payrollData.paymentMonth || new Date(), user, settings);
+
     const payload = await buildPayrollPayload(payrollData, user);
     return await Payroll.create(payload);
 };
@@ -90,11 +95,15 @@ exports.updatePayroll = async (id, updateData, user) => {
     const payroll = await Payroll.findById(id);
     if (!payroll) throw new Error('Payroll entry not found');
 
+    const settings = await SystemSetting.findOne();
+    validateAuditControls(payroll.paymentMonth || payroll.createdAt, user, settings);
+    if (updateData.paymentMonth) validateAuditControls(updateData.paymentMonth, user, settings);
+
     if (payroll.approval.status === ACCOUNTING_STATUS.APPROVED) {
         throw new Error('Approved payroll cannot be modified');
     }
 
     const payload = await buildPayrollPayload(updateData, user, payroll);
-    Object.assign(payroll, payload);
+    Object.assign(payroll, payroll.toObject(), payload);
     return await payroll.save();
 };

@@ -1,6 +1,7 @@
 const Expense = require('./expense.model');
 const { USER_ROLES } = require('../../../constants/roles');
 const SystemSetting = require('../../system/SystemSetting.model');
+const { validateAuditControls } = require('../../../utils/auditControls');
 
 const buildExpensePayload = async (data, user, existing = null) => {
   // conversion to Numbers
@@ -66,6 +67,9 @@ const buildExpensePayload = async (data, user, existing = null) => {
  * Create a new expense entry with payment tracking
  */
 exports.createExpense = async (data, user) => {
+  const settings = await SystemSetting.findOne();
+  validateAuditControls(data.billDate || new Date(), user, settings);
+
   const payload = await buildExpensePayload(data, user);
   return await Expense.create(payload);
 };
@@ -123,6 +127,11 @@ exports.updateExpenseStatus = async (id, status, user) => {
 exports.updateExpense = async (id, data, user) => {
   const expense = await Expense.findById(id);
   if (!expense) throw new Error('Expense not found');
+
+  const settings = await SystemSetting.findOne();
+  // Check both existing and new date (if provided)
+  validateAuditControls(expense.billDate || expense.createdAt, user, settings);
+  if (data.billDate) validateAuditControls(data.billDate, user, settings);
 
   if (expense.status !== 'PENDING') {
     throw new Error('Only PENDING expenses can be edited');

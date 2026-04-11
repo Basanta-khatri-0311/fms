@@ -4,6 +4,7 @@ const User = require('../../users/user.model');
 const { ACCOUNTING_STATUS } = require('../../../constants/accounting');
 const SystemSetting = require('../../system/SystemSetting.model');
 const { generateInvoiceNumber } = require('../../../utils/generateInvoice');
+const { validateAuditControls } = require('../../../utils/auditControls');
 
 const buildIncomePayload = async (data, user, existing = null) => {
   // Explicitly parsed to prevent "12000" + 135 = "12000135"
@@ -73,6 +74,10 @@ const buildIncomePayload = async (data, user, existing = null) => {
 };
 //create income
 exports.createIncome = async (data, user) => {
+  const settings = await SystemSetting.findOne();
+  // For Income, we use the current date as the transaction date if no date field exists
+  validateAuditControls(new Date(), user, settings);
+
   const payload = await buildIncomePayload(data, user);
   return await Income.create(payload);
 };
@@ -100,6 +105,10 @@ exports.updateIncomeStatus = async (id, status, user) => {
 exports.updateIncome = async (id, data, user) => {
   const income = await Income.findById(id);
   if (!income) throw new Error('Income record not found');
+
+  const settings = await SystemSetting.findOne();
+  // Check if existing record falls within locked period
+  validateAuditControls(income.createdAt, user, settings);
 
   if (income.status !== ACCOUNTING_STATUS.PENDING) {
     throw new Error('Only PENDING incomes can be edited');
