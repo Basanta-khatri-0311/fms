@@ -35,7 +35,7 @@ app.use(helmet({
 
 // Limit requests from same API
 const limiter = rateLimit({
-    max: 1000, // Increased for dev
+    max: 500,
     windowMs: 15 * 60 * 1000, 
     message: 'Too many requests from this IP, please try again in 15 minutes!'
 })
@@ -56,14 +56,15 @@ const getOrigins = () => {
     ].filter(Boolean).map(o => o.replace(/\/$/, ''));
 };
 
-const allowedOrigins = getOrigins();
-
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         
-        if (allowedOrigins.includes(origin)) {
+        const currentAllowedOrigins = getOrigins();
+        
+        if (currentAllowedOrigins.includes(origin) || 
+            origin === 'https://fms-bk.netlify.app' || 
+            process.env.NODE_ENV === 'development') {
             callback(null, true);
         } else {
             console.warn(`Blocked by CORS: Origin ${origin} is not in allowed list.`);
