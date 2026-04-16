@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, Filter, ShieldCheck, Mail, ShieldAlert, UserPlus, Trash2, Edit3, CheckCircle2, XCircle } from 'lucide-react';
+import { Users, Search, Filter, ShieldCheck, Mail, ShieldAlert, UserPlus, Trash2, Edit3, CheckCircle2 } from 'lucide-react';
 import API from '../../api/axiosConfig';
 import AddUserModal from './modals/AddUserModal';
 import EntityHistoryModal from '../../components/modals/EntityHistoryModal';
-import Toast from '../../components/Toast';
+import { showNotification } from '../../utils/toast';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
     const [users, setUsers] = useState([]);
     const [activeUser, setActiveUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const [confirmStatusData, setConfirmStatusData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,16 +24,12 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
             const query = type === 'student' ? 'role=STUDENT' : 'excludeRole=STUDENT';
             const { data } = await API.get(`/users?${query}`);
             setUsers(data.data || data.users || (Array.isArray(data) ? data : []));
-        } catch (err) { 
-            console.error(err); 
-            triggerToast("Failed to load user records", "error");
+        } catch (err) {
+            console.error(err);
+            showNotification('error', "Failed to load user records");
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const triggerToast = (message, type = 'success') => {
-        setToast({ show: true, message, type });
     };
 
     const handleToggleStatus = async () => {
@@ -44,17 +39,17 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
         try {
             await API.patch(`/users/${user._id}/status`, { status: newStatus });
             fetchUsers();
-            triggerToast(`${type.charAt(0).toUpperCase() + type.slice(1)} ${newStatus.toLowerCase()} successfully`, "warning");
+            showNotification('warning', `${type.charAt(0).toUpperCase() + type.slice(1)} ${newStatus.toLowerCase()} successfully`);
         } catch (err) {
-            triggerToast(err.response?.data?.message || "Status update failed", "error");
+            showNotification('error', err.response?.data?.message || "Status update failed");
         } finally {
             setConfirmStatusData(null);
         }
     };
 
     const filteredUsers = users.filter(user => {
-        const matchesSearch = 
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        const matchesSearch =
+            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.email.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === '' || user.status === statusFilter;
         return matchesSearch && matchesStatus;
@@ -88,7 +83,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div className="md:col-span-2 relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-                    <input 
+                    <input
                         type="text"
                         placeholder={`Search ${type}s by name or email...`}
                         className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-semibold text-sm shadow-sm"
@@ -98,7 +93,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                 </div>
                 <div className="relative">
                     <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
-                    <select 
+                    <select
                         className="w-full pl-12 pr-8 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-500/5 focus:border-indigo-500 transition-all font-bold text-sm shadow-sm appearance-none text-slate-700"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -129,7 +124,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                             {searchQuery ? `We couldn't find any results matching "${searchQuery}".` : `There are no ${statusFilter.toLowerCase() || 'registered'} ${type}s in the system currently.`}
                         </p>
                         {(searchQuery || statusFilter) && (
-                            <button 
+                            <button
                                 onClick={() => { setSearchQuery(''); setStatusFilter(''); }}
                                 className="mt-8 text-indigo-600 font-black text-xs uppercase tracking-widest hover:text-indigo-700 underline underline-offset-8"
                             >
@@ -153,7 +148,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                                 {filteredUsers.map((user) => (
                                     <tr key={user._id} className="hover:bg-slate-50/50 transition-all group">
                                         <td className="px-4 lg:px-10 py-6">
-                                            <button 
+                                            <button
                                                 onClick={() => setHistoryEntityId(user._id)}
                                                 className="flex items-center gap-3 lg:gap-5 group/item text-left hover:scale-[1.01] transition-all"
                                             >
@@ -179,9 +174,8 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                                             </div>
                                         </td>
                                         <td className="px-4 lg:px-10 py-6">
-                                            <div className={`inline-flex items-center gap-2 px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-xl lg:rounded-2xl text-[8px] lg:text-[10px] font-black tracking-widest uppercase whitespace-nowrap ${
-                                                user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100' : 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
-                                            }`}>
+                                            <div className={`inline-flex items-center gap-2 px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-xl lg:rounded-2xl text-[8px] lg:text-[10px] font-black tracking-widest uppercase whitespace-nowrap ${user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100' : 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
+                                                }`}>
                                                 <div className={`w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${user.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
                                                 {user.status}
                                             </div>
@@ -202,13 +196,12 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                                                 </button>
                                                 {user.role !== 'SUPERADMIN' ? (
                                                     <button
-                                                        onClick={() => setConfirmStatusData({ 
-                                                            user, 
-                                                            newStatus: user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
+                                                        onClick={() => setConfirmStatusData({
+                                                            user,
+                                                            newStatus: user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
                                                         })}
-                                                        className={`p-3 rounded-2xl transition-all ${
-                                                            user.status === 'ACTIVE' ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
-                                                        }`}
+                                                        className={`p-3 rounded-2xl transition-all ${user.status === 'ACTIVE' ? 'text-slate-400 hover:text-rose-600 hover:bg-rose-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'
+                                                            }`}
                                                         title={user.status === 'ACTIVE' ? 'Deactivate Account' : 'Reactivate Account'}
                                                     >
                                                         {user.status === 'ACTIVE' ? <Trash2 size={18} /> : <CheckCircle2 size={18} />}
@@ -235,7 +228,7 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                     onClose={() => setIsModalOpen(false)}
                     refreshData={() => {
                         fetchUsers();
-                        triggerToast(activeUser ? "Account settings updated" : "New user identity established");
+                        showNotification('success', activeUser ? "Account settings updated" : "New user identity established");
                     }}
                 />
             )}
@@ -257,14 +250,6 @@ const UserManagement = ({ type = 'employee', title = 'User Directory' }) => {
                 onConfirm={handleToggleStatus}
                 onCancel={() => setConfirmStatusData(null)}
             />
-
-            {toast.show && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast({ ...toast, show: false })}
-                />
-            )}
         </div>
     );
 };

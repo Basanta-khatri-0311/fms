@@ -303,14 +303,7 @@ exports.generateBalanceSheet = async (financialYear, branch = null) => {
   const totalEquity = netProfit;
   const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
-  // // Debug logging
-  // console.log('=== BALANCE SHEET DEBUG ===');
-  // console.log('Total Assets:', totalAssets);
-  // console.log('Total Liabilities:', totalLiabilities);
-  // console.log('Total Equity:', totalEquity);
-  // console.log('Total L+E:', totalLiabilitiesAndEquity);
-  // console.log('Difference:', Math.abs(totalAssets - totalLiabilitiesAndEquity));
-  // console.log('Is Balanced:', Math.abs(totalAssets - totalLiabilitiesAndEquity) < 0.01);
+
 
   return {
     assets: {

@@ -4,7 +4,7 @@ import { useSystemSettings } from '../../context/SystemSettingsContext';
 import API from '../../api/axiosConfig';
 import AddVendorModal from './modals/AddVendorModal';
 import EntityHistoryModal from '../../components/modals/EntityHistoryModal';
-import Toast from '../../components/Toast';
+import { showNotification } from '../../utils/toast';
 import ConfirmDialog from '../../components/shared/ConfirmDialog';
 
 const VendorManagement = () => {
@@ -12,7 +12,6 @@ const VendorManagement = () => {
     const [vendors, setVendors] = useState([]);
     const [activeVendor, setActiveVendor] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const [confirmStatusData, setConfirmStatusData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -29,14 +28,10 @@ const VendorManagement = () => {
             setVendors(data.data || (Array.isArray(data) ? data : []));
         } catch (err) { 
             console.error(err); 
-            triggerToast("Failed to fetch vendors", "error");
+            showNotification('error', "Failed to fetch vendors");
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const triggerToast = (message, type = 'success') => {
-        setToast({ show: true, message, type });
     };
 
     const handleToggleStatus = async () => {
@@ -46,9 +41,9 @@ const VendorManagement = () => {
         try {
             await API.patch(`/vendors/${vendor._id}/status`, { status: newStatus });
             fetchVendors();
-            triggerToast(`Vendor ${newStatus.toLowerCase()} successfully`, "warning");
+            showNotification('warning', `Vendor ${newStatus.toLowerCase()} successfully`);
         } catch (err) {
-            triggerToast(err.response?.data?.message || "Status update failed", "error");
+            showNotification('error', err.response?.data?.message || "Status update failed");
         } finally {
             setConfirmStatusData(null);
         }
@@ -59,9 +54,9 @@ const VendorManagement = () => {
         try {
             await API.delete(`/vendors/${confirmDeleteData._id}`);
             fetchVendors();
-            triggerToast("Vendor deleted successfully", "success");
+            showNotification('success', "Vendor deleted successfully");
         } catch (err) {
-            triggerToast(err.response?.data?.message || "Deletion failed", "error");
+            showNotification('error', err.response?.data?.message || "Deletion failed");
         } finally {
             setConfirmDeleteData(null);
         }
@@ -264,7 +259,7 @@ const VendorManagement = () => {
                     onClose={() => setIsModalOpen(false)}
                     refreshData={() => {
                         fetchVendors();
-                        triggerToast(activeVendor ? "Vendor details updated" : "New vendor registered");
+                        showNotification('success', activeVendor ? "Vendor details updated" : "New vendor registered");
                     }}
                 />
             )}
@@ -299,14 +294,6 @@ const VendorManagement = () => {
                 onConfirm={handleToggleStatus}
                 onCancel={() => setConfirmStatusData(null)}
             />
-
-            {toast.show && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast({ ...toast, show: false })}
-                />
-            )}
         </div>
     );
 };

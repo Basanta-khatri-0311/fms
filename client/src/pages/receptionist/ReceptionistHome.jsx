@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import QuickActionCard from '../../components/dashboard/QuickActionCard';
 import IncomeModal from './modals/IncomeEntryModal';
 import ExpenseModal from './modals/ExpenseEntryModal';
 import PayrollModal from './modals/PayrollEntryModal';
@@ -79,7 +78,6 @@ const ReceptionistDashboard = () => {
       {activeModal === 'INCOME' && <IncomeModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'EXPENSE' && <ExpenseModal onClose={() => setActiveModal(null)} />}
       {activeModal === 'PAYROLL' && canAccessPayroll && <PayrollModal onClose={() => setActiveModal(null)} />}
-      {/* {activeModal === 'ADVANCE' && <AdvanceModal onClose={() => setActiveModal(null)} />} */}
       </div>
     </div>
   );

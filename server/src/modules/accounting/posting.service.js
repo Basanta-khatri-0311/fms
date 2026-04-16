@@ -343,24 +343,24 @@ if (entryType === ENTRY_TYPE.INCOME) {
   const debitTotal = round(debitLines.reduce((sum, line) => sum + line.amount, 0));
   const creditTotal = round(creditLines.reduce((sum, line) => sum + line.amount, 0));
 
-  console.log('\n========== POSTING TO LEDGER ==========');
-  console.log(`Type: ${entryType}`);
-  console.log(`Entry ID: ${entry._id}`);
-  console.log('\nDEBIT LINES:');
-  debitLines.forEach((line, i) => {
-    console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
-  });
-  console.log(`TOTAL DEBIT: ${debitTotal.toFixed(2)}`);
+  // console.log('\n========== POSTING TO LEDGER ==========');
+  // console.log(`Type: ${entryType}`);
+  // console.log(`Entry ID: ${entry._id}`);
+  // console.log('\nDEBIT LINES:');
+  // debitLines.forEach((line, i) => {
+  //   console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
+  // });
+  // console.log(`TOTAL DEBIT: ${debitTotal.toFixed(2)}`);
   
-  console.log('\nCREDIT LINES:');
-  creditLines.forEach((line, i) => {
-    console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
-  });
-  console.log(`TOTAL CREDIT: ${creditTotal.toFixed(2)}`);
+  // console.log('\nCREDIT LINES:');
+  // creditLines.forEach((line, i) => {
+  //   console.log(`  ${i + 1}. Amount: ${line.amount.toFixed(2)}`);
+  // });
+  // console.log(`TOTAL CREDIT: ${creditTotal.toFixed(2)}`);
   
-  const difference = round(debitTotal - creditTotal);
-  console.log(`\nDIFFERENCE: ${difference.toFixed(2)}`);
-  console.log('=====================================\n');
+  // const difference = round(debitTotal - creditTotal);
+  // console.log(`\nDIFFERENCE: ${difference.toFixed(2)}`);
+  // console.log('=====================================\n');
 
   // Allow 1 paisa difference for rounding
   if (Math.abs(difference) > 0.01) {
