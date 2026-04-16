@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5500/api', //server url
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5500/api',
 });
 
 // Automatically add the token to every request if it exists
