@@ -41,22 +41,38 @@ const limiter = rateLimit({
 })
 app.use('/api', limiter)
 
-// CORS - More permissive for local dev
-const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
-].filter(Boolean);
+// CORS Configuration
+const getOrigins = () => {
+    const origins = process.env.ALLOWED_ORIGINS 
+        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()) 
+        : [];
+    
+    return [
+        ...origins,
+        process.env.FRONTEND_URL,
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:5500'
+    ].filter(Boolean).map(o => o.replace(/\/$/, ''));
+};
+
+const allowedOrigins = getOrigins();
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.warn(`Blocked by CORS: Origin ${origin} is not in allowed list.`);
             callback(new Error('Not allowed by CORS'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }))
 
 // Body parser, reading data from body into req.body
