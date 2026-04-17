@@ -2,6 +2,7 @@
 
 An Enterprise-Grade, Modular Finance Management System built with the MERN stack (MongoDB, Express, React, Node.js). This application is designed specifically for organizations, educational institutions, or training centers to manage accounting, multi-role workflows, taxation compliance, and financial reporting.
 
+
 ## 🛠 Tech Stack
 
 - **Frontend:** React 19, Vite, TailwindCSS v4, React Router, Axios, Lucide React.
